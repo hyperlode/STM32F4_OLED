@@ -8,7 +8,7 @@
 
 #define HSE_VALUE ((uint32_t)8000000) /* STM32 discovery uses a 8Mhz external crystal */
 
-//#include "stm32f4xx_adc.h"
+#include "stm32f4xx_adc.h"
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_gpio.h"
@@ -19,7 +19,7 @@
 #include "usbd_desc.h"
 #include "usbd_cdc_vcp.h"
 #include "usb_dcd_int.h"
-//#include "stm32f4_discovery.h"
+#include "stm32f4_discovery.h"
 
 
 volatile uint32_t ticker, downTicker;
@@ -77,11 +77,11 @@ int main(void)
 	/* Initialize USB, IO, SysTick, and all those other things you do in the morning */
 	init();
 
-	////STM_EVAL_LEDInit(LED5);
-	//STM_EVAL_LEDOn(LED5);
+	STM_EVAL_LEDInit(LED5);
+	STM_EVAL_LEDOn(LED5);
 
 	//set up adc
-	//adc_configure();//Start configuration
+	adc_configure();//Start configuration
 
 	while (1)
 	{
@@ -122,7 +122,7 @@ int main(void)
 		blinkTheLED();
 
 		//red ADC value
-		//ConvertedValue = adc_convert();//Read the ADC converted value
+		ConvertedValue = adc_convert();//Read the ADC converted value
 	}
 
 	return 0;
@@ -260,7 +260,7 @@ void OTG_FS_WKUP_IRQHandler(void)
   }
   EXTI_ClearITPendingBit(EXTI_Line18);
 }
-/*
+/**/
 void adc_configure(){
 	ADC_InitTypeDef ADC_init_structure; //Structure for adc confguration
 	GPIO_InitTypeDef GPIO_initStructre; //Structure for analog input pin
@@ -293,4 +293,4 @@ int adc_convert(){
 	while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC));//Processing the conversion
 	return ADC_GetConversionValue(ADC1); //Return the converted data
 }
-*/
+/**/
