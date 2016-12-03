@@ -24,6 +24,15 @@
 
 volatile uint32_t ticker, downTicker;
 int ConvertedValue = 0; //Converted value readed from ADC
+
+
+
+uint16_t temp = 0;
+uint16_t vref = 0;
+uint16_t counter = 0;
+uint16_t pc0ADC=0;
+uint16_t  conversionEdgeMemory= 0;
+
 /*
  * The USB data must be 4 byte aligned if DMA is enabled. This macro handles
  * the alignment, if necessary (it's actually magic, but don't tell anyone).
@@ -79,24 +88,54 @@ int main(void)
 
 	STM_EVAL_LEDInit(LED5);
 	STM_EVAL_LEDOn(LED5);
-
+	STM_EVAL_LEDInit(LED3);
 	//set up adc
-	adc_configure();//Start configuration
+	//adc_configure();//Start configuration
+	adc_multiChannelConfigure();
 
 	while (1)
 	{
+
+		if (ticker >= 500 && conversionEdgeMemory ==0){
+			STM_EVAL_LEDToggle(LED3) ;
+			ADC_SoftwareStartConv(ADC1);
+			//conversionEdgeMemory = 0;
+		}
+
+
+		conversionEdgeMemory = ticker >= 500 ;
+
+
+
+		if (ticker>1000){
+			ticker =0;
+		}
+
+		//STM_EVAL_LEDOn(LED3) ;
+		/*
+		if (ticker < 500 && !conversionEdgeUp){
+			STM_EVAL_LEDOn(LED3) ;
+			conversionEdgeUp = 1;
+		}else if (ticker <1000 && conversionEdge ){
+			STM_EVAL_LEDOff(LED3);
+		}else{
+			ticker =0;
+
+		}
+		*/
 		/*
 		// Blink the orange LED at 1Hz
 		if (500 == ticker)
 		{
 			GPIOD->BSRRH = GPIO_Pin_13;
+
 		}
 		else if (1000 == ticker)
 		{
 			ticker = 0;
 			GPIOD->BSRRL = GPIO_Pin_13;
 		}
-*/
+/**/
 
 		// If there's data on the virtual serial port:
 		 //  - Echo it back
@@ -111,7 +150,14 @@ int main(void)
 			GPIOD->BSRRL = GPIO_Pin_12;
 			downTicker = 10;
 			printf("Char Sent/r/n");
-			printf ("value %d /r/n", ConvertedValue);
+			//printf ("value %d /r/n", ConvertedValue);
+			printf ("value TEMPERATURE %d /r/n", temp);
+			printf ("value VREF %d /r/n", vref);
+			printf ("value pc0 %d /r/n", pc0ADC);
+			printf ("ticker %d /r/n", ticker);
+
+
+
 		}
 
 		if (0 == downTicker)
@@ -122,7 +168,13 @@ int main(void)
 		blinkTheLED();
 
 		//red ADC value
-		ConvertedValue = adc_convert();//Read the ADC converted value
+		//ConvertedValue = adc_convert();//Read the ADC converted value
+
+
+
+
+
+
 	}
 
 	return 0;
@@ -260,18 +312,120 @@ void OTG_FS_WKUP_IRQHandler(void)
   }
   EXTI_ClearITPendingBit(EXTI_Line18);
 }
-/**/
+
+
+void adc_multiChannelConfigure(){
+
+	//set pin PC0 as analog in
+	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN,ENABLE);//Clock for the ADC port!! Do not forget about this one ;)
+	GPIO_InitTypeDef GPIO_initStructre; //Structure for analog input pin
+	//Analog pin configuration
+		GPIO_initStructre.GPIO_Pin = GPIO_Pin_0;//The channel 10 is connected to PC0
+		GPIO_initStructre.GPIO_Mode = GPIO_Mode_AN; //The PC0 pin is configured in analog mode
+		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL; //We don't need any pull up or pull down
+		GPIO_Init(GPIOC,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+
+	/* Unchanged: Define ADC init structures */
+	        ADC_InitTypeDef       ADC_InitStructure;
+	        ADC_CommonInitTypeDef ADC_CommonInitStructure;
+	        NVIC_InitTypeDef NVIC_InitStructure;
+
+	        /* Unchanged: populate default values before use */
+	        ADC_StructInit(&ADC_InitStructure);
+	        ADC_CommonStructInit(&ADC_CommonInitStructure);
+
+	        /* Unchanged: enable ADC peripheral */
+	        RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+
+	        /* Unchanged: init ADC */
+	        ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
+	        ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div2;
+	        ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+	        ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
+	        ADC_CommonInit(&ADC_CommonInitStructure);
+
+	        /* Changed: Enabled scan mode conversion*/
+	        ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+	        ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+	        ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+	        ADC_InitStructure.ADC_DataAlign= ADC_DataAlign_Right;
+	        ADC_InitStructure.ADC_ExternalTrigConv= 0;
+	        ADC_InitStructure.ADC_ExternalTrigConvEdge= 0;
+	        ADC_InitStructure.ADC_NbrOfConversion= 3;
+
+	        ADC_Init(ADC1, &ADC_InitStructure);
+
+	        /* Enable Vref & Temperature channel */
+	        ADC_TempSensorVrefintCmd(ENABLE);
+
+	        /* Configure channels */
+	        /* Temp sensor */
+	        ADC_RegularChannelConfig(ADC1, ADC_Channel_16, 1, ADC_SampleTime_480Cycles);
+	        /* VREF_int (2nd) */
+	        ADC_RegularChannelConfig(ADC1, ADC_Channel_17, 2, ADC_SampleTime_480Cycles);
+	        ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 3, ADC_SampleTime_480Cycles);
+
+
+	        ADC_EOCOnEachRegularChannelCmd(ADC1, ENABLE);
+
+	        /* Enable ADC interrupts */
+	        ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+
+	        /* Configure NVIC */
+	        NVIC_InitStructure.NVIC_IRQChannel = ADC_IRQn;
+	        NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+	        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+	        NVIC_Init(&NVIC_InitStructure);
+
+	        /* Enable ADC1 **************************************************************/
+	        ADC_Cmd(ADC1, ENABLE);
+
+
+}
+void ADC_IRQHandler() {
+        /* acknowledge interrupt */
+        uint16_t value;
+        ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
+
+        value = ADC_GetConversionValue(ADC1);
+		switch (counter){
+		   case 0:
+				temp = value;
+				counter++;
+				break;
+		   case 1:
+				vref = value;
+				counter++;
+				break;
+		   case 2:
+				pc0ADC = value;
+				counter =0;
+				break;
+		   default:
+			   break;
+		}
+
+
+
+}
+
+
+/*
 void adc_configure(){
 	ADC_InitTypeDef ADC_init_structure; //Structure for adc confguration
 	GPIO_InitTypeDef GPIO_initStructre; //Structure for analog input pin
+
 	//Clock configuration
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,ENABLE);//The ADC1 is connected the APB2 peripheral bus thus we will use its clock source
 	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN,ENABLE);//Clock for the ADC port!! Do not forget about this one ;)
+
 	//Analog pin configuration
 	GPIO_initStructre.GPIO_Pin = GPIO_Pin_0;//The channel 10 is connected to PC0
 	GPIO_initStructre.GPIO_Mode = GPIO_Mode_AN; //The PC0 pin is configured in analog mode
 	GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL; //We don't need any pull up or pull down
 	GPIO_Init(GPIOC,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+
 	//ADC structure configuration
 	ADC_DeInit();
 	ADC_init_structure.ADC_DataAlign = ADC_DataAlign_Right;//data converted will be shifted to right
@@ -282,15 +436,23 @@ void adc_configure(){
 	ADC_init_structure.ADC_NbrOfConversion = 1;//I think this one is clear :p
 	ADC_init_structure.ADC_ScanConvMode = DISABLE;//The scan is configured in one channel
 	ADC_Init(ADC1,&ADC_init_structure);//Initialize ADC with the previous configuration
+
 	//Enable ADC conversion
 	ADC_Cmd(ADC1,ENABLE);
+
 	//Select the channel to be read from
 	ADC_RegularChannelConfig(ADC1,ADC_Channel_10,1,ADC_SampleTime_144Cycles);
 }
+
+
+
+
+
+
 
 int adc_convert(){
 	ADC_SoftwareStartConv(ADC1);//Start the conversion
 	while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC));//Processing the conversion
 	return ADC_GetConversionValue(ADC1); //Return the converted data
 }
-/**/
+*/
