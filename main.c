@@ -30,10 +30,9 @@ int ConvertedValue = 0; //Converted value readed from ADC
 uint16_t temp = 0;
 uint16_t vref = 0;
 uint16_t counter = 0;
-uint16_t pc0ADC=0;
-uint16_t pc1ADC=0;
-uint16_t pc2ADC=0;
-uint16_t pc3ADC=0;
+
+uint16_t adcValues [4] ={};
+
 uint16_t  conversionEdgeMemory= 0;
 
 /*
@@ -156,10 +155,10 @@ int main(void)
 			//printf ("value %d /r/n", ConvertedValue);
 			printf ("value TEMPERATURE %d /r/n", temp);
 			printf ("value VREF %d /r/n", vref);
-			printf ("value pc0 %d /r/n", pc0ADC);
-			printf ("value pc1 %d /r/n", pc1ADC);
-			printf ("value pc2 %d /r/n", pc2ADC);
-			printf ("value pc3 %d /r/n", pc3ADC);
+
+			for (uint8_t i=0; i<4;i++){
+				printf ("value slider: %d = %d /r/n", i, adcValues[i]);
+			}
 			//printf ("ticker %d /r/n", ticker);
 
 
@@ -407,23 +406,14 @@ void ADC_IRQHandler() {
 				vref = value;
 				counter++;
 				break;
-		   case 2:
-				pc0ADC = value;
-				counter++;
-				break;
-		   case 3:
-				pc1ADC = value;
-				counter++;
-				break;
-		   case 4:
-				pc2ADC = value;
-				counter++;
-				break;
-		   case 5:
-				pc3ADC = value;
-				counter =0;
-				break;
+
+			//all the other channels.
 		   default:
+			   adcValues[counter - 2] = value;
+				counter++;
+				if (counter ==6){
+					counter =0;
+				}
 			   break;
 		}
 
