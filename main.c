@@ -31,6 +31,9 @@ uint16_t temp = 0;
 uint16_t vref = 0;
 uint16_t counter = 0;
 uint16_t pc0ADC=0;
+uint16_t pc1ADC=0;
+uint16_t pc2ADC=0;
+uint16_t pc3ADC=0;
 uint16_t  conversionEdgeMemory= 0;
 
 /*
@@ -154,7 +157,10 @@ int main(void)
 			printf ("value TEMPERATURE %d /r/n", temp);
 			printf ("value VREF %d /r/n", vref);
 			printf ("value pc0 %d /r/n", pc0ADC);
-			printf ("ticker %d /r/n", ticker);
+			printf ("value pc1 %d /r/n", pc1ADC);
+			printf ("value pc2 %d /r/n", pc2ADC);
+			printf ("value pc3 %d /r/n", pc3ADC);
+			//printf ("ticker %d /r/n", ticker);
 
 
 
@@ -316,11 +322,11 @@ void OTG_FS_WKUP_IRQHandler(void)
 
 void adc_multiChannelConfigure(){
 
-	//set pin PC0 as analog in
-	RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN,ENABLE);//Clock for the ADC port!! Do not forget about this one ;)
-	GPIO_InitTypeDef GPIO_initStructre; //Structure for analog input pin
-	//Analog pin configuration
-		GPIO_initStructre.GPIO_Pin = GPIO_Pin_0;//The channel 10 is connected to PC0
+		//set pin PC0 as analog in
+		RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN,ENABLE);//Clock for the ADC port!! Do not forget about this one ;)
+		GPIO_InitTypeDef GPIO_initStructre; //Structure for analog input pin
+		//Analog pin configuration
+		GPIO_initStructre.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3  ;//The channel 10 is connected to PC0
 		GPIO_initStructre.GPIO_Mode = GPIO_Mode_AN; //The PC0 pin is configured in analog mode
 		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL; //We don't need any pull up or pull down
 		GPIO_Init(GPIOC,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
@@ -351,7 +357,7 @@ void adc_multiChannelConfigure(){
 	        ADC_InitStructure.ADC_DataAlign= ADC_DataAlign_Right;
 	        ADC_InitStructure.ADC_ExternalTrigConv= 0;
 	        ADC_InitStructure.ADC_ExternalTrigConvEdge= 0;
-	        ADC_InitStructure.ADC_NbrOfConversion= 3;
+	        ADC_InitStructure.ADC_NbrOfConversion= 6;
 
 	        ADC_Init(ADC1, &ADC_InitStructure);
 
@@ -363,8 +369,11 @@ void adc_multiChannelConfigure(){
 	        ADC_RegularChannelConfig(ADC1, ADC_Channel_16, 1, ADC_SampleTime_480Cycles);
 	        /* VREF_int (2nd) */
 	        ADC_RegularChannelConfig(ADC1, ADC_Channel_17, 2, ADC_SampleTime_480Cycles);
-	        ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 3, ADC_SampleTime_480Cycles);
 
+	        ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 3, ADC_SampleTime_480Cycles); ///PC0  //channel10
+	        ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 4, ADC_SampleTime_480Cycles); ///PC0  //channel10
+	        ADC_RegularChannelConfig(ADC1, ADC_Channel_12, 5, ADC_SampleTime_480Cycles); ///PC0  //channel10
+	        ADC_RegularChannelConfig(ADC1, ADC_Channel_13, 6, ADC_SampleTime_480Cycles); ///PC0  //channel10
 
 	        ADC_EOCOnEachRegularChannelCmd(ADC1, ENABLE);
 
@@ -400,6 +409,18 @@ void ADC_IRQHandler() {
 				break;
 		   case 2:
 				pc0ADC = value;
+				counter++;
+				break;
+		   case 3:
+				pc1ADC = value;
+				counter++;
+				break;
+		   case 4:
+				pc2ADC = value;
+				counter++;
+				break;
+		   case 5:
+				pc3ADC = value;
 				counter =0;
 				break;
 		   default:
