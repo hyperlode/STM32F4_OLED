@@ -25,6 +25,10 @@ class IOBoard{
 	public:
 	IOBoard();
 	void initSlider(SliderNumber sliderNumberOnBoard, GPIOPinSlider adcPin);
+	void stats(char* outputString);
+
+	private:
+	bool isConstructed=0;
 
 	//uint16_t readSlider();
 

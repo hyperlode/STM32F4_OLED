@@ -12,8 +12,8 @@
 
 #include "main.h"
 
+char lodeStrTest []={'a','\0'};
 
-//IOBoard panel1;
 
 /*
  * The USB data must be 4 byte aligned if DMA is enabled. This macro handles
@@ -76,7 +76,12 @@ int main(void)
 	//set up adc
 	//adc_configure();//Start configuration
 	adc_multiChannelConfigure();
+	while (ticker < 500)
+	{
 
+
+	}
+	IOBoard panel1;
 
 	printf("Userinterface: \r\n");
 	printf("send 'v' for adc values \r\n");
@@ -125,7 +130,15 @@ int main(void)
 						printf ("value slider: %d = %d \r\n", i, adcValues[i]);
 					}
 
+				}else if (theByte == 's'){
+					panel1.stats(lodeStrTest);
+					printf ("lets do this: %s ", lodeStrTest);
+
+				}else if (theByte == 'a') {
+					printf("Doing some action here. \r\n");
 				}else{
+					IOBoard testje;
+
 					printf("No valid command detected: \r\n");
 
 				}
