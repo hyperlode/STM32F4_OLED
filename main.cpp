@@ -8,32 +8,12 @@
 
 #define HSE_VALUE ((uint32_t)8000000) /* STM32 discovery uses a 8Mhz external crystal */
 
-#include "stm32f4xx_adc.h"
-#include "stm32f4xx_conf.h"
-#include "stm32f4xx.h"
-#include "stm32f4xx_gpio.h"
-#include "stm32f4xx_rcc.h"
-#include "stm32f4xx_exti.h"
-#include "usbd_cdc_core.h"
-#include "usbd_usr.h"
-#include "usbd_desc.h"
-#include "usbd_cdc_vcp.h"
-#include "usb_dcd_int.h"
-#include "stm32f4_discovery.h"
 
 
-volatile uint32_t ticker, downTicker;
-int ConvertedValue = 0; //Converted value readed from ADC
+#include "main.h"
 
 
-
-uint16_t temp = 0;
-uint16_t vref = 0;
-uint16_t counter = 0;
-
-uint16_t adcValues [4] ={};
-
-uint16_t  conversionEdgeMemory= 0;
+//IOBoard panel1;
 
 /*
  * The USB data must be 4 byte aligned if DMA is enabled. This macro handles
@@ -42,8 +22,7 @@ uint16_t  conversionEdgeMemory= 0;
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
 
 
-void init();
-void ColorfulRingOfDeath(void);
+
 
 /*
  * Define prototypes for interrupt handlers here. The conditional "extern"
@@ -52,6 +31,9 @@ void ColorfulRingOfDeath(void);
 #ifdef __cplusplus
  extern "C" {
 #endif
+ void init();
+ void ColorfulRingOfDeath(void);
+
 
 void SysTick_Handler(void);
 void NMI_Handler(void);
@@ -95,37 +77,20 @@ int main(void)
 	//adc_configure();//Start configuration
 	adc_multiChannelConfigure();
 
+
+	printf("Userinterface: \r\n");
+	printf("send 'v' for adc values \r\n");
 	while (1)
 	{
-
 		if (ticker >= 500 && conversionEdgeMemory ==0){
 			STM_EVAL_LEDToggle(LED3) ;
 			ADC_SoftwareStartConv(ADC1);
-			//conversionEdgeMemory = 0;
 		}
-
-
 		conversionEdgeMemory = ticker >= 500 ;
-
-
-
 		if (ticker>1000){
 			ticker =0;
 		}
-
-		//STM_EVAL_LEDOn(LED3) ;
-		/*
-		if (ticker < 500 && !conversionEdgeUp){
-			STM_EVAL_LEDOn(LED3) ;
-			conversionEdgeUp = 1;
-		}else if (ticker <1000 && conversionEdge ){
-			STM_EVAL_LEDOff(LED3);
-		}else{
-			ticker =0;
-
-		}
-		*/
-		/*
+/*
 		// Blink the orange LED at 1Hz
 		if (500 == ticker)
 		{
@@ -146,19 +111,33 @@ int main(void)
 		uint8_t theByte;
 		if (VCP_get_char(&theByte))
 		{
-			VCP_put_char(theByte);
 
+
+			if ( theByte != '\r' &&  theByte != '\n'){
+				printf("Char Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
+
+				if ( theByte == 'v'){
+					//printf ("value %d /r/n", ConvertedValue);
+					printf ("value TEMPERATURE %d \r\n", temp);
+					printf ("value VREF %d \r\n", vref);
+
+					for (uint8_t i=0; i<4;i++){
+						printf ("value slider: %d = %d \r\n", i, adcValues[i]);
+					}
+
+				}else{
+					printf("No valid command detected: \r\n");
+
+				}
+			}
 
 			GPIOD->BSRRL = GPIO_Pin_12;
 			downTicker = 10;
-			printf("Char Sent/r/n");
-			//printf ("value %d /r/n", ConvertedValue);
-			printf ("value TEMPERATURE %d /r/n", temp);
-			printf ("value VREF %d /r/n", vref);
 
-			for (uint8_t i=0; i<4;i++){
-				printf ("value slider: %d = %d /r/n", i, adcValues[i]);
-			}
+
+
+
+
 			//printf ("ticker %d /r/n", ticker);
 
 
@@ -184,8 +163,9 @@ int main(void)
 
 	return 0;
 }
-
-
+#ifdef __cplusplus
+ extern "C" {
+#endif
 void init()
 {
 	/* STM32F4 discovery LEDs */
@@ -284,6 +264,7 @@ void blinkTheLED(void)
  * Interrupt Handlers
  */
 
+
 void SysTick_Handler(void)
 {
 	ticker++;
@@ -317,6 +298,7 @@ void OTG_FS_WKUP_IRQHandler(void)
   }
   EXTI_ClearITPendingBit(EXTI_Line18);
 }
+
 
 
 void adc_multiChannelConfigure(){
@@ -420,7 +402,9 @@ void ADC_IRQHandler() {
 
 
 }
-
+#ifdef __cplusplus
+ }
+#endif
 
 /*
 void adc_configure(){
