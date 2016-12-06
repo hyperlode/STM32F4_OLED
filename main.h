@@ -21,7 +21,6 @@
 	static uint16_t temp = 0;
 	static uint16_t vref = 0;
 	static uint16_t counter = 0;
-	static uint16_t adcValues [4] ={};
 	static uint16_t  conversionEdgeMemory= 0;
 
 	#include "stm32f4xx_adc.h"
@@ -36,7 +35,7 @@
 	#include "usbd_cdc_vcp.h"
 	#include "usb_dcd_int.h"
 	#include "stm32f4_discovery.h"
-	void adc_multiChannelConfigure();
+
 	void blinkTheLED();
 #ifdef __cplusplus
 	}

@@ -13,11 +13,8 @@
 
 typedef enum
 {
-  Panel1 = 0,
-  Panel2 = 1,
-  Panel3 = 2,
-  Panel4 = 3
-} PanelNumber;
+  PANEL_1 = 0
+} PanelId_TypeDef;
 
 
 typedef enum
@@ -26,32 +23,32 @@ typedef enum
   PC1 = 1,
   PC2 = 2,
   PC3 = 3
-} GPIOPinSlider;
+} GPIOPinSlider_TypeDef;
 
 
 typedef enum
 {
 	SLIDER_1, SLIDER_2, SLIDER_3, SLIDER_4
 
-} SliderNumber;
+} SliderNumber_TypeDef;
 
 
 
 
 class IOBoard{
 	public:
-	IOBoard();
-	void initSlider(SliderNumber sliderNumberOnBoard, GPIOPinSlider adcPin);
-	void stats(char* outputString);
-	void initADC();
-	void ADCInterruptHandler(uint16_t slider, uint16_t value);
-	uint16_t getSliderValue(uint16_t slider);
+		IOBoard(PanelId_TypeDef panelId);
+		void initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider_TypeDef adcPin);
+		void stats(char* outputString);
+		void initADC();
+		void ADCInterruptHandler(uint16_t slider, uint16_t value);
+		uint16_t getSliderValue(uint16_t slider);
 	private:
-	bool isConstructed=0;
-	bool isADCSetUp = false;
-	//uint16_t readSlider();
-	uint16_t sliderValues [4];
 
+		bool isADCSetUp = false;
+		//uint16_t readSlider();
+		uint16_t sliderValues [4];
+		PanelId_TypeDef panelId;
 
 };
 

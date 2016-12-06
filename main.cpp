@@ -73,13 +73,11 @@ int main(void)
 	STM_EVAL_LEDInit(LED5);
 	STM_EVAL_LEDOn(LED5);
 	STM_EVAL_LEDInit(LED3);
-	//set up adc
-	//adc_configure();//Start configuration
-	//adc_multiChannelConfigure();
 
-	IOBoard panel1;
+
+	IOBoard panel1(PANEL_1);
 	panel1.initADC();
-	IOBoardHandler = &panel1;
+	IOBoardHandler = &panel1; //link the panel instance to the handler.
 
 	printf("Userinterface: \r\n");
 	printf("send 'v' for adc values \r\n");
@@ -89,23 +87,11 @@ int main(void)
 			STM_EVAL_LEDToggle(LED3) ;
 			ADC_SoftwareStartConv(ADC1);
 		}
+
 		conversionEdgeMemory = ticker >= 500 ;
 		if (ticker>1000){
 			ticker =0;
 		}
-/*
-		// Blink the orange LED at 1Hz
-		if (500 == ticker)
-		{
-			GPIOD->BSRRH = GPIO_Pin_13;
-
-		}
-		else if (1000 == ticker)
-		{
-			ticker = 0;
-			GPIOD->BSRRL = GPIO_Pin_13;
-		}
-/**/
 
 		// If there's data on the virtual serial port:
 		 //  - Echo it back
@@ -114,8 +100,6 @@ int main(void)
 		uint8_t theByte;
 		if (VCP_get_char(&theByte))
 		{
-
-
 			if ( theByte != '\r' &&  theByte != '\n'){
 				printf("Char Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
 
@@ -125,36 +109,22 @@ int main(void)
 					printf ("value VREF %d \r\n", vref);
 
 					for (uint8_t i=0; i<4;i++){
-						printf ("value slider: %d = %d \r\n", i, adcValues[i]);
+						//printf ("value slider: %d = %d \r\n", i, adcValues[i]);
+						printf ("slider %d: %d \r\n", i, panel1.getSliderValue(i));
 					}
-
 				}else if (theByte == 's'){
-					//panel1.stats(lodeStrTest);
-					//printf ("lets do this: %s ", lodeStrTest);
-
-					printf ("slider 1: %d ", panel1.getSliderValue(0));
-
+					panel1.stats(lodeStrTest);
+					printf ("lets do this: %s ", lodeStrTest);
 				}else if (theByte == 'a') {
 					printf("Doing some action here. \r\n");
 				}else{
-					IOBoard testje;
-
-					printf("No valid command detected: \r\n");
-
+					//IOBoard testje;
+					printf("No valid command detected. Please send v, s or a . \r\n");
 				}
 			}
 
 			GPIOD->BSRRL = GPIO_Pin_12;
 			downTicker = 10;
-
-
-
-
-
-			//printf ("ticker %d /r/n", ticker);
-
-
-
 		}
 
 		if (0 == downTicker)
@@ -163,19 +133,12 @@ int main(void)
 		}
 
 		blinkTheLED();
-
-		//red ADC value
-		//ConvertedValue = adc_convert();//Read the ADC converted value
-
-
-
-
-
-
 	}
 
 	return 0;
 }
+
+
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -337,7 +300,6 @@ void ADC_IRQHandler() {
 
 			//all the other channels.
 		   default:
-			   adcValues[counter - 2] = value;
 			   IOBoardHandler->ADCInterruptHandler(counter - 2, value);
 				counter++;
 				if (counter ==6){
