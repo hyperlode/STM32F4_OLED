@@ -21,11 +21,13 @@ void IOBoard::readButtons(){
 		previousButtonValues[i] = buttonValues[i];
 	}
 
-	buttonValues [0] = !pinsStatePullUpLow [0] && !pinsStatePullUpHigh [0];
-	buttonValues [1] =  pinsStatePullUpLow [0] &&  pinsStatePullUpHigh [0];
-	buttonValues [2] = !pinsStatePullUpLow [1] && !pinsStatePullUpHigh [1];
-	buttonValues [3] =  pinsStatePullUpLow [1] &&  pinsStatePullUpHigh [1];
+	//determine button presses
+	buttonValues [0] = !pinsStatePullUpLow [0] && !pinsStatePullUpHigh [0];//low and low, means button connected to ground is switched
+	buttonValues [1] =  pinsStatePullUpLow [0] &&  pinsStatePullUpHigh [0];// high and high means button connected to VCC is switched
+	buttonValues [2] = !pinsStatePullUpLow [1] && !pinsStatePullUpHigh [1];//low and low, means button connected to ground is switched
+	buttonValues [3] =  pinsStatePullUpLow [1] &&  pinsStatePullUpHigh [1];// high and high means button connected to VCC is switched
 
+	//check for edges
 	for (uint8_t i=0; i<4;i++){
 		buttonEdgesPressed[i] = 	!previousButtonValues[i] &&  buttonValues [i];
 		buttonEdgesDePressed[i] = 	 previousButtonValues[i] && !buttonValues [i];
@@ -33,6 +35,7 @@ void IOBoard::readButtons(){
 		//buttonEdgesDePressed[i] = false;
 	}
 
+	//check if a state changed.
 	this->atLeastOneButtonStateChanged = false;
 	for (uint8_t i=0; i<4;i++){
 		//if (buttonEdgesPressed[i] || buttonEdgesDePressed[i]){
@@ -72,9 +75,23 @@ void IOBoard::readButtonsHigh(){
 }
 
 
-bool IOBoard::readButton(uint16_t button){
+bool IOBoard::getButtonState(uint16_t button){
 	return buttonValues [button];
+}
 
+bool IOBoard::getButtonEdgeDePressed(uint16_t button){
+	bool state;
+	state = buttonEdgesDePressed [button];
+	 buttonEdgesDePressed [button] = false;
+	return state;
+}
+
+bool IOBoard::getButtonEdgePressed(uint16_t button){
+	//make sure each edge can only be called once.
+	bool state;
+	state = buttonEdgesPressed [button];
+	buttonEdgesPressed [button] = false;
+	return state;
 }
 
 void IOBoard::initButtons(){

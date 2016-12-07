@@ -82,7 +82,8 @@ int main(void)
 	printf("send 'v' for adc values \r\n");
 	while (1)
 	{
-		if (ticker20ms>=19){
+		//button readout
+		if (ticker20ms>=20){
 			 ticker20msEdgeMemory= !ticker20msEdgeMemory;
 			if (ticker20msEdgeMemory){
 				panel1.readButtonsHigh();
@@ -93,22 +94,26 @@ int main(void)
 			ticker20ms =0;
 		}
 
-
-		if (panel1.getAtLeastOneButtonStateChanged()){
-			bool atLeastOneButtonPressed = 0;
-			for (uint16_t i = 0;i<4;i++){
-				if (panel1.readButton(i)){
-					printf("button %d pressed!\r\n", i);
-					atLeastOneButtonPressed = 1;
-				}
+		for (uint16_t i = 0;i<4;i++){
+			if (panel1.getButtonEdgeDePressed(i)){
+				printf("button %d edge unpressed!\r\n", i);
+				printf("-----------------\r\n");
 
 			}
-			if (atLeastOneButtonPressed){
-				printf("-----------------\r\n");
+			if (panel1.getButtonEdgePressed(i)){
+				printf("button %d edge pressed!\r\n", i);
 			}
 		}
 
+		//each second triggered
 		if (ticker >= 500 && conversionEdgeMemory ==0){
+
+			for (uint16_t i = 0;i<4;i++){
+				if (panel1.getButtonState(i)){
+					printf("button %d pressed!\r\n", i);
+				}
+			}
+
 			STM_EVAL_LEDToggle(LED3) ;
 			panel1.adcDoSingleConversion();
 

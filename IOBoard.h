@@ -46,7 +46,10 @@ class IOBoard{
 		void readButtons();
 		void readButtonsHigh();
 		void readButtonsLow();
-		bool readButton(uint16_t button);
+		bool getButtonState(uint16_t button);
+		bool getButtonEdgeDePressed(uint16_t button);
+		bool getButtonEdgePressed(uint16_t button);
+
 		bool getAtLeastOneButtonStateChanged();
 		void ADCInterruptHandler(uint16_t slider, uint16_t value);
 		uint16_t getSliderValue(uint16_t slider);
