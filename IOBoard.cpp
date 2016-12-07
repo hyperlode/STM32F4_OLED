@@ -3,6 +3,15 @@
 
 IOBoard::IOBoard(PanelId_TypeDef panelId){
 	this ->panelId = panelId;
+
+	if (panelId == PANEL_1){
+
+		ledAnodePins[0] = GPIO_Pin_2,
+		ledAnodePins[1] = GPIO_Pin_3;
+		ledAnodePins[2] = GPIO_Pin_4;
+		ledAnodePins[3] = GPIO_Pin_5;
+
+	}
 }
 
 void IOBoard::initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider_TypeDef adcPin){
@@ -117,9 +126,47 @@ void IOBoard::initButtons(){
 		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_DOWN;
 		GPIO_Init(GPIOB,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
 	}
-
-
 }
+
+void IOBoard::initLeds(){
+	//very specific
+	if (panelId == PANEL_1){
+		//leds
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+		//GPIO_InitTypeDef GPIO_initStructre; defined in .h file, has to be available because we work with two buttons on one pin...
+		//Analog pin configuration
+		GPIO_InitTypeDef GPIO_initStructre;
+		GPIO_initStructre.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 |  GPIO_Pin_4 | GPIO_Pin_5 ;
+		GPIO_initStructre.GPIO_Mode = GPIO_Mode_OUT ;
+		GPIO_initStructre.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_initStructre.GPIO_OType = GPIO_OType_PP;
+		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL;
+		GPIO_Init(GPIOA,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+
+		//common cathode pin always low.
+		GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+		//GPIO_SetBits(GPIOA, GPIO_Pin_2 |  GPIO_Pin_3 |  GPIO_Pin_4 |  GPIO_Pin_5 );
+	}
+}
+
+void IOBoard::scanLeds(){
+	for (uint8_t i=0; i<4;i++){
+		if (leds[i]){
+			GPIO_SetBits(GPIOA,this->ledAnodePins[i]);
+		}else{
+			GPIO_ResetBits(GPIOA,this->ledAnodePins[i]);
+		}
+	}
+}
+
+void IOBoard::setLed(uint16_t ledNumber, bool value){
+	this->leds[ledNumber] = value;
+}
+
+void IOBoard::toggleLed(uint16_t ledNumber){
+	this->leds[ledNumber] = !this->leds[ledNumber];
+}
+
 void IOBoard::initADC(){
 
 	//very specific

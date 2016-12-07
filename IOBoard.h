@@ -41,6 +41,11 @@ class IOBoard{
 		void initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider_TypeDef adcPin);
 		void stats(char* outputString);
 		void initADC();
+		void initLeds();
+		void scanLeds();
+		void setLed(uint16_t ledNumber, bool value);
+		void toggleLed(uint16_t ledNumber);
+
 		void adcDoSingleConversion();
 		void initButtons();
 		void readButtons();
@@ -70,7 +75,8 @@ class IOBoard{
 		bool pinsStatePullUpLow[2];
 		bool pinsStatePullUpHigh[2];
 
-
+		uint16_t  ledAnodePins [4];;
+		bool leds[4];
 };
 
 

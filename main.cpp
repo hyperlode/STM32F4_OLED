@@ -64,6 +64,7 @@ int main(void)
 	IOBoard panel1(PANEL_1);
 	panel1.initADC();
 	panel1.initButtons();
+	panel1.initLeds();
 	IOBoardHandler = &panel1; //link the panel instance to the handler.
 
 	printf("Userinterface: \r\n");
@@ -80,16 +81,20 @@ int main(void)
 				panel1.readButtons();
 			}
 			ticker20ms =0;
+			panel1.scanLeds();
+
 		}
 
 		for (uint16_t i = 0;i<4;i++){
 			if (panel1.getButtonEdgeDePressed(i)){
 				printf("button %d edge unpressed!\r\n", i);
 				printf("-----------------\r\n");
+				panel1.setLed(i,false);
 
 			}
 			if (panel1.getButtonEdgePressed(i)){
 				printf("button %d edge pressed!\r\n", i);
+				panel1.setLed(i,true);
 			}
 		}
 
