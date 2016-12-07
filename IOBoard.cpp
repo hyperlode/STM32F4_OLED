@@ -269,3 +269,30 @@ void IOBoard::stats(char* outputString){
 	//}
 }
 
+void IOBoard::demoModeLoop(){
+	//call every 20 ms --> 50Hz
+	this->demoLoopCounter++; //update counter
+
+	for (uint8_t i=0;i<4;i++){
+
+		if (getButtonState(i)){
+		//blinkmode
+
+			if (demoLoopCounter > getSliderValue(i)/490 ){
+				setLed(i,true);
+			}else{
+				setLed(i,false);
+			}
+		}else{
+			//led off
+			setLed(i,false);
+		}
+	}
+	if (this-> demoLoopCounter > 10){
+		this->demoLoopCounter = 0;
+
+	}
+
+
+}
+

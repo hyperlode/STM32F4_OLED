@@ -82,6 +82,7 @@ int main(void)
 			}
 			ticker20ms =0;
 			panel1.scanLeds();
+			panel1.demoModeLoop();
 
 		}
 
@@ -89,12 +90,12 @@ int main(void)
 			if (panel1.getButtonEdgeDePressed(i)){
 				printf("button %d edge unpressed!\r\n", i);
 				printf("-----------------\r\n");
-				panel1.setLed(i,false);
+				//panel1.setLed(i,false);
 
 			}
 			if (panel1.getButtonEdgePressed(i)){
 				printf("button %d edge pressed!\r\n", i);
-				panel1.setLed(i,true);
+				//panel1.setLed(i,true);
 			}
 		}
 

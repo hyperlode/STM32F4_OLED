@@ -58,6 +58,7 @@ class IOBoard{
 		bool getAtLeastOneButtonStateChanged();
 		void ADCInterruptHandler(uint16_t slider, uint16_t value);
 		uint16_t getSliderValue(uint16_t slider);
+		void demoModeLoop();
 	private:
 
 		bool isADCSetUp = false;
@@ -75,8 +76,10 @@ class IOBoard{
 		bool pinsStatePullUpLow[2];
 		bool pinsStatePullUpHigh[2];
 
-		uint16_t  ledAnodePins [4];;
+		uint16_t  ledAnodePins [4];
 		bool leds[4];
+
+		uint16_t demoLoopCounter;
 };
 
 
