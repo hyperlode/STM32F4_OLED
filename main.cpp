@@ -88,14 +88,13 @@ int main(void)
 				panel1.readButtonsHigh();
 			}else{
 				panel1.readButtonsLow();
+				panel1.readButtons();
 			}
 			ticker20ms =0;
 		}
 
-		if (ticker >= 500 && conversionEdgeMemory ==0){
-			STM_EVAL_LEDToggle(LED3) ;
-			panel1.adcDoSingleConversion();
-			panel1.readButtons();
+
+		if (panel1.getAtLeastOneButtonStateChanged()){
 			bool atLeastOneButtonPressed = 0;
 			for (uint16_t i = 0;i<4;i++){
 				if (panel1.readButton(i)){
@@ -107,6 +106,13 @@ int main(void)
 			if (atLeastOneButtonPressed){
 				printf("-----------------\r\n");
 			}
+		}
+
+		if (ticker >= 500 && conversionEdgeMemory ==0){
+			STM_EVAL_LEDToggle(LED3) ;
+			panel1.adcDoSingleConversion();
+
+
 		}
 		conversionEdgeMemory = ticker >= 500 ;
 

@@ -14,13 +14,42 @@ void IOBoard::initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider
 
 void IOBoard::readButtons(){
 	//will read all four buttons.
+	bool previousButtonValues[4];
+
+	//preserve previous button values
+	for (uint8_t i=0; i<4;i++){
+		previousButtonValues[i] = buttonValues[i];
+	}
 
 	buttonValues [0] = !pinsStatePullUpLow [0] && !pinsStatePullUpHigh [0];
 	buttonValues [1] =  pinsStatePullUpLow [0] &&  pinsStatePullUpHigh [0];
 	buttonValues [2] = !pinsStatePullUpLow [1] && !pinsStatePullUpHigh [1];
 	buttonValues [3] =  pinsStatePullUpLow [1] &&  pinsStatePullUpHigh [1];
 
+	for (uint8_t i=0; i<4;i++){
+		buttonEdgesPressed[i] = 	!previousButtonValues[i] &&  buttonValues [i];
+		buttonEdgesDePressed[i] = 	 previousButtonValues[i] && !buttonValues [i];
+		//buttonEdgesPressed[i] = 	false;
+		//buttonEdgesDePressed[i] = false;
+	}
+
+	this->atLeastOneButtonStateChanged = false;
+	for (uint8_t i=0; i<4;i++){
+		//if (buttonEdgesPressed[i] || buttonEdgesDePressed[i]){
+		if (buttonEdgesPressed[i]){
+			this->atLeastOneButtonStateChanged = true;
+		}
+	}
+
 }
+
+bool IOBoard::getAtLeastOneButtonStateChanged(){
+	bool memory;
+	memory = this->atLeastOneButtonStateChanged;
+	this->atLeastOneButtonStateChanged = false;
+	return memory;
+}
+
 void IOBoard::readButtonsLow(){
 	//ASSUMES the pull up resistor is not set (pin floating) no pull down either, this is set in the hardware.
 	this->pinsStatePullUpLow [0] = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13);
