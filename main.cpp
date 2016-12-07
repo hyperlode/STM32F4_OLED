@@ -52,14 +52,14 @@ void OTG_FS_WKUP_IRQHandler(void);
 #endif
 
 
- void Delay(__IO uint32_t nCount);
+// void Delay(__IO uint32_t nCount);
 
- void Delay(__IO uint32_t nCount)
- {
-   while(nCount--)
-   {
-   }
- }
+ //void Delay(__IO uint32_t nCount)
+ //{
+  // while(nCount--)
+   //{
+   //}
+// }
 
 
 int main(void)
@@ -70,25 +70,48 @@ int main(void)
 	/* Initialize USB, IO, SysTick, and all those other things you do in the morning */
 	init();
 
-	STM_EVAL_LEDInit(LED5);
-	STM_EVAL_LEDOn(LED5);
-	STM_EVAL_LEDInit(LED3);
+	initDiscoveryBoard();
 
 
 	IOBoard panel1(PANEL_1);
 	panel1.initADC();
+	panel1.initButtons();
 	IOBoardHandler = &panel1; //link the panel instance to the handler.
 
 	printf("Userinterface: \r\n");
 	printf("send 'v' for adc values \r\n");
 	while (1)
 	{
-		if (ticker >= 500 && conversionEdgeMemory ==0){
-			STM_EVAL_LEDToggle(LED3) ;
-			ADC_SoftwareStartConv(ADC1);
+		if (ticker20ms>=19){
+			 ticker20msEdgeMemory= !ticker20msEdgeMemory;
+			if (ticker20msEdgeMemory){
+				panel1.readButtonsHigh();
+			}else{
+				panel1.readButtonsLow();
+			}
+			ticker20ms =0;
 		}
 
+		if (ticker >= 500 && conversionEdgeMemory ==0){
+			STM_EVAL_LEDToggle(LED3) ;
+			panel1.adcDoSingleConversion();
+			panel1.readButtons();
+			bool atLeastOneButtonPressed = 0;
+			for (uint16_t i = 0;i<4;i++){
+				if (panel1.readButton(i)){
+					printf("button %d pressed!\r\n", i);
+					atLeastOneButtonPressed = 1;
+				}
+
+			}
+			if (atLeastOneButtonPressed){
+				printf("-----------------\r\n");
+			}
+		}
 		conversionEdgeMemory = ticker >= 500 ;
+
+
+
 		if (ticker>1000){
 			ticker =0;
 		}
@@ -123,22 +146,28 @@ int main(void)
 				}
 			}
 
-			GPIOD->BSRRL = GPIO_Pin_12;
-			downTicker = 10;
-		}
 
-		if (0 == downTicker)
-		{
-			GPIOD->BSRRH = GPIO_Pin_12;
 		}
-
-		blinkTheLED();
+		STM_EVAL_LEDOn(LED6);
+		//blinkTheLED();
 	}
 
 	return 0;
 }
 
 
+
+void initDiscoveryBoard(){
+	//init the leds on the discoveryboard
+	STM_EVAL_LEDInit(LED5);
+	STM_EVAL_LEDOn(LED5);
+
+	STM_EVAL_LEDInit(LED3);
+
+	STM_EVAL_LEDInit(LED6);
+	STM_EVAL_LEDOff(LED6);
+
+}
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -189,57 +218,24 @@ void init()
 	return;
 }
 
+
 /*
- * Call this to indicate a failure.  Blinks the STM32F4 discovery LEDs
- * in sequence.  At 168Mhz, the blinking will be very fast - about 5 Hz.
- * Keep that in mind when debugging, knowing the clock speed might help
- * with debugging.
+ * Call this to indicate a failure.
  */
 
 void ColorfulRingOfDeath(void){
+	STM_EVAL_LEDOn(LED6);
 	while (1)
 	{
-	 GPIO_SetBits(GPIOA, GPIO_Pin_3);
+		//get stuck here forever.
+
 	}
-}
-void blinkTheLED(void)
-{
-	uint16_t ring = 1;
-	//while (1)
-	//{
-		//uint32_t count = 0;
-		//while (count++ < 500000);
-
-		//GPIOD->BSRRH = (ring << 12);
-		//ring = ring << 1;
-		//if (ring >= 1<<4)
-		//{
-	//		ring = 1;
-	//	}
-	//	GPIOD->BSRRL = (ring << 12);
-
-
-
-
-
-
-	   GPIO_SetBits(GPIOA, GPIO_Pin_3);
-
-	   /* Insert delay */
-	   Delay(0x1FFFFF);
-
-	   GPIO_ResetBits(GPIOA, GPIO_Pin_3);
-	   Delay(0x1FFFFF);
-	//}
-
-
 
 }
 
 /*
  * Interrupt Handlers
  */
-
 
 void SysTick_Handler(void)
 {
@@ -248,6 +244,15 @@ void SysTick_Handler(void)
 	{
 		downTicker--;
 	}
+
+	ticker20ms++;
+	/*
+	ticker20ms--;
+	if (ticker20ms>20){
+		ticker20ms = 0;
+
+	}
+	*/
 }
 
 void NMI_Handler(void)       {}
@@ -300,7 +305,8 @@ void ADC_IRQHandler() {
 
 			//all the other channels.
 		   default:
-			   IOBoardHandler->ADCInterruptHandler(counter - 2, value);
+
+			   IOBoardHandler->ADCInterruptHandler(counter - 2, value); //IOBoard handle triggers.
 				counter++;
 				if (counter ==6){
 					counter =0;

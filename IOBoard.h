@@ -41,6 +41,13 @@ class IOBoard{
 		void initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider_TypeDef adcPin);
 		void stats(char* outputString);
 		void initADC();
+		void adcDoSingleConversion();
+		void initButtons();
+		void readButtons();
+		void readButtonsHigh();
+		void readButtonsLow();
+		bool readButton(uint16_t button);
+
 		void ADCInterruptHandler(uint16_t slider, uint16_t value);
 		uint16_t getSliderValue(uint16_t slider);
 	private:
@@ -48,7 +55,15 @@ class IOBoard{
 		bool isADCSetUp = false;
 		//uint16_t readSlider();
 		uint16_t sliderValues [4];
+
+		bool buttonValues[4];
+
 		PanelId_TypeDef panelId;
+		GPIO_InitTypeDef GPIO_initStructre;
+
+		bool pinsStatePullUpLow[2];
+		bool pinsStatePullUpHigh[2];
+
 
 };
 

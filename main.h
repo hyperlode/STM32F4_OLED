@@ -15,13 +15,14 @@
 #endif
 
 	//volatile uint32_t ticker, downTicker;
-	static uint32_t ticker, downTicker;
+	static uint32_t ticker, downTicker,ticker20ms ;
 	static int ConvertedValue = 0; //Converted value readed from ADC
 
 	static uint16_t temp = 0;
 	static uint16_t vref = 0;
 	static uint16_t counter = 0;
 	static uint16_t  conversionEdgeMemory= 0;
+	static uint16_t  ticker20msEdgeMemory= 0;
 
 	#include "stm32f4xx_adc.h"
 	#include "stm32f4xx_conf.h"
@@ -36,7 +37,7 @@
 	#include "usb_dcd_int.h"
 	#include "stm32f4_discovery.h"
 
-	void blinkTheLED();
+	void initDiscoveryBoard();
 #ifdef __cplusplus
 	}
 #endif

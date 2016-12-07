@@ -12,6 +12,78 @@ void IOBoard::initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider
 	}
 }
 
+void IOBoard::readButtons(){
+	//will read all four buttons.
+
+	buttonValues [0] = !pinsStatePullUpLow [0] && !pinsStatePullUpHigh [0];
+	buttonValues [1] =  pinsStatePullUpLow [0] &&  pinsStatePullUpHigh [0];
+	buttonValues [2] = !pinsStatePullUpLow [1] && !pinsStatePullUpHigh [1];
+	buttonValues [3] =  pinsStatePullUpLow [1] &&  pinsStatePullUpHigh [1];
+
+}
+void IOBoard::readButtonsLow(){
+	//ASSUMES the pull up resistor is not set (pin floating) no pull down either, this is set in the hardware.
+	this->pinsStatePullUpLow [0] = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13);
+	this->pinsStatePullUpLow [1] = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+	GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_UP; //set for the next cycle.
+	GPIO_Init(GPIOB,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+
+}
+
+void IOBoard::readButtonsHigh(){
+	//ASSUMES the pull up resistor is enabled.
+	this->pinsStatePullUpHigh [0] = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13);
+	this->pinsStatePullUpHigh [1] = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+
+	//put already down for the next cycle.
+	//GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_DOWN;
+	GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL;//set for the next cycle
+	GPIO_Init(GPIOB,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+
+}
+
+
+bool IOBoard::readButton(uint16_t button){
+	return buttonValues [button];
+
+}
+
+void IOBoard::initButtons(){
+	//very specific
+	if (panelId == PANEL_1){
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		//GPIO_InitTypeDef GPIO_initStructre; defined in .h file, has to be available because we work with two buttons on one pin...
+		//Analog pin configuration
+		GPIO_initStructre.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14  ;
+		GPIO_initStructre.GPIO_Mode = GPIO_Mode_IN ;
+		GPIO_initStructre.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_initStructre.GPIO_OType = GPIO_OType_PP;
+		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_DOWN;
+		GPIO_Init(GPIOB,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+
+
+
+	/*
+
+		   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
+		    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+		    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+		    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+		    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+		    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+		     GPIO_SetBits(GPIOD, GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);
+		    Delay(0xFFFFF);
+		    GPIO_ResetBits(GPIOD, GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);
+		        //Reads the status of the push-button on the Discovery board
+		        //If button is pressed blue LED is toggled
+
+		        if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0) == 1)
+*/
+
+	}
+
+}
 void IOBoard::initADC(){
 
 	//very specific
@@ -88,6 +160,11 @@ void IOBoard::initADC(){
 	}
 
 
+}
+void IOBoard::adcDoSingleConversion(){
+	if (panelId == PANEL_1){
+		ADC_SoftwareStartConv(ADC1);
+	}
 }
 
 void IOBoard::ADCInterruptHandler(uint16_t slider, uint16_t value){
