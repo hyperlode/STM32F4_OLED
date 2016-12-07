@@ -14,6 +14,22 @@ void IOBoard::initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider
 
 void IOBoard::readButtons(){
 	//will read all four buttons.
+	//this is just the last step after scanning readButtonsLow and readButtonsHigh
+
+	//i.e.
+	/*button readout
+			if (ticker20ms>=20){
+				 ticker20msEdgeMemory= !ticker20msEdgeMemory;
+				if (ticker20msEdgeMemory){
+					panel1.readButtonsHigh();
+				}else{
+					panel1.readButtonsLow();
+					panel1.readButtons();
+				}
+				ticker20ms =0;
+			}
+	*/
+
 	bool previousButtonValues[4];
 
 	//preserve previous button values
@@ -31,19 +47,15 @@ void IOBoard::readButtons(){
 	for (uint8_t i=0; i<4;i++){
 		buttonEdgesPressed[i] = 	!previousButtonValues[i] &&  buttonValues [i];
 		buttonEdgesDePressed[i] = 	 previousButtonValues[i] && !buttonValues [i];
-		//buttonEdgesPressed[i] = 	false;
-		//buttonEdgesDePressed[i] = false;
 	}
 
 	//check if a state changed.
 	this->atLeastOneButtonStateChanged = false;
 	for (uint8_t i=0; i<4;i++){
-		//if (buttonEdgesPressed[i] || buttonEdgesDePressed[i]){
-		if (buttonEdgesPressed[i]){
+		if (buttonEdgesPressed[i] || buttonEdgesDePressed[i]){
 			this->atLeastOneButtonStateChanged = true;
 		}
 	}
-
 }
 
 bool IOBoard::getAtLeastOneButtonStateChanged(){
@@ -59,7 +71,6 @@ void IOBoard::readButtonsLow(){
 	this->pinsStatePullUpLow [1] = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
 	GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_UP; //set for the next cycle.
 	GPIO_Init(GPIOB,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
-
 }
 
 void IOBoard::readButtonsHigh(){
@@ -69,9 +80,8 @@ void IOBoard::readButtonsHigh(){
 
 	//put already down for the next cycle.
 	//GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_DOWN;
-	GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL;//set for the next cycle
+	GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL;//set for the next cycle --> no pull down resistor, already implemented in hardware...
 	GPIO_Init(GPIOB,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
-
 }
 
 
@@ -106,28 +116,8 @@ void IOBoard::initButtons(){
 		GPIO_initStructre.GPIO_OType = GPIO_OType_PP;
 		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_DOWN;
 		GPIO_Init(GPIOB,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
-
-
-
-	/*
-
-		   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
-		    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
-		    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-		    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-		    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
-		    GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-		     GPIO_SetBits(GPIOD, GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);
-		    Delay(0xFFFFF);
-		    GPIO_ResetBits(GPIOD, GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);
-		        //Reads the status of the push-button on the Discovery board
-		        //If button is pressed blue LED is toggled
-
-		        if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0) == 1)
-*/
-
 	}
+
 
 }
 void IOBoard::initADC(){
@@ -214,10 +204,9 @@ void IOBoard::adcDoSingleConversion(){
 }
 
 void IOBoard::ADCInterruptHandler(uint16_t slider, uint16_t value){
-	//switch (channel){
+	//call this from the interrupt vector. Will update the data in this class with the appropriate value.
 	this->sliderValues[slider] = value;
-	//printf("%d\r\n",slider);
-	//}
+
 }
 
 uint16_t IOBoard::getSliderValue(uint16_t slider){

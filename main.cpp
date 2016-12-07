@@ -51,17 +51,6 @@ void OTG_FS_WKUP_IRQHandler(void);
 }
 #endif
 
-
-// void Delay(__IO uint32_t nCount);
-
- //void Delay(__IO uint32_t nCount)
- //{
-  // while(nCount--)
-   //{
-   //}
-// }
-
-
 int main(void)
 {
 	/* Set up the system clocks */
@@ -71,7 +60,6 @@ int main(void)
 	init();
 
 	initDiscoveryBoard();
-
 
 	IOBoard panel1(PANEL_1);
 	panel1.initADC();
