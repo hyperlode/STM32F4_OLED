@@ -15,7 +15,7 @@
 #define DEMOLOOP  //when defined, configured to run in demo mode. --> at buttonpress, led blinks, blink rate set by slider.
 #define BUTTON_PRESS_DELAY 20    //20ms jitter delay
 #define ADC_SAMPLE_PERIOD_MILLIS 50 //every 50ms adc sampling.
-
+#define DEMOLOOP_UPDATE_DELAY 20	//millis
 typedef enum
 {
   PANEL_1 = 0
@@ -43,15 +43,22 @@ typedef enum
 class IOBoard{
 	public:
 		IOBoard(PanelId_TypeDef panelId);
-		void initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider_TypeDef adcPin);
+		//void initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider_TypeDef adcPin);
 		void stats(char* outputString);
+		void refresh(uint32_t millis);
+		void demoModeLoop();
+
 		void initADC();
+		void adcDoSingleConversion();
+		bool getAtLeastOneButtonStateChanged();
+		void ADCInterruptHandler(uint16_t slider, uint16_t value);
+		uint16_t getSliderValue(uint16_t slider);
+
 		void initLeds();
 		void scanLeds();
 		void setLed(uint16_t ledNumber, bool value);
 		void toggleLed(uint16_t ledNumber);
 
-		void adcDoSingleConversion();
 		void initButtons();
 		void readButtons();
 		void readButtonsHigh();
@@ -60,25 +67,24 @@ class IOBoard{
 		bool getButtonEdgeDePressed(uint16_t button);
 		bool getButtonEdgePressed(uint16_t button);
 
-		bool getAtLeastOneButtonStateChanged();
-		void ADCInterruptHandler(uint16_t slider, uint16_t value);
-		uint16_t getSliderValue(uint16_t slider);
-		void refresh(uint32_t millis);
-
-		void demoModeLoop();
 	private:
+		PanelId_TypeDef panelId;
+		GPIO_InitTypeDef GPIO_Buttons_initStructure;
+		uint16_t demoLoopCounter[4];
+		uint32_t demoLooptimer;
+		uint32_t millis;
 
 		bool isADCSetUp = false;
-		//uint16_t readSlider();
 		uint16_t sliderValues [4];
+		uint32_t adcSampleTimer;
 
 		bool buttonValues[4];
 		bool buttonEdgesPressed[4];
 		bool buttonEdgesDePressed[4];
 		bool atLeastOneButtonStateChanged;
+		uint32_t buttonTimer;
+		bool buttonsReadHighElseLow;
 
-		PanelId_TypeDef panelId;
-		GPIO_InitTypeDef GPIO_initStructre;
 
 		bool pinsStatePullUpLow[2];
 		bool pinsStatePullUpHigh[2];
@@ -86,10 +92,7 @@ class IOBoard{
 		uint16_t  ledAnodePins [4];
 		bool leds[4];
 
-		uint16_t demoLoopCounter[4];
-		uint32_t buttonTimer;
-		uint32_t adcSampleTimer;
-		bool buttonsReadHighElseLow;
+
 };
 
 
