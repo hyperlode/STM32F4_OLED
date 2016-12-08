@@ -126,18 +126,10 @@ void IOBoard::initADC(){
 		GPIO_initStructre.GPIO_Mode = GPIO_Mode_AN; //The PC0 pin is configured in analog mode
 		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL; //We don't need any pull up or pull down
 		GPIO_Init(adcPort ,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
-
 	//}else  if (panelId == PANEL_2){
-
-
-
 	//}
 
-
-
-
 	//configure ADC1 (only if not done yet) should be done static?
-
 	if (panelId == PANEL_1){
 
 		/* Unchanged: Define ADC init structures */
@@ -211,7 +203,7 @@ void IOBoard::initADC(){
 		ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 7, ADC_SampleTime_480Cycles); ///PA0  //channel0
 		ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 8, ADC_SampleTime_480Cycles);
 		ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 9, ADC_SampleTime_480Cycles);
-		ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 10, ADC_SampleTime_480Cycles);
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 10, ADC_SampleTime_480Cycles);
 
 
 	}

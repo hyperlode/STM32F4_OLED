@@ -143,8 +143,14 @@ int main(void)
 
 					for (uint8_t i=0; i<4;i++){
 						//printf ("value slider: %d = %d \r\n", i, adcValues[i]);
-						printf ("slider %d: %d \r\n", i, panel1.getSliderValue(i));
+						printf ("panel1 slider %d: %d \r\n", i, panel1.getSliderValue(i));
+
 					}
+					for (uint8_t i=0; i<4;i++){
+						//printf ("value slider: %d = %d \r\n", i, adcValues[i]);
+						printf ("panel2 slider  %d: %d \r\n", i, panel2.getSliderValue(i));
+					}
+
 				}else if (theByte == 's'){
 					panel1.stats(lodeStrTest);
 					printf ("lets do this: %s ", lodeStrTest);
@@ -314,7 +320,7 @@ void ADC_IRQHandler() {
 				if (counter<6){
 					IOBoardHandler[0]->ADCInterruptHandler(counter - 2, value); //IOBoard handle triggers.
 				}else{
-				  IOBoardHandler[1]->ADCInterruptHandler(counter - 6, value); //IOBoard handle triggers.
+					IOBoardHandler[1]->ADCInterruptHandler(counter - 6, value); //IOBoard handle triggers.
 				}
 
 				counter++;
