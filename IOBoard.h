@@ -81,6 +81,10 @@ class IOBoard{
 		bool isADCSetUp = false;
 		uint16_t sliderValues [4];
 		uint32_t adcSampleTimer;
+		uint16_t  adcPins [4];
+		GPIO_TypeDef* adcPort;
+		uint32_t adcPeripheral;
+
 
 		bool buttonValues[4];
 		bool buttonEdgesPressed[4];

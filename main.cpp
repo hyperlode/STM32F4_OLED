@@ -297,6 +297,7 @@ void ADC_IRQHandler() {
         uint16_t value;
         ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
 
+
         value = ADC_GetConversionValue(ADC1);
 		switch (counter){
 		   case 0:

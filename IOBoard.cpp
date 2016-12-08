@@ -4,7 +4,7 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 	this ->panelId = panelId;
 	if (panelId == PANEL_1){
 		ledCathodePin = GPIO_Pin_1;
-		ledAnodePins[0] = GPIO_Pin_2,
+		ledAnodePins[0] = GPIO_Pin_2;
 		ledAnodePins[1] = GPIO_Pin_3;
 		ledAnodePins[2] = GPIO_Pin_4;
 		ledAnodePins[3] = GPIO_Pin_8;
@@ -15,6 +15,14 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		buttonPins[1] = GPIO_Pin_14;
 		buttonPort = GPIOB;
 		buttonPeripheral = RCC_AHB1Periph_GPIOB;
+
+		adcPins[0] = GPIO_Pin_0;
+		adcPins[1] = GPIO_Pin_1;
+		adcPins[2] = GPIO_Pin_2;
+		adcPins[3] = GPIO_Pin_3;
+		adcPort  = GPIOC;
+		adcPeripheral = RCC_AHB1ENR_GPIOCEN;
+
 
 	}else if (panelId == PANEL_2){
 		ledCathodePin = GPIO_Pin_4;
@@ -29,6 +37,13 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		buttonPins[1] = GPIO_Pin_2;
 		buttonPort = GPIOD;
 		buttonPeripheral = RCC_AHB1Periph_GPIOD;
+/*
+		adcPins[0] = GPIO_Pin_;
+		adcPins[1] = GPIO_Pin_;
+		adcPins[2] = GPIO_Pin_;
+		adcPins[3] = GPIO_Pin_;
+		*/
+
 	}
 	buttonTimer = 0;
 	buttonsReadHighElseLow =false;
@@ -98,17 +113,30 @@ void IOBoard::demoModeLoop(){
 
 void IOBoard::initADC(){
 
-	//very specific
+	//set gpio pins for the ADC
 	if (panelId == PANEL_1){
 
 		//set pin PC0 as analog in
-		RCC_AHB1PeriphClockCmd(RCC_AHB1ENR_GPIOCEN,ENABLE);//Clock for the ADC port!! Do not forget about this one ;)
+		RCC_AHB1PeriphClockCmd(adcPeripheral,ENABLE);//Clock for the ADC port!! Do not forget about this one ;)
 		GPIO_InitTypeDef GPIO_initStructre; //Structure for analog input pin
 		//Analog pin configuration
-		GPIO_initStructre.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3  ;//The channel 10 is connected to PC0
+		GPIO_initStructre.GPIO_Pin = adcPins[0] | adcPins[1] | adcPins[2] | adcPins[3]  ;//The channel 10 is connected to PC0
 		GPIO_initStructre.GPIO_Mode = GPIO_Mode_AN; //The PC0 pin is configured in analog mode
 		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL; //We don't need any pull up or pull down
-		GPIO_Init(GPIOC,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+		GPIO_Init(adcPort ,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+
+	}else  if (panelId == PANEL_2){
+
+
+
+	}
+
+
+
+
+	//configure ADC1 (only if not done yet) should be done static?
+
+	if (panelId == PANEL_1){
 
 		/* Unchanged: Define ADC init structures */
 		ADC_InitTypeDef       ADC_InitStructure;
@@ -136,6 +164,7 @@ void IOBoard::initADC(){
 		ADC_InitStructure.ADC_DataAlign= ADC_DataAlign_Right;
 		ADC_InitStructure.ADC_ExternalTrigConv= 0;
 		ADC_InitStructure.ADC_ExternalTrigConvEdge= 0;
+
 		ADC_InitStructure.ADC_NbrOfConversion= 6;
 
 		ADC_Init(ADC1, &ADC_InitStructure);
@@ -143,16 +172,6 @@ void IOBoard::initADC(){
 		/* Enable Vref & Temperature channel */
 		ADC_TempSensorVrefintCmd(ENABLE);
 
-		/* Configure channels */
-		/* Temp sensor */
-		ADC_RegularChannelConfig(ADC1, ADC_Channel_16, 1, ADC_SampleTime_480Cycles);
-		/* VREF_int (2nd) */
-		ADC_RegularChannelConfig(ADC1, ADC_Channel_17, 2, ADC_SampleTime_480Cycles);
-
-		ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 3, ADC_SampleTime_480Cycles); ///PC0  //channel10
-		ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 4, ADC_SampleTime_480Cycles); ///PC0  //channel10
-		ADC_RegularChannelConfig(ADC1, ADC_Channel_12, 5, ADC_SampleTime_480Cycles); ///PC0  //channel10
-		ADC_RegularChannelConfig(ADC1, ADC_Channel_13, 6, ADC_SampleTime_480Cycles); ///PC0  //channel10
 
 		ADC_EOCOnEachRegularChannelCmd(ADC1, ENABLE);
 
@@ -168,6 +187,25 @@ void IOBoard::initADC(){
 
 		/* Enable ADC1 **************************************************************/
 		ADC_Cmd(ADC1, ENABLE);
+
+		//temperature and VBAT channels are internal
+		/* Configure channels */
+		/* Temp sensor */
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_16, 1, ADC_SampleTime_480Cycles);
+		/* VREF_int (2nd) */
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_17, 2, ADC_SampleTime_480Cycles);
+
+	}
+
+	//link gpio pins to ADC
+	if (panelId == PANEL_1){
+
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 3, ADC_SampleTime_480Cycles); ///PC0  //channel10
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 4, ADC_SampleTime_480Cycles); ///PC0  //channel10
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_12, 5, ADC_SampleTime_480Cycles); ///PC0  //channel10
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_13, 6, ADC_SampleTime_480Cycles); ///PC0  //channel10
+
+
 	}
 }
 
@@ -194,7 +232,7 @@ uint16_t IOBoard::getSliderValue(uint16_t slider){
 
 void IOBoard::initButtons(){
 	//very specific
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		RCC_AHB1PeriphClockCmd(buttonPeripheral, ENABLE);
 		//GPIO_InitTypeDef GPIO_Buttons_initStructure; defined in .h file, has to be available because we work with two buttons on one pin...
 		//Analog pin configuration
 		GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1];
