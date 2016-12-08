@@ -18,8 +18,12 @@
 #define DEMOLOOP_UPDATE_DELAY 20	//millis
 typedef enum
 {
-  PANEL_1 = 0
+  PANEL_1 = 0,
+  PANEL_2 = 1
 } PanelId_TypeDef;
+
+
+
 
 
 typedef enum
@@ -84,12 +88,18 @@ class IOBoard{
 		bool atLeastOneButtonStateChanged;
 		uint32_t buttonTimer;
 		bool buttonsReadHighElseLow;
+		uint16_t  buttonPins [2];
+		GPIO_TypeDef* buttonPort;
+		uint32_t buttonPeripheral;
 
 
 		bool pinsStatePullUpLow[2];
 		bool pinsStatePullUpHigh[2];
 
 		uint16_t  ledAnodePins [4];
+		uint16_t ledCathodePin;
+		GPIO_TypeDef* ledPort;
+		uint32_t ledPeripheral;
 		bool leds[4];
 
 

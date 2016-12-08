@@ -3,10 +3,32 @@
 IOBoard::IOBoard(PanelId_TypeDef panelId){
 	this ->panelId = panelId;
 	if (panelId == PANEL_1){
+		ledCathodePin = GPIO_Pin_1;
 		ledAnodePins[0] = GPIO_Pin_2,
 		ledAnodePins[1] = GPIO_Pin_3;
 		ledAnodePins[2] = GPIO_Pin_4;
-		ledAnodePins[3] = GPIO_Pin_5;
+		ledAnodePins[3] = GPIO_Pin_8;
+		ledPort = GPIOA;
+		ledPeripheral = RCC_AHB1Periph_GPIOA;
+
+		buttonPins[0] = GPIO_Pin_13;
+		buttonPins[1] = GPIO_Pin_14;
+		buttonPort = GPIOB;
+		buttonPeripheral = RCC_AHB1Periph_GPIOB;
+
+	}else if (panelId == PANEL_2){
+		ledCathodePin = GPIO_Pin_4;
+		ledAnodePins[0] = GPIO_Pin_5,
+		ledAnodePins[1] = GPIO_Pin_6;
+		ledAnodePins[2] = GPIO_Pin_7;
+		ledAnodePins[3] = GPIO_Pin_8 ;
+		ledPort = GPIOB;
+		ledPeripheral = RCC_AHB1Periph_GPIOB;
+
+		buttonPins[0] = GPIO_Pin_1;
+		buttonPins[1] = GPIO_Pin_2;
+		buttonPort = GPIOD;
+		buttonPeripheral = RCC_AHB1Periph_GPIOD;
 	}
 	buttonTimer = 0;
 	buttonsReadHighElseLow =false;
@@ -172,17 +194,19 @@ uint16_t IOBoard::getSliderValue(uint16_t slider){
 
 void IOBoard::initButtons(){
 	//very specific
-	if (panelId == PANEL_1){
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 		//GPIO_InitTypeDef GPIO_Buttons_initStructure; defined in .h file, has to be available because we work with two buttons on one pin...
 		//Analog pin configuration
-		GPIO_Buttons_initStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14  ;
+		GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1];
 		GPIO_Buttons_initStructure.GPIO_Mode = GPIO_Mode_IN ;
 		GPIO_Buttons_initStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_Buttons_initStructure.GPIO_OType = GPIO_OType_PP;
 		GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-		GPIO_Init(GPIOB,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
-	}
+		GPIO_Init(buttonPort ,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
+
+
+
+
 }
 
 void IOBoard::readButtons(){
@@ -240,21 +264,23 @@ bool IOBoard::getAtLeastOneButtonStateChanged(){
 
 void IOBoard::readButtonsLow(){
 	//ASSUMES the pull up resistor is not set (pin floating) no pull down either, this is set in the hardware.
-	this->pinsStatePullUpLow [0] = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13);
-	this->pinsStatePullUpLow [1] = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
-	GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_UP; //set for the next cycle.
-	GPIO_Init(GPIOB,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
+
+		this->pinsStatePullUpLow [0] = GPIO_ReadInputDataBit(buttonPort, buttonPins[0]);
+		this->pinsStatePullUpLow [1] = GPIO_ReadInputDataBit(buttonPort, buttonPins[1]);
+		GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_UP; //set for the next cycle.
+		GPIO_Init(buttonPort,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
 }
 
 void IOBoard::readButtonsHigh(){
 	//ASSUMES the pull up resistor is enabled.
-	this->pinsStatePullUpHigh [0] = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13);
-	this->pinsStatePullUpHigh [1] = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
 
-	//put already down for the next cycle.
-	//GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-	GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;//set for the next cycle --> no pull down resistor, already implemented in hardware...
-	GPIO_Init(GPIOB,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
+		this->pinsStatePullUpHigh [0] = GPIO_ReadInputDataBit(buttonPort, buttonPins[0]);
+		this->pinsStatePullUpHigh [1] = GPIO_ReadInputDataBit(buttonPort, buttonPins[1]);
+
+		//put already down for the next cycle.
+		//GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+		GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;//set for the next cycle --> no pull down resistor, already implemented in hardware...
+		GPIO_Init(buttonPort,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
 }
 
 
@@ -265,7 +291,7 @@ bool IOBoard::getButtonState(uint16_t button){
 bool IOBoard::getButtonEdgeDePressed(uint16_t button){
 	bool state;
 	state = buttonEdgesDePressed [button];
-	 buttonEdgesDePressed [button] = false;
+	buttonEdgesDePressed [button] = false;
 	return state;
 }
 
@@ -285,31 +311,30 @@ bool IOBoard::getButtonEdgePressed(uint16_t button){
 
 void IOBoard::initLeds(){
 	//very specific
-	if (panelId == PANEL_1){
+
 		//leds
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+		RCC_AHB1PeriphClockCmd(ledPeripheral, ENABLE);
 		//GPIO_InitTypeDef GPIO_initStructre; defined in .h file, has to be available because we work with two buttons on one pin...
 		//Analog pin configuration
 		GPIO_InitTypeDef GPIO_initStructre;
-		GPIO_initStructre.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 |  GPIO_Pin_4 | GPIO_Pin_5 ;
+		GPIO_initStructre.GPIO_Pin = ledAnodePins[0] |  ledAnodePins[1] | ledAnodePins[2] | ledAnodePins[3] |ledCathodePin ;
 		GPIO_initStructre.GPIO_Mode = GPIO_Mode_OUT ;
 		GPIO_initStructre.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_initStructre.GPIO_OType = GPIO_OType_PP;
 		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL;
-		GPIO_Init(GPIOA,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+		GPIO_Init(ledPort,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
 
 		//common cathode pin always low.
-		GPIO_ResetBits(GPIOA, GPIO_Pin_1);
-		//GPIO_SetBits(GPIOA, GPIO_Pin_2 |  GPIO_Pin_3 |  GPIO_Pin_4 |  GPIO_Pin_5 );
-	}
+		GPIO_ResetBits(ledPort, ledCathodePin);
+
 }
 
 void IOBoard::scanLeds(){
 	for (uint8_t i=0; i<4;i++){
 		if (leds[i]){
-			GPIO_SetBits(GPIOA,this->ledAnodePins[i]);
+			GPIO_SetBits(ledPort,this->ledAnodePins[i]);
 		}else{
-			GPIO_ResetBits(GPIOA,this->ledAnodePins[i]);
+			GPIO_ResetBits(ledPort,this->ledAnodePins[i]);
 		}
 	}
 }

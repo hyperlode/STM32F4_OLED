@@ -14,7 +14,7 @@
 
 char lodeStrTest []={'a','\0'};
 
-IOBoard* IOBoardHandler;
+IOBoard* IOBoardHandler [2];
 /*
  * The USB data must be 4 byte aligned if DMA is enabled. This macro handles
  * the alignment, if necessary (it's actually magic, but don't tell anyone).
@@ -61,17 +61,34 @@ int main(void)
 
 	initDiscoveryBoard();
 
+	//panel 1
 	IOBoard panel1(PANEL_1);
 	panel1.initADC();
 	panel1.initButtons();
 	panel1.initLeds();
-	IOBoardHandler = &panel1; //link the panel instance to the handler.
+	IOBoardHandler[0] = &panel1; //link the panel instance to the handler.
+
+
+	//panel 2
+	IOBoard panel2(PANEL_2);
+	panel2.initADC();
+	panel2.initButtons();
+	panel2.initLeds();
+	for (uint16_t i = 0;i<4;i++){
+		panel2.setLed(i,true);
+
+	}
+
+	IOBoardHandler[1] = &panel2; //link the panel instance to the handler.
+
+
 
 	printf("Userinterface: \r\n");
 	printf("send 'v' for adc values \r\n");
 	while (1)
 	{
 		panel1.refresh(millis);
+		panel2.refresh(millis);
 		panel1.demoModeLoop();
 		for (uint16_t i = 0;i<4;i++){
 			if (panel1.getButtonEdgeDePressed(i)){
@@ -81,7 +98,11 @@ int main(void)
 
 			if (panel1.getButtonEdgePressed(i)){
 				printf("button %d edge pressed!\r\n", i);
-				panel1.adcDoSingleConversion();
+			}
+
+			if (panel2.getButtonEdgePressed(i)){
+				printf("button panel 2 %d edge pressed!\r\n", i);
+
 			}
 		}
 
@@ -90,6 +111,11 @@ int main(void)
 			for (uint16_t i = 0;i<4;i++){
 				if (panel1.getButtonState(i)){
 					printf("button %d pressed!\r\n", i);
+				}
+			}
+			for (uint16_t i = 0;i<4;i++){
+				if (panel2.getButtonState(i)){
+					printf("panel 2 button %d pressed!\r\n", i);
 				}
 			}
 			STM_EVAL_LEDToggle(LED3) ;
@@ -285,7 +311,7 @@ void ADC_IRQHandler() {
 			//all the other channels.
 		   default:
 
-			   IOBoardHandler->ADCInterruptHandler(counter - 2, value); //IOBoard handle triggers.
+			   IOBoardHandler[0]->ADCInterruptHandler(counter - 2, value); //IOBoard handle triggers.
 				counter++;
 				if (counter ==6){
 					counter =0;
