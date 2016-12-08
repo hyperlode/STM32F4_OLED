@@ -3,13 +3,13 @@
 IOBoard::IOBoard(PanelId_TypeDef panelId){
 	this ->panelId = panelId;
 	if (panelId == PANEL_1){
-		ledCathodePin = GPIO_Pin_1;
-		ledAnodePins[0] = GPIO_Pin_2;
-		ledAnodePins[1] = GPIO_Pin_3;
-		ledAnodePins[2] = GPIO_Pin_4;
-		ledAnodePins[3] = GPIO_Pin_8;
-		ledPort = GPIOA;
-		ledPeripheral = RCC_AHB1Periph_GPIOA;
+		ledCathodePin = GPIO_Pin_6;
+		ledAnodePins[0] = GPIO_Pin_8;
+		ledAnodePins[1] = GPIO_Pin_9;
+		ledAnodePins[2] = GPIO_Pin_11;
+		ledAnodePins[3] = GPIO_Pin_13;
+		ledPort = GPIOC;
+		ledPeripheral = RCC_AHB1Periph_GPIOC;
 
 		buttonPins[0] = GPIO_Pin_13;
 		buttonPins[1] = GPIO_Pin_14;
@@ -37,12 +37,14 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		buttonPins[1] = GPIO_Pin_2;
 		buttonPort = GPIOD;
 		buttonPeripheral = RCC_AHB1Periph_GPIOD;
-/*
-		adcPins[0] = GPIO_Pin_;
-		adcPins[1] = GPIO_Pin_;
-		adcPins[2] = GPIO_Pin_;
-		adcPins[3] = GPIO_Pin_;
-		*/
+/**/
+		adcPins[0] = GPIO_Pin_0;
+		adcPins[1] = GPIO_Pin_1;
+		adcPins[2] = GPIO_Pin_2;
+		adcPins[3] = GPIO_Pin_3;
+		adcPort  = GPIOA;
+		adcPeripheral = RCC_AHB1ENR_GPIOAEN;
+	/*	*/
 
 	}
 	buttonTimer = 0;
@@ -114,7 +116,7 @@ void IOBoard::demoModeLoop(){
 void IOBoard::initADC(){
 
 	//set gpio pins for the ADC
-	if (panelId == PANEL_1){
+	//if (panelId == PANEL_1){
 
 		//set pin PC0 as analog in
 		RCC_AHB1PeriphClockCmd(adcPeripheral,ENABLE);//Clock for the ADC port!! Do not forget about this one ;)
@@ -125,11 +127,11 @@ void IOBoard::initADC(){
 		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL; //We don't need any pull up or pull down
 		GPIO_Init(adcPort ,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
 
-	}else  if (panelId == PANEL_2){
+	//}else  if (panelId == PANEL_2){
 
 
 
-	}
+	//}
 
 
 
@@ -165,7 +167,8 @@ void IOBoard::initADC(){
 		ADC_InitStructure.ADC_ExternalTrigConv= 0;
 		ADC_InitStructure.ADC_ExternalTrigConvEdge= 0;
 
-		ADC_InitStructure.ADC_NbrOfConversion= 6;
+		//ADC_InitStructure.ADC_NbrOfConversion= 6;  //<----------------------------------------------------------------CHANGE ACCORDINGLY
+		ADC_InitStructure.ADC_NbrOfConversion= 10;  //<----------------------------------------------------------------CHANGE ACCORDINGLY should be static!
 
 		ADC_Init(ADC1, &ADC_InitStructure);
 
@@ -201,12 +204,18 @@ void IOBoard::initADC(){
 	if (panelId == PANEL_1){
 
 		ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 3, ADC_SampleTime_480Cycles); ///PC0  //channel10
-		ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 4, ADC_SampleTime_480Cycles); ///PC0  //channel10
-		ADC_RegularChannelConfig(ADC1, ADC_Channel_12, 5, ADC_SampleTime_480Cycles); ///PC0  //channel10
-		ADC_RegularChannelConfig(ADC1, ADC_Channel_13, 6, ADC_SampleTime_480Cycles); ///PC0  //channel10
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 4, ADC_SampleTime_480Cycles);
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_12, 5, ADC_SampleTime_480Cycles);
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_13, 6, ADC_SampleTime_480Cycles);
+	} if (panelId == PANEL_2){
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 7, ADC_SampleTime_480Cycles); ///PA0  //channel0
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 8, ADC_SampleTime_480Cycles);
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 9, ADC_SampleTime_480Cycles);
+		ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 10, ADC_SampleTime_480Cycles);
 
 
 	}
+
 }
 
 void IOBoard::adcDoSingleConversion(){

@@ -74,10 +74,9 @@ int main(void)
 	panel2.initADC();
 	panel2.initButtons();
 	panel2.initLeds();
-	for (uint16_t i = 0;i<4;i++){
-		panel2.setLed(i,true);
-
-	}
+	//for (uint16_t i = 0;i<4;i++){
+	//	panel2.setLed(i,true);
+	//}
 
 	IOBoardHandler[1] = &panel2; //link the panel instance to the handler.
 
@@ -90,6 +89,7 @@ int main(void)
 		panel1.refresh(millis);
 		panel2.refresh(millis);
 		panel1.demoModeLoop();
+		panel2.demoModeLoop();
 		for (uint16_t i = 0;i<4;i++){
 			if (panel1.getButtonEdgeDePressed(i)){
 				printf("button %d edge unpressed!\r\n", i);
@@ -311,13 +311,17 @@ void ADC_IRQHandler() {
 
 			//all the other channels.
 		   default:
+				if (counter<6){
+					IOBoardHandler[0]->ADCInterruptHandler(counter - 2, value); //IOBoard handle triggers.
+				}else{
+				  IOBoardHandler[1]->ADCInterruptHandler(counter - 6, value); //IOBoard handle triggers.
+				}
 
-			   IOBoardHandler[0]->ADCInterruptHandler(counter - 2, value); //IOBoard handle triggers.
 				counter++;
-				if (counter ==6){
+				if (counter ==10){
 					counter =0;
 				}
-			   break;
+				break;
 		}
 
 
