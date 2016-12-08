@@ -12,6 +12,9 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		ledAnodePins[3] = GPIO_Pin_5;
 
 	}
+
+	buttonTimer = 0;
+	buttonsReadHighElseLow =false;
 }
 
 void IOBoard::initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider_TypeDef adcPin){
@@ -269,16 +272,43 @@ void IOBoard::stats(char* outputString){
 	//}
 }
 
+void IOBoard::refresh(uint32_t millis){
+
+	if (millis - buttonTimer > BUTTON_PRESS_DELAY / 2){
+
+		buttonTimer = millis;
+
+		buttonsReadHighElseLow = !buttonsReadHighElseLow;
+
+		if (buttonsReadHighElseLow){
+			readButtonsHigh();
+		}else{
+			readButtonsLow();
+			readButtons();
+		}
+		scanLeds();
+
+
+
+	}
+
+	if (millis - adcSampleTimer > ADC_SAMPLE_PERIOD_MILLIS){
+		adcDoSingleConversion();
+		adcSampleTimer = millis;
+	}
+
+}
+
 void IOBoard::demoModeLoop(){
 	//call every 20 ms --> 50Hz
-	this->demoLoopCounter++; //update counter
+
 
 	for (uint8_t i=0;i<4;i++){
-
+		this->demoLoopCounter[i]++; //update counter
 		if (getButtonState(i)){
 		//blinkmode
 
-			if (demoLoopCounter > getSliderValue(i)/490 ){
+			if (demoLoopCounter[i] >  getSliderValue(i)/200 ){
 				setLed(i,true);
 			}else{
 				setLed(i,false);
@@ -287,11 +317,12 @@ void IOBoard::demoModeLoop(){
 			//led off
 			setLed(i,false);
 		}
-	}
-	if (this-> demoLoopCounter > 10){
-		this->demoLoopCounter = 0;
+		if (this-> demoLoopCounter[i] > getSliderValue(i)/100){
+			this->demoLoopCounter[i] = 0;
 
+		}
 	}
+
 
 
 }

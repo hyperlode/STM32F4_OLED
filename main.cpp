@@ -71,51 +71,30 @@ int main(void)
 	printf("send 'v' for adc values \r\n");
 	while (1)
 	{
-		//button readout
-		if (ticker20ms>=20){
-			 ticker20msEdgeMemory= !ticker20msEdgeMemory;
-			if (ticker20msEdgeMemory){
-				panel1.readButtonsHigh();
-			}else{
-				panel1.readButtonsLow();
-				panel1.readButtons();
-			}
-			ticker20ms =0;
-			panel1.scanLeds();
-			panel1.demoModeLoop();
-
-		}
-
+		panel1.refresh(millis);
+		panel1.demoModeLoop();
 		for (uint16_t i = 0;i<4;i++){
 			if (panel1.getButtonEdgeDePressed(i)){
 				printf("button %d edge unpressed!\r\n", i);
 				printf("-----------------\r\n");
-				//panel1.setLed(i,false);
-
 			}
+
 			if (panel1.getButtonEdgePressed(i)){
 				printf("button %d edge pressed!\r\n", i);
-				//panel1.setLed(i,true);
+				panel1.adcDoSingleConversion();
 			}
 		}
 
 		//each second triggered
-		if (ticker >= 500 && conversionEdgeMemory ==0){
-
+		if (ticker >= 500 && secondEdgeMemory ==0){
 			for (uint16_t i = 0;i<4;i++){
 				if (panel1.getButtonState(i)){
 					printf("button %d pressed!\r\n", i);
 				}
 			}
-
 			STM_EVAL_LEDToggle(LED3) ;
-			panel1.adcDoSingleConversion();
-
-
 		}
-		conversionEdgeMemory = ticker >= 500 ;
-
-
+		secondEdgeMemory = ticker >= 500 ;
 
 		if (ticker>1000){
 			ticker =0;
@@ -251,13 +230,8 @@ void SysTick_Handler(void)
 	}
 
 	ticker20ms++;
-	/*
-	ticker20ms--;
-	if (ticker20ms>20){
-		ticker20ms = 0;
+	millis++;
 
-	}
-	*/
 }
 
 void NMI_Handler(void)       {}

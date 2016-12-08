@@ -11,6 +11,11 @@
 #include <stdio.h>
 #include "stm32f4_discovery.h"
 
+
+#define DEMOLOOP  //when defined, configured to run in demo mode. --> at buttonpress, led blinks, blink rate set by slider.
+#define BUTTON_PRESS_DELAY 20    //20ms jitter delay
+#define ADC_SAMPLE_PERIOD_MILLIS 50 //every 50ms adc sampling.
+
 typedef enum
 {
   PANEL_1 = 0
@@ -58,6 +63,8 @@ class IOBoard{
 		bool getAtLeastOneButtonStateChanged();
 		void ADCInterruptHandler(uint16_t slider, uint16_t value);
 		uint16_t getSliderValue(uint16_t slider);
+		void refresh(uint32_t millis);
+
 		void demoModeLoop();
 	private:
 
@@ -79,7 +86,10 @@ class IOBoard{
 		uint16_t  ledAnodePins [4];
 		bool leds[4];
 
-		uint16_t demoLoopCounter;
+		uint16_t demoLoopCounter[4];
+		uint32_t buttonTimer;
+		uint32_t adcSampleTimer;
+		bool buttonsReadHighElseLow;
 };
 
 
