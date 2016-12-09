@@ -47,10 +47,10 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		ledPeripheral = RCC_AHB1Periph_GPIOB;
 
 		numberOfButtons =4;
-		buttonPins[0] = GPIO_Pin_1; //two buttons per pin
-		buttonPins[1] = GPIO_Pin_2; //two buttons per pin
-		buttonPort = GPIOD;
-		buttonPeripheral = RCC_AHB1Periph_GPIOD;
+		buttonPins[0] = GPIO_Pin_3; //two buttons per pin
+		buttonPins[1] = GPIO_Pin_12; //two buttons per pin
+		buttonPort = GPIOB;
+		buttonPeripheral = RCC_AHB1Periph_GPIOB;
 
 		adcPins[0] = GPIO_Pin_0;
 		adcPins[1] = GPIO_Pin_1;
@@ -82,6 +82,24 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		buttonPins[7] = GPIO_Pin_15;
 		buttonPort = GPIOE;
 		buttonPeripheral = RCC_AHB1Periph_GPIOE;
+	}else if (panelId = PANEL_4){
+		numberOfLeds = 16;
+		ledCathodePins[0] = GPIO_Pin_0;
+		ledCathodePins[1] = GPIO_Pin_1;
+		ledCathodePins[2] = GPIO_Pin_2;
+		ledCathodePins[3] = GPIO_Pin_3;
+		ledAnodePins[0] = GPIO_Pin_4,
+		ledAnodePins[1] = GPIO_Pin_5;
+		ledAnodePins[2] = GPIO_Pin_6;
+		ledAnodePins[3] = GPIO_Pin_7 ;
+		ledPort = GPIOD;
+		ledPeripheral = RCC_AHB1Periph_GPIOD;
+		numberOfButtons =4;
+		buttonPins[0] = GPIO_Pin_10; //two buttons per pin
+		buttonPins[1] = GPIO_Pin_11; //two buttons per pin
+		buttonPort = GPIOB;
+		buttonPeripheral = RCC_AHB1Periph_GPIOB;
+
 	}
 
 	buttonTimer = 0;
@@ -166,11 +184,21 @@ void IOBoard::demoModeLoop(){
 				}
 			}
 
-		}else{
+		}else if (numberOfButtons == 16 && numberOfLeds == 16){
 			for (uint16_t i=0; i<this->numberOfButtons;i++){
 				//setLed(i,getButtonState(i));
 				if (getButtonEdgePressed(i)){
 					toggleLed(i);
+				}
+			}
+
+		}else if  (numberOfButtons == 4 && numberOfLeds == 16){
+			for (uint16_t i=0; i<this->numberOfButtons;i++){
+				//setLed(i,getButtonState(i));
+				if (getButtonEdgePressed(i)){
+					for (uint16_t ledInColumn=0; ledInColumn<4;ledInColumn ++){
+						toggleLed(i + 4*ledInColumn);
+					}
 				}
 			}
 

@@ -75,14 +75,21 @@ int main(void)
 	panel2.initButtons();
 	panel2.initLeds();
 
+	//panel 3
 	IOBoard panel3(PANEL_3);
 	panel3.initLeds();
 	panel3.initButtons();
 
-	for (uint16_t i = 0;i<16;i++){
+	//panel4
+	IOBoard panel4(PANEL_4);
+	panel4.initLeds();
+	panel4.initButtons();
+
+//	for (uint16_t i = 0;i<16;i++){
 		//panel2.setLed(i,true);
-		//panel3.setLed(i,true);
-	}
+//		panel4.setLed(i,false);
+//	}
+
 
 	IOBoardHandler[1] = &panel2; //link the panel instance to the handler.
 
@@ -95,21 +102,23 @@ int main(void)
 		panel1.refresh(millis);
 		panel2.refresh(millis);
 		panel3.refresh(millis);
+		panel4.refresh(millis);
 		panel1.demoModeLoop();
 		panel2.demoModeLoop();
 		panel3.demoModeLoop();
+		panel4.demoModeLoop();
 		for (uint16_t i = 0;i<4;i++){
-			if (panel3.getButtonEdgeDePressed(i)){
+			if (panel4.getButtonEdgeDePressed(i)){
 				printf("button %d edge unpressed!\r\n", i);
 				printf("-----------------\r\n");
 			}
 
-			if (panel3.getButtonEdgePressed(i)){
+			if (panel4.getButtonEdgePressed(i)){
 				printf("button %d edge pressed!\r\n", i);
 			}
 
-			if (panel3.getButtonEdgePressed(i)){
-				printf("button panel 2 %d edge pressed!\r\n", i);
+			if (panel4.getButtonEdgePressed(i)){
+				printf("button panel 4 %d edge pressed!\r\n", i);
 
 			}
 		}
