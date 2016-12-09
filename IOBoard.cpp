@@ -94,6 +94,15 @@ void IOBoard::stats(char* outputString){
 	//if (isConstructed){
 		outputString[0]= 'O';
 		printf( "number of leds: %d \r\n", this->numberOfLeds);
+		//scanCathode++;
+		printf( "enabled led row: %d \r\n", this->scanCathode);
+
+		//for (uint16_t i =0; i<this->numberOfLeds; i++){
+		//	printf( "led %d status: %d \r\n", i, this->leds[i]);
+		//}
+
+		printf("numberOf samples at %d : %d ", millis, scanCounterTest);
+
 	//}else{
 	//	outputString[0]= 'P';
 	//}
@@ -419,59 +428,67 @@ void IOBoard::initLeds(){
 
 		//common cathode pin always low.
 		GPIO_ResetBits(ledPort, ledCathodePins[0]);
+
+
+
 	}else if (numberOfLeds == 16){
 		//leds
-				RCC_AHB1PeriphClockCmd(ledPeripheral, ENABLE);
-				//GPIO_InitTypeDef GPIO_initStructre; defined in .h file, has to be available because we work with two buttons on one pin...
-				//Analog pin configuration
-				GPIO_InitTypeDef GPIO_initStructre;
-				GPIO_initStructre.GPIO_Pin = ledAnodePins[0] |  ledAnodePins[1] | ledAnodePins[2] | ledAnodePins[3] | ledCathodePins[0] | ledCathodePins[1] |ledCathodePins[2] |ledCathodePins[3] ;
-				GPIO_initStructre.GPIO_Mode = GPIO_Mode_OUT ;
-				GPIO_initStructre.GPIO_Speed = GPIO_Speed_50MHz;
-				GPIO_initStructre.GPIO_OType = GPIO_OType_PP;
-				GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL;
-				GPIO_Init(ledPort,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+		RCC_AHB1PeriphClockCmd(ledPeripheral, ENABLE);
+		//GPIO_InitTypeDef GPIO_initStructre; defined in .h file, has to be available because we work with two buttons on one pin...
+		//Analog pin configuration
+		GPIO_InitTypeDef GPIO_initStructre;
+		GPIO_initStructre.GPIO_Pin = ledAnodePins[0] |  ledAnodePins[1] | ledAnodePins[2] | ledAnodePins[3] | ledCathodePins[0] | ledCathodePins[1] |ledCathodePins[2] |ledCathodePins[3] ;
+		GPIO_initStructre.GPIO_Mode = GPIO_Mode_OUT ;
+		GPIO_initStructre.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_initStructre.GPIO_OType = GPIO_OType_PP;
+		GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL;
+		GPIO_Init(ledPort,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
 
-				//common cathode pin always low.
-				//GPIO_ResetBits(ledPort, ledCathodePin);
+		//common cathode pin always low.
+		//GPIO_ResetBits(ledPort, ledCathodePin);
+
+		//initialize cathode pins high (standard "OFF")
+		for (uint16_t cathode = 0; cathode<this->numberOfLeds/4; cathode++){
+			GPIO_SetBits(ledPort, ledCathodePins[cathode]);
+		}
+
+		//initialize anode pins low (standard "OFF")
+		for (uint16_t anode = 0; anode<4; anode++){
+			GPIO_SetBits(ledPort, ledAnodePins[anode]);
+		}
+
+		//initialize leds, standard off
+		for (uint16_t led = 0; led<this->numberOfLeds; led++){
+			setLed(led, false);
+			//this->leds[0] = 0;
+		}
 
 	}
 
-	//initialize cathode pins high (standard "OFF")
-	for (uint8_t cathode = 0; cathode<this->numberOfLeds/4; cathode++){
-		GPIO_SetBits(ledPort, ledCathodePins[cathode]);
-	}
-	//initialize anode pins low (standard "OFF")
-	for (uint8_t anode = 0; anode<4; anode++){
-		GPIO_SetBits(ledPort, ledAnodePins[anode]);
-	}
 
-	//initialize leds, standard off
-	for (uint8_t led = 0; led<this->numberOfLeds; led++){
-		setLed(led, false);
-	}
 
 }
 
 void IOBoard::scanLeds(){
-
+		scanCounterTest ++;
 	//for (uint8_t cathode = 0; cathode<this->numberOfLeds/4; cathode++){
 
+		//set "previous" scan cycle cathode to HIGH again (so it is "off")
+		GPIO_SetBits(ledPort, ledCathodePins[scanCathode]);
 		//scan every time scanLeds is called, we go for the next row of Leds.
 		scanCathode++;
 		if (scanCathode >= this->numberOfLeds/4 ){
 			scanCathode =0;
 		}
+/*
 
-		//set "previous" scan cycle cathode to HIGH again (so it is "off")
 		if (scanCathode == 0){
 			GPIO_SetBits(ledPort, ledCathodePins[(this->numberOfLeds/4)-1]);
 		}else{
 			GPIO_SetBits(ledPort, ledCathodePins[scanCathode-1]);
 		}
+*/
 
-		//set cathode low, so current can flow, enabling a row of leds.
-		GPIO_ResetBits(ledPort, ledCathodePins[scanCathode]);
 
 		for (uint8_t anode=0; anode<4;anode++){
 			if (leds[(this->numberOfLeds/4)*scanCathode + anode]){
@@ -480,6 +497,9 @@ void IOBoard::scanLeds(){
 				GPIO_ResetBits(ledPort,this->ledAnodePins[anode]);
 			}
 		}
+
+		//set cathode low, so current can flow, enabling a row of leds.
+		GPIO_ResetBits(ledPort, ledCathodePins[scanCathode]);
 	//}
 }
 

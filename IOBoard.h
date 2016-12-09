@@ -78,6 +78,7 @@ class IOBoard{
 		uint16_t demoLoopCounter[4];
 		uint32_t demoLooptimer;
 		uint32_t millis;
+		uint16_t scanCounterTest;
 
 		bool isADCSetUp = false;
 		uint16_t sliderValues [4];
@@ -105,7 +106,7 @@ class IOBoard{
 		uint16_t ledCathodePins[4];
 		GPIO_TypeDef* ledPort;
 		uint32_t ledPeripheral;
-		bool leds[4];
+		bool leds[16];
 
 
 };

@@ -74,9 +74,13 @@ int main(void)
 	panel2.initADC();
 	panel2.initButtons();
 	panel2.initLeds();
-	for (uint16_t i = 0;i<4;i++){
+
+	IOBoard panel3(PANEL_3);
+	panel3.initLeds();
+
+	for (uint16_t i = 0;i<16;i++){
 		//panel2.setLed(i,true);
-		//panel1.setLed(i,true);
+		panel3.setLed(i,true);
 	}
 
 	IOBoardHandler[1] = &panel2; //link the panel instance to the handler.
@@ -89,6 +93,7 @@ int main(void)
 	{
 		panel1.refresh(millis);
 		panel2.refresh(millis);
+		panel3.refresh(millis);
 		panel1.demoModeLoop();
 		panel2.demoModeLoop();
 		for (uint16_t i = 0;i<4;i++){
@@ -153,7 +158,7 @@ int main(void)
 					}
 
 				}else if (theByte == 's'){
-					panel1.stats(lodeStrTest);
+					//panel3.stats(lodeStrTest);
 					printf ("lets do this: %s ", lodeStrTest);
 				}else if (theByte == 'a') {
 					printf("Doing some action here. \r\n");
