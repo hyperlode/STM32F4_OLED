@@ -87,6 +87,10 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 	buttonTimer = 0;
 	buttonsReadHighElseLow =false;
 	scanCathode = 0;
+
+	adcInitialized = false;
+	buttonsInitialized = false;
+	ledsInitialized = false;
 }
 
 void IOBoard::stats(char* outputString){
@@ -111,7 +115,8 @@ void IOBoard::stats(char* outputString){
 void IOBoard::refresh(uint32_t millis){
 	this->millis = millis;
 
-	if (millis - buttonTimer > BUTTON_PRESS_DELAY / 2){
+
+	if (buttonsInitialized &&  millis - buttonTimer > BUTTON_PRESS_DELAY / 2){
 		buttonTimer = millis;
 		this->millis = millis;
 		buttonsReadHighElseLow = !buttonsReadHighElseLow;
@@ -121,10 +126,16 @@ void IOBoard::refresh(uint32_t millis){
 			readButtonsLow();
 			readButtons();
 		}
+
+	}
+
+	if (ledsInitialized && millis - ledScanTimer > LED_SCAN_PERIOD_MILLIS){
+		ledScanTimer =millis;
 		scanLeds();
 	}
 
-	if (millis - adcSampleTimer > ADC_SAMPLE_PERIOD_MILLIS){
+
+	if (adcInitialized && millis - adcSampleTimer > ADC_SAMPLE_PERIOD_MILLIS){
 		adcDoSingleConversion();
 		adcSampleTimer = millis;
 	}
@@ -255,7 +266,7 @@ void IOBoard::initADC(){
 
 
 	}
-
+	adcInitialized = true;
 }
 
 void IOBoard::adcDoSingleConversion(){
@@ -297,7 +308,7 @@ void IOBoard::initButtons(){
 		GPIO_Buttons_initStructure.GPIO_OType = GPIO_OType_PP;
 		GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
 		GPIO_Init(buttonPort ,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
-
+		this->buttonsInitialized = true;
 }
 
 void IOBoard::readButtons(){
@@ -465,7 +476,7 @@ void IOBoard::initLeds(){
 
 	}
 
-
+	this->ledsInitialized = true;
 
 }
 

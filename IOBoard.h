@@ -16,6 +16,7 @@
 #define BUTTON_PRESS_DELAY 20    //20ms jitter delay
 #define ADC_SAMPLE_PERIOD_MILLIS 50 //every 50ms adc sampling.
 #define DEMOLOOP_UPDATE_DELAY 20	//millis
+#define LED_SCAN_PERIOD_MILLIS 4  //with trial and error, leds are not flickering.
 typedef enum
 {
   PANEL_1 = 0,
@@ -86,6 +87,7 @@ class IOBoard{
 		uint16_t  adcPins [4];
 		GPIO_TypeDef* adcPort;
 		uint32_t adcPeripheral;
+		bool adcInitialized;
 
 		uint16_t numberOfButtons;
 		bool buttonValues[16];
@@ -99,6 +101,7 @@ class IOBoard{
 		uint32_t buttonPeripheral;
 		bool pinsStatePullUpLow[8];
 		bool pinsStatePullUpHigh[8];
+		bool buttonsInitialized;
 
 		uint16_t numberOfLeds;
 		uint16_t scanCathode;
@@ -107,7 +110,8 @@ class IOBoard{
 		GPIO_TypeDef* ledPort;
 		uint32_t ledPeripheral;
 		bool leds[16];
-
+		bool ledsInitialized;
+		uint32_t ledScanTimer;
 
 };
 
