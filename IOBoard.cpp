@@ -168,7 +168,10 @@ void IOBoard::demoModeLoop(){
 
 		}else{
 			for (uint16_t i=0; i<this->numberOfButtons;i++){
-				setLed(i,getButtonState(i));
+				//setLed(i,getButtonState(i));
+				if (getButtonEdgePressed(i)){
+					toggleLed(i);
+				}
 			}
 
 		}
