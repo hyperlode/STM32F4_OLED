@@ -1,5 +1,13 @@
 #include "IOBoard.h"
 
+//Lode custom made IO boards with four sliders, four buttons and four leds in standard configurations.
+// if no sliders: 16 buttons, 16 leds.
+//not completly abstract. every panel is still hard wired to this class. also, for the ADC, watch closely how to deal with the conversion interrupt! Check if ADC is initialized.
+//all items of a certain type (leds, sliders, buttons) must use the same port per panel.
+
+
+
+
 IOBoard::IOBoard(PanelId_TypeDef panelId){
 	this ->panelId = panelId;
 	if (panelId == PANEL_1){
