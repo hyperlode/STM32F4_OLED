@@ -77,10 +77,11 @@ int main(void)
 
 	IOBoard panel3(PANEL_3);
 	panel3.initLeds();
+	panel3.initButtons();
 
 	for (uint16_t i = 0;i<16;i++){
 		//panel2.setLed(i,true);
-		panel3.setLed(i,true);
+		//panel3.setLed(i,true);
 	}
 
 	IOBoardHandler[1] = &panel2; //link the panel instance to the handler.
@@ -96,17 +97,18 @@ int main(void)
 		panel3.refresh(millis);
 		panel1.demoModeLoop();
 		panel2.demoModeLoop();
+		panel3.demoModeLoop();
 		for (uint16_t i = 0;i<4;i++){
-			if (panel1.getButtonEdgeDePressed(i)){
+			if (panel3.getButtonEdgeDePressed(i)){
 				printf("button %d edge unpressed!\r\n", i);
 				printf("-----------------\r\n");
 			}
 
-			if (panel1.getButtonEdgePressed(i)){
+			if (panel3.getButtonEdgePressed(i)){
 				printf("button %d edge pressed!\r\n", i);
 			}
 
-			if (panel2.getButtonEdgePressed(i)){
+			if (panel3.getButtonEdgePressed(i)){
 				printf("button panel 2 %d edge pressed!\r\n", i);
 
 			}
@@ -158,7 +160,7 @@ int main(void)
 					}
 
 				}else if (theByte == 's'){
-					//panel3.stats(lodeStrTest);
+					panel3.stats(lodeStrTest);
 					printf ("lets do this: %s ", lodeStrTest);
 				}else if (theByte == 'a') {
 					printf("Doing some action here. \r\n");

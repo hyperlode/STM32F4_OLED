@@ -72,14 +72,14 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		ledPeripheral = RCC_AHB1Periph_GPIOE;
 
 		numberOfButtons =16;
-		buttonPins[0] = GPIO_Pin_7;
-		buttonPins[1] = GPIO_Pin_8;
-		buttonPins[2] = GPIO_Pin_9;
-		buttonPins[3] = GPIO_Pin_10;
-		buttonPins[4] = GPIO_Pin_11;
-		buttonPins[5] = GPIO_Pin_12;
-		buttonPins[6] = GPIO_Pin_13;
-		buttonPins[7] = GPIO_Pin_14;
+		buttonPins[0] = GPIO_Pin_8;
+		buttonPins[1] = GPIO_Pin_9;
+		buttonPins[2] = GPIO_Pin_10;
+		buttonPins[3] = GPIO_Pin_11;
+		buttonPins[4] = GPIO_Pin_12;
+		buttonPins[5] = GPIO_Pin_13;
+		buttonPins[6] = GPIO_Pin_14;
+		buttonPins[7] = GPIO_Pin_15;
 		buttonPort = GPIOE;
 		buttonPeripheral = RCC_AHB1Periph_GPIOE;
 	}
@@ -87,6 +87,7 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 	buttonTimer = 0;
 	buttonsReadHighElseLow =false;
 	scanCathode = 0;
+	scanCounterTest = 0;
 
 	adcInitialized = false;
 	buttonsInitialized = false;
@@ -142,26 +143,34 @@ void IOBoard::refresh(uint32_t millis){
 }
 
 void IOBoard::demoModeLoop(){
-
 	if (millis - demoLooptimer > DEMOLOOP_UPDATE_DELAY){
-		demoLooptimer = millis;
-		//call every 20 ms --> 50Hz
-		for (uint8_t i=0;i<4;i++){
-			this->demoLoopCounter[i]++; //update counter
-			if (getButtonState(i)){
-				//blinkmode
-				if (demoLoopCounter[i] >  getSliderValue(i)/200){
-					setLed(i,true);
+		if(adcInitialized){
+
+			demoLooptimer = millis;
+			//call every 20 ms --> 50Hz
+			for (uint8_t i=0;i<4;i++){
+				this->demoLoopCounter[i]++; //update counter
+				if (getButtonState(i)){
+					//blinkmode
+					if (demoLoopCounter[i] >  getSliderValue(i)/200){
+						setLed(i,true);
+					}else{
+						setLed(i,false);
+					}
 				}else{
+					//led off
 					setLed(i,false);
 				}
-			}else{
-				//led off
-				setLed(i,false);
+				if (this-> demoLoopCounter[i] > getSliderValue(i)/100){
+					this->demoLoopCounter[i] = 0;
+				}
 			}
-			if (this-> demoLoopCounter[i] > getSliderValue(i)/100){
-				this->demoLoopCounter[i] = 0;
+
+		}else{
+			for (uint16_t i=0; i<this->numberOfButtons;i++){
+				setLed(i,getButtonState(i));
 			}
+
 		}
 	}
 }
@@ -263,8 +272,6 @@ void IOBoard::initADC(){
 		ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 8, ADC_SampleTime_480Cycles);
 		ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 9, ADC_SampleTime_480Cycles);
 		ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 10, ADC_SampleTime_480Cycles);
-
-
 	}
 	adcInitialized = true;
 }
@@ -298,11 +305,13 @@ void IOBoard::initButtons(){
 		if (this->numberOfButtons == 4){
 			GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1];
 		}else if (this->numberOfButtons == 16){
-			GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1]|buttonPins[2] | buttonPins[3]|buttonPins[4] | buttonPins[5]|buttonPins[6] | buttonPins[7];
+			GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1] | buttonPins[2] | buttonPins[3] | buttonPins[4] | buttonPins[5] | buttonPins[6] | buttonPins[7];
+			//GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0];
+			scanCounterTest ++;
 		}else {
-
 			printf("init ERROR: number of buttons must be 4 or 16. ");
 		}
+
 		GPIO_Buttons_initStructure.GPIO_Mode = GPIO_Mode_IN ;
 		GPIO_Buttons_initStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_Buttons_initStructure.GPIO_OType = GPIO_OType_PP;
@@ -349,8 +358,8 @@ void IOBoard::readButtons(){
 				buttonValues [i] = pinsStatePullUpLow [i/2] && pinsStatePullUpHigh [i/2];
 			}
 		}
-
 	}
+
 	//check for edges
 	for (uint8_t i=0; i<this->numberOfButtons;i++){
 		buttonEdgesPressed[i] = 	!previousButtonValues[i] &&  buttonValues [i];
@@ -481,8 +490,6 @@ void IOBoard::initLeds(){
 }
 
 void IOBoard::scanLeds(){
-		scanCounterTest ++;
-	//for (uint8_t cathode = 0; cathode<this->numberOfLeds/4; cathode++){
 
 		//set "previous" scan cycle cathode to HIGH again (so it is "off")
 		GPIO_SetBits(ledPort, ledCathodePins[scanCathode]);
@@ -491,15 +498,6 @@ void IOBoard::scanLeds(){
 		if (scanCathode >= this->numberOfLeds/4 ){
 			scanCathode =0;
 		}
-/*
-
-		if (scanCathode == 0){
-			GPIO_SetBits(ledPort, ledCathodePins[(this->numberOfLeds/4)-1]);
-		}else{
-			GPIO_SetBits(ledPort, ledCathodePins[scanCathode-1]);
-		}
-*/
-
 
 		for (uint8_t anode=0; anode<4;anode++){
 			if (leds[(this->numberOfLeds/4)*scanCathode + anode]){
@@ -511,7 +509,7 @@ void IOBoard::scanLeds(){
 
 		//set cathode low, so current can flow, enabling a row of leds.
 		GPIO_ResetBits(ledPort, ledCathodePins[scanCathode]);
-	//}
+
 }
 
 void IOBoard::setLed(uint16_t ledNumber, bool value){
