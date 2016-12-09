@@ -10,8 +10,11 @@
 
 IOBoard::IOBoard(PanelId_TypeDef panelId){
 	this ->panelId = panelId;
+
+	//check ADC init for further magic numbers and specific initializations.
 	if (panelId == PANEL_1){
-		ledCathodePin = GPIO_Pin_6;
+		numberOfLeds = 4;
+		ledCathodePins[0] = GPIO_Pin_6;
 		ledAnodePins[0] = GPIO_Pin_8;
 		ledAnodePins[1] = GPIO_Pin_9;
 		ledAnodePins[2] = GPIO_Pin_11;
@@ -19,8 +22,9 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		ledPort = GPIOC;
 		ledPeripheral = RCC_AHB1Periph_GPIOC;
 
-		buttonPins[0] = GPIO_Pin_13;
-		buttonPins[1] = GPIO_Pin_14;
+		numberOfButtons =4;
+		buttonPins[0] = GPIO_Pin_13; //two buttons per pin
+		buttonPins[1] = GPIO_Pin_14; //two buttons per pin
 		buttonPort = GPIOB;
 		buttonPeripheral = RCC_AHB1Periph_GPIOB;
 
@@ -33,7 +37,8 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 
 
 	}else if (panelId == PANEL_2){
-		ledCathodePin = GPIO_Pin_4;
+		numberOfLeds = 4;
+		ledCathodePins[0] = GPIO_Pin_4;
 		ledAnodePins[0] = GPIO_Pin_5,
 		ledAnodePins[1] = GPIO_Pin_6;
 		ledAnodePins[2] = GPIO_Pin_7;
@@ -41,28 +46,54 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		ledPort = GPIOB;
 		ledPeripheral = RCC_AHB1Periph_GPIOB;
 
-		buttonPins[0] = GPIO_Pin_1;
-		buttonPins[1] = GPIO_Pin_2;
+		numberOfButtons =4;
+		buttonPins[0] = GPIO_Pin_1; //two buttons per pin
+		buttonPins[1] = GPIO_Pin_2; //two buttons per pin
 		buttonPort = GPIOD;
 		buttonPeripheral = RCC_AHB1Periph_GPIOD;
-/**/
+
 		adcPins[0] = GPIO_Pin_0;
 		adcPins[1] = GPIO_Pin_1;
 		adcPins[2] = GPIO_Pin_2;
 		adcPins[3] = GPIO_Pin_3;
 		adcPort  = GPIOA;
 		adcPeripheral = RCC_AHB1ENR_GPIOAEN;
-	/*	*/
+	}else if (panelId == PANEL_3){
+		numberOfLeds = 16;
+		ledCathodePins[0] = GPIO_Pin_0;
+		ledCathodePins[1] = GPIO_Pin_1;
+		ledCathodePins[2] = GPIO_Pin_2;
+		ledCathodePins[3] = GPIO_Pin_3;
+		ledAnodePins[0] = GPIO_Pin_4,
+		ledAnodePins[1] = GPIO_Pin_5;
+		ledAnodePins[2] = GPIO_Pin_6;
+		ledAnodePins[3] = GPIO_Pin_7 ;
+		ledPort = GPIOE;
+		ledPeripheral = RCC_AHB1Periph_GPIOE;
 
+		numberOfButtons =16;
+		buttonPins[0] = GPIO_Pin_7;
+		buttonPins[1] = GPIO_Pin_8;
+		buttonPins[2] = GPIO_Pin_9;
+		buttonPins[3] = GPIO_Pin_10;
+		buttonPins[4] = GPIO_Pin_11;
+		buttonPins[5] = GPIO_Pin_12;
+		buttonPins[6] = GPIO_Pin_13;
+		buttonPins[7] = GPIO_Pin_14;
+		buttonPort = GPIOE;
+		buttonPeripheral = RCC_AHB1Periph_GPIOE;
 	}
+
 	buttonTimer = 0;
 	buttonsReadHighElseLow =false;
+	scanCathode = 0;
 }
 
 void IOBoard::stats(char* outputString){
 
 	//if (isConstructed){
 		outputString[0]= 'O';
+		printf( "number of leds: %d \r\n", this->numberOfLeds);
 	//}else{
 	//	outputString[0]= 'P';
 	//}
@@ -244,15 +275,19 @@ void IOBoard::initButtons(){
 		RCC_AHB1PeriphClockCmd(buttonPeripheral, ENABLE);
 		//GPIO_InitTypeDef GPIO_Buttons_initStructure; defined in .h file, has to be available because we work with two buttons on one pin...
 		//Analog pin configuration
-		GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1];
+		if (this->numberOfButtons == 4){
+			GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1];
+		}else if (this->numberOfButtons == 16){
+			GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1]|buttonPins[2] | buttonPins[3]|buttonPins[4] | buttonPins[5]|buttonPins[6] | buttonPins[7];
+		}else {
+
+			printf("init ERROR: number of buttons must be 4 or 16. ");
+		}
 		GPIO_Buttons_initStructure.GPIO_Mode = GPIO_Mode_IN ;
 		GPIO_Buttons_initStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_Buttons_initStructure.GPIO_OType = GPIO_OType_PP;
 		GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
 		GPIO_Init(buttonPort ,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
-
-
-
 
 }
 
@@ -274,28 +309,37 @@ void IOBoard::readButtons(){
 			}
 	*/
 
-	bool previousButtonValues[4];
+	bool previousButtonValues[16];
 
 	//preserve previous button values
-	for (uint8_t i=0; i<4;i++){
+	for (uint8_t i=0; i<this->numberOfButtons;i++){
 		previousButtonValues[i] = buttonValues[i];
 	}
+	if (this->numberOfButtons == 4){
+		//determine button presses
+		buttonValues [0] = !pinsStatePullUpLow [0] && !pinsStatePullUpHigh [0];//low and low, means button connected to ground is switched
+		buttonValues [1] =  pinsStatePullUpLow [0] &&  pinsStatePullUpHigh [0];// high and high means button connected to VCC is switched
+		buttonValues [2] = !pinsStatePullUpLow [1] && !pinsStatePullUpHigh [1];//low and low, means button connected to ground is switched
+		buttonValues [3] =  pinsStatePullUpLow [1] &&  pinsStatePullUpHigh [1];// high and high means button connected to VCC is switched
+	}else if (this->numberOfButtons == 16){
+		for (uint8_t i=0; i<this->numberOfButtons;i++){
+			if (i%2 ==0){
+				buttonValues [i] = !pinsStatePullUpLow [i/2] && !pinsStatePullUpHigh [i/2];
+			}else{
+				buttonValues [i] = pinsStatePullUpLow [i/2] && pinsStatePullUpHigh [i/2];
+			}
+		}
 
-	//determine button presses
-	buttonValues [0] = !pinsStatePullUpLow [0] && !pinsStatePullUpHigh [0];//low and low, means button connected to ground is switched
-	buttonValues [1] =  pinsStatePullUpLow [0] &&  pinsStatePullUpHigh [0];// high and high means button connected to VCC is switched
-	buttonValues [2] = !pinsStatePullUpLow [1] && !pinsStatePullUpHigh [1];//low and low, means button connected to ground is switched
-	buttonValues [3] =  pinsStatePullUpLow [1] &&  pinsStatePullUpHigh [1];// high and high means button connected to VCC is switched
-
+	}
 	//check for edges
-	for (uint8_t i=0; i<4;i++){
+	for (uint8_t i=0; i<this->numberOfButtons;i++){
 		buttonEdgesPressed[i] = 	!previousButtonValues[i] &&  buttonValues [i];
 		buttonEdgesDePressed[i] = 	 previousButtonValues[i] && !buttonValues [i];
 	}
 
 	//check if a state changed.
 	this->atLeastOneButtonStateChanged = false;
-	for (uint8_t i=0; i<4;i++){
+	for (uint8_t i=0; i<this->numberOfButtons;i++){
 		if (buttonEdgesPressed[i] || buttonEdgesDePressed[i]){
 			this->atLeastOneButtonStateChanged = true;
 		}
@@ -311,18 +355,19 @@ bool IOBoard::getAtLeastOneButtonStateChanged(){
 
 void IOBoard::readButtonsLow(){
 	//ASSUMES the pull up resistor is not set (pin floating) no pull down either, this is set in the hardware.
+		for (uint8_t i=0; i<this->numberOfButtons/2;i++){
+			this->pinsStatePullUpLow [i] = GPIO_ReadInputDataBit(buttonPort, buttonPins[i]);
+		}
 
-		this->pinsStatePullUpLow [0] = GPIO_ReadInputDataBit(buttonPort, buttonPins[0]);
-		this->pinsStatePullUpLow [1] = GPIO_ReadInputDataBit(buttonPort, buttonPins[1]);
 		GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_UP; //set for the next cycle.
 		GPIO_Init(buttonPort,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
 }
 
 void IOBoard::readButtonsHigh(){
 	//ASSUMES the pull up resistor is enabled.
-
-		this->pinsStatePullUpHigh [0] = GPIO_ReadInputDataBit(buttonPort, buttonPins[0]);
-		this->pinsStatePullUpHigh [1] = GPIO_ReadInputDataBit(buttonPort, buttonPins[1]);
+		for (uint8_t i=0; i<this->numberOfButtons/2;i++){
+			this->pinsStatePullUpHigh [i] = GPIO_ReadInputDataBit(buttonPort, buttonPins[i]);
+		}
 
 		//put already down for the next cycle.
 		//GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
@@ -359,12 +404,13 @@ bool IOBoard::getButtonEdgePressed(uint16_t button){
 void IOBoard::initLeds(){
 	//very specific
 
+	if (numberOfLeds ==4){
 		//leds
 		RCC_AHB1PeriphClockCmd(ledPeripheral, ENABLE);
 		//GPIO_InitTypeDef GPIO_initStructre; defined in .h file, has to be available because we work with two buttons on one pin...
 		//Analog pin configuration
 		GPIO_InitTypeDef GPIO_initStructre;
-		GPIO_initStructre.GPIO_Pin = ledAnodePins[0] |  ledAnodePins[1] | ledAnodePins[2] | ledAnodePins[3] |ledCathodePin ;
+		GPIO_initStructre.GPIO_Pin = ledAnodePins[0] |  ledAnodePins[1] | ledAnodePins[2] | ledAnodePins[3] |ledCathodePins[0] ;
 		GPIO_initStructre.GPIO_Mode = GPIO_Mode_OUT ;
 		GPIO_initStructre.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_initStructre.GPIO_OType = GPIO_OType_PP;
@@ -372,18 +418,69 @@ void IOBoard::initLeds(){
 		GPIO_Init(ledPort,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
 
 		//common cathode pin always low.
-		GPIO_ResetBits(ledPort, ledCathodePin);
+		GPIO_ResetBits(ledPort, ledCathodePins[0]);
+	}else if (numberOfLeds == 16){
+		//leds
+				RCC_AHB1PeriphClockCmd(ledPeripheral, ENABLE);
+				//GPIO_InitTypeDef GPIO_initStructre; defined in .h file, has to be available because we work with two buttons on one pin...
+				//Analog pin configuration
+				GPIO_InitTypeDef GPIO_initStructre;
+				GPIO_initStructre.GPIO_Pin = ledAnodePins[0] |  ledAnodePins[1] | ledAnodePins[2] | ledAnodePins[3] | ledCathodePins[0] | ledCathodePins[1] |ledCathodePins[2] |ledCathodePins[3] ;
+				GPIO_initStructre.GPIO_Mode = GPIO_Mode_OUT ;
+				GPIO_initStructre.GPIO_Speed = GPIO_Speed_50MHz;
+				GPIO_initStructre.GPIO_OType = GPIO_OType_PP;
+				GPIO_initStructre.GPIO_PuPd = GPIO_PuPd_NOPULL;
+				GPIO_Init(ledPort,&GPIO_initStructre);//Affecting the port with the initialization structure configuration
+
+				//common cathode pin always low.
+				//GPIO_ResetBits(ledPort, ledCathodePin);
+
+	}
+
+	//initialize cathode pins high (standard "OFF")
+	for (uint8_t cathode = 0; cathode<this->numberOfLeds/4; cathode++){
+		GPIO_SetBits(ledPort, ledCathodePins[cathode]);
+	}
+	//initialize anode pins low (standard "OFF")
+	for (uint8_t anode = 0; anode<4; anode++){
+		GPIO_SetBits(ledPort, ledAnodePins[anode]);
+	}
+
+	//initialize leds, standard off
+	for (uint8_t led = 0; led<this->numberOfLeds; led++){
+		setLed(led, false);
+	}
 
 }
 
 void IOBoard::scanLeds(){
-	for (uint8_t i=0; i<4;i++){
-		if (leds[i]){
-			GPIO_SetBits(ledPort,this->ledAnodePins[i]);
-		}else{
-			GPIO_ResetBits(ledPort,this->ledAnodePins[i]);
+
+	//for (uint8_t cathode = 0; cathode<this->numberOfLeds/4; cathode++){
+
+		//scan every time scanLeds is called, we go for the next row of Leds.
+		scanCathode++;
+		if (scanCathode >= this->numberOfLeds/4 ){
+			scanCathode =0;
 		}
-	}
+
+		//set "previous" scan cycle cathode to HIGH again (so it is "off")
+		if (scanCathode == 0){
+			GPIO_SetBits(ledPort, ledCathodePins[(this->numberOfLeds/4)-1]);
+		}else{
+			GPIO_SetBits(ledPort, ledCathodePins[scanCathode-1]);
+		}
+
+		//set cathode low, so current can flow, enabling a row of leds.
+		GPIO_ResetBits(ledPort, ledCathodePins[scanCathode]);
+
+		for (uint8_t anode=0; anode<4;anode++){
+			if (leds[(this->numberOfLeds/4)*scanCathode + anode]){
+				GPIO_SetBits(ledPort,this->ledAnodePins[anode]);
+			}else{
+				GPIO_ResetBits(ledPort,this->ledAnodePins[anode]);
+			}
+		}
+	//}
 }
 
 void IOBoard::setLed(uint16_t ledNumber, bool value){

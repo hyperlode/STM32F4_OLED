@@ -19,7 +19,8 @@
 typedef enum
 {
   PANEL_1 = 0,
-  PANEL_2 = 1
+  PANEL_2 = 1,
+  PANEL_3 = 2
 } PanelId_TypeDef;
 
 
@@ -85,23 +86,23 @@ class IOBoard{
 		GPIO_TypeDef* adcPort;
 		uint32_t adcPeripheral;
 
-
-		bool buttonValues[4];
-		bool buttonEdgesPressed[4];
-		bool buttonEdgesDePressed[4];
+		uint16_t numberOfButtons;
+		bool buttonValues[16];
+		bool buttonEdgesPressed[16];
+		bool buttonEdgesDePressed[16];
 		bool atLeastOneButtonStateChanged;
 		uint32_t buttonTimer;
 		bool buttonsReadHighElseLow;
-		uint16_t  buttonPins [2];
+		uint16_t  buttonPins [8];
 		GPIO_TypeDef* buttonPort;
 		uint32_t buttonPeripheral;
+		bool pinsStatePullUpLow[8];
+		bool pinsStatePullUpHigh[8];
 
-
-		bool pinsStatePullUpLow[2];
-		bool pinsStatePullUpHigh[2];
-
+		uint16_t numberOfLeds;
+		uint16_t scanCathode;
 		uint16_t  ledAnodePins [4];
-		uint16_t ledCathodePin;
+		uint16_t ledCathodePins[4];
 		GPIO_TypeDef* ledPort;
 		uint32_t ledPeripheral;
 		bool leds[4];

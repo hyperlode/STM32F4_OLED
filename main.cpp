@@ -74,9 +74,10 @@ int main(void)
 	panel2.initADC();
 	panel2.initButtons();
 	panel2.initLeds();
-	//for (uint16_t i = 0;i<4;i++){
-	//	panel2.setLed(i,true);
-	//}
+	for (uint16_t i = 0;i<4;i++){
+		//panel2.setLed(i,true);
+		//panel1.setLed(i,true);
+	}
 
 	IOBoardHandler[1] = &panel2; //link the panel instance to the handler.
 
