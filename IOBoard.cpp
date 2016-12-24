@@ -35,7 +35,6 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		adcPort  = GPIOC;
 		adcPeripheral = RCC_AHB1ENR_GPIOCEN;
 
-
 	}else if (panelId == PANEL_2){
 		numberOfLeds = 4;
 		ledCathodePins[0] = GPIO_Pin_4;
@@ -58,6 +57,7 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		adcPins[3] = GPIO_Pin_3;
 		adcPort  = GPIOA;
 		adcPeripheral = RCC_AHB1ENR_GPIOAEN;
+
 	}else if (panelId == PANEL_3){
 		numberOfLeds = 16;
 		ledCathodePins[0] = GPIO_Pin_0;
@@ -82,6 +82,7 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		buttonPins[7] = GPIO_Pin_15;
 		buttonPort = GPIOE;
 		buttonPeripheral = RCC_AHB1Periph_GPIOE;
+
 	}else if (panelId = PANEL_4){
 		numberOfLeds = 16;
 		ledCathodePins[0] = GPIO_Pin_0;
@@ -94,12 +95,12 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		ledAnodePins[3] = GPIO_Pin_7 ;
 		ledPort = GPIOD;
 		ledPeripheral = RCC_AHB1Periph_GPIOD;
+
 		numberOfButtons =4;
 		buttonPins[0] = GPIO_Pin_10; //two buttons per pin
 		buttonPins[1] = GPIO_Pin_11; //two buttons per pin
 		buttonPort = GPIOB;
 		buttonPeripheral = RCC_AHB1Periph_GPIOB;
-
 	}
 
 	buttonTimer = 0;
@@ -134,7 +135,6 @@ void IOBoard::stats(char* outputString){
 void IOBoard::refresh(uint32_t millis){
 	this->millis = millis;
 
-
 	if (buttonsInitialized &&  millis - buttonTimer > BUTTON_PRESS_DELAY / 2){
 		buttonTimer = millis;
 		this->millis = millis;
@@ -145,7 +145,6 @@ void IOBoard::refresh(uint32_t millis){
 			readButtonsLow();
 			readButtons();
 		}
-
 	}
 
 	if (ledsInitialized && millis - ledScanTimer > LED_SCAN_PERIOD_MILLIS){
@@ -163,12 +162,14 @@ void IOBoard::refresh(uint32_t millis){
 void IOBoard::demoModeLoop(){
 	if (millis - demoLooptimer > DEMOLOOP_UPDATE_DELAY){
 		if(adcInitialized){
+			//panels with 4 sliders, 4 leds, 4 buttons
 
 			demoLooptimer = millis;
 			//call every 20 ms --> 50Hz
 			for (uint8_t i=0;i<4;i++){
 				this->demoLoopCounter[i]++; //update counter
-				if (getButtonState(i)){
+				//if (getButtonState(i)){
+				if (getButtonValueToggleSwitch(i)){
 					//blinkmode
 					if (demoLoopCounter[i] >  getSliderValue(i)/200){
 						setLed(i,true);
@@ -185,6 +186,7 @@ void IOBoard::demoModeLoop(){
 			}
 
 		}else if (numberOfButtons == 16 && numberOfLeds == 16){
+			//panels with 16 buttons, 16 leds.
 			for (uint16_t i=0; i<this->numberOfButtons;i++){
 				//setLed(i,getButtonState(i));
 				if (getButtonEdgePressed(i)){
@@ -193,6 +195,7 @@ void IOBoard::demoModeLoop(){
 			}
 
 		}else if  (numberOfButtons == 4 && numberOfLeds == 16){
+			//panels with 16 leds, 4 buttons
 			for (uint16_t i=0; i<this->numberOfButtons;i++){
 				//setLed(i,getButtonState(i));
 				if (getButtonEdgePressed(i)){
@@ -206,11 +209,11 @@ void IOBoard::demoModeLoop(){
 	}
 }
 
-/*
+/**************************************************************************************************************************************
  *
  * ADC
  *
- */
+ ***************************************************************************************************************************************/
 
 void IOBoard::initADC(){
 
@@ -322,11 +325,11 @@ uint16_t IOBoard::getSliderValue(uint16_t slider){
 	return this->sliderValues[slider];
 }
 
-/*
+/**************************************************************************************************************************************
  *
  * BUTTONS
  *
- */
+**************************************************************************************************************************************/
 
 void IOBoard::initButtons(){
 	//very specific
@@ -348,6 +351,13 @@ void IOBoard::initButtons(){
 		GPIO_Buttons_initStructure.GPIO_OType = GPIO_OType_PP;
 		GPIO_Buttons_initStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
 		GPIO_Init(buttonPort ,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
+
+		for (uint8_t i=0; i<this->numberOfButtons;i++){
+				buttonValuesToggleSwitch[i] = 0;
+				buttonValues[i] = 0;
+		}
+
+
 		this->buttonsInitialized = true;
 }
 
@@ -395,6 +405,10 @@ void IOBoard::readButtons(){
 	for (uint8_t i=0; i<this->numberOfButtons;i++){
 		buttonEdgesPressed[i] = 	!previousButtonValues[i] &&  buttonValues [i];
 		buttonEdgesDePressed[i] = 	 previousButtonValues[i] && !buttonValues [i];
+
+		if (buttonEdgesPressed[i]){
+			buttonValuesToggleSwitch[i] = !buttonValuesToggleSwitch[i];
+		}
 	}
 
 	//check if a state changed.
@@ -435,6 +449,9 @@ void IOBoard::readButtonsHigh(){
 		GPIO_Init(buttonPort,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
 }
 
+bool IOBoard::getButtonValueToggleSwitch(uint16_t button){
+	return buttonValuesToggleSwitch[button];
+}
 
 bool IOBoard::getButtonState(uint16_t button){
 	return buttonValues [button];
@@ -455,11 +472,11 @@ bool IOBoard::getButtonEdgePressed(uint16_t button){
 	return state;
 }
 
-/*
+/**************************************************************************************************************************************
  *
  * LEDS
  *
- */
+**************************************************************************************************************************************/
 
 void IOBoard::initLeds(){
 	//very specific

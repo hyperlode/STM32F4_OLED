@@ -71,6 +71,7 @@ class IOBoard{
 		void readButtonsHigh();
 		void readButtonsLow();
 		bool getButtonState(uint16_t button);
+		bool getButtonValueToggleSwitch(uint16_t button);
 		bool getButtonEdgeDePressed(uint16_t button);
 		bool getButtonEdgePressed(uint16_t button);
 
@@ -92,6 +93,7 @@ class IOBoard{
 
 		uint16_t numberOfButtons;
 		bool buttonValues[16];
+		bool buttonValuesToggleSwitch[16];
 		bool buttonEdgesPressed[16];
 		bool buttonEdgesDePressed[16];
 		bool atLeastOneButtonStateChanged;

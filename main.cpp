@@ -128,6 +128,7 @@ int main(void)
 			for (uint16_t i = 0;i<4;i++){
 				if (panel1.getButtonState(i)){
 					printf("button %d pressed!\r\n", i);
+					printf("buttonToggle Switch value: %d \r\n",panel1.getButtonValueToggleSwitch(i));
 				}
 			}
 			for (uint16_t i = 0;i<4;i++){
