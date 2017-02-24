@@ -70,7 +70,7 @@ int main(void)
 
 	//set up test interrupt PB3
 	setUpHardWareInterrupt_PB3();
-	//setUpInputPin_PB5();
+	setUpInputPin_PB5();
 
 
 	//panel 1
@@ -474,9 +474,9 @@ void EXTI3_IRQHandler(void) {
     /* Make sure that interrupt flag is set */
     if (EXTI_GetITStatus(EXTI_Line3) != RESET) {
         /* Do your stuff when PD0 is changed */
-    	//if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)){
+    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)){
     		STM_EVAL_LEDToggle(LED4);
-    	//}
+    	}
         /* Clear interrupt flag */
         EXTI_ClearITPendingBit(EXTI_Line3);
 
