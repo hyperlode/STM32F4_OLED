@@ -567,7 +567,7 @@ void IOBoard::ledSequenceUpdate(bool directionIsForward){
 }
 
 void IOBoard::ledSequenceInterruptHandler(bool directionIsForward){
-
+	ledSequenceUpdate( directionIsForward);
 
 }
 

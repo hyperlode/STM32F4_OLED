@@ -140,7 +140,7 @@ int main(void)
 		if (millis%100 > 50 && ringEdgeMemory ==0){
 
 			ringEdgeMemory =1;
-			panel4.ledSequenceUpdate(false);
+			//panel4.ledSequenceUpdate(false);
 			/*
 			panel4.setLed(ledRingSequence[ringCounter] -1,false);
 			ringCounter ++;
