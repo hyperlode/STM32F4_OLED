@@ -6,7 +6,7 @@
 //all items of a certain type (leds, sliders, buttons) must use the same port per panel.
 
 
-
+const uint32_t IOBoard::ledRingSequence[] = {1,2,3,4,8,12,16,15,14,13,9,5};
 
 IOBoard::IOBoard(PanelId_TypeDef panelId){
 	this ->panelId = panelId;
@@ -106,6 +106,8 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		buttonPort = GPIOB;
 		buttonPeripheral = RCC_AHB1Periph_GPIOB;
 	}
+
+
 
 	buttonTimer = 0;
 	buttonsReadHighElseLow =false;
@@ -542,6 +544,33 @@ void IOBoard::initLeds(){
 	this->ledsInitialized = true;
 
 }
+
+void IOBoard::ledSequenceUpdate(bool directionIsForward){
+	setLed(this->ledRingSequence[sequenceCounter] -1,false);
+
+    	if (directionIsForward){
+    		//STM_EVAL_LEDToggle(LED4);
+    		//CW
+    		sequenceCounter ++;
+			if (sequenceCounter>=12){
+				sequenceCounter = 0;
+			}
+
+    	}else{
+    		//CCW
+    		sequenceCounter --;
+    		if (sequenceCounter<0){
+    			sequenceCounter = 12;
+    		}
+    	}
+	setLed(ledRingSequence[sequenceCounter] -1,true);
+}
+
+void IOBoard::ledSequenceInterruptHandler(bool directionIsForward){
+
+
+}
+
 
 void IOBoard::scanLeds(){
 

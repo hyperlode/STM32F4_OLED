@@ -14,12 +14,10 @@
 
 char lodeStrTest []={'a','\0'};
 
-uint32_t ledRingSequence [] = {1,2,3,4,8,12,16,15,14,13,9,5};
-uint32_t ringCounter = 0;
 
 
 
-IOBoard* IOBoardHandler [2];
+IOBoard* IOBoardHandler [4];
 /*
  * The USB data must be 4 byte aligned if DMA is enabled. This macro handles
  * the alignment, if necessary (it's actually magic, but don't tell anyone).
@@ -97,6 +95,7 @@ int main(void)
 	IOBoard panel4(PANEL_4);
 	panel4.initLeds();
 	panel4.initButtons();
+	IOBoardHandler[3] = &panel4; //link the panel instance to the handler.
 
 	for (uint16_t i = 0;i<16;i++){
 
@@ -135,25 +134,28 @@ int main(void)
 
 			}
 		}
-
+/**/
 		//ringLED timer
 		//each second triggered
 		if (millis%100 > 50 && ringEdgeMemory ==0){
+
 			ringEdgeMemory =1;
+			panel4.ledSequenceUpdate(false);
+			/*
 			panel4.setLed(ledRingSequence[ringCounter] -1,false);
 			ringCounter ++;
 			if (ringCounter>=12){
 				ringCounter = 0;
 			}
 			panel4.setLed(ledRingSequence[ringCounter] -1,true);
-
+*/
 		}
 
 		if (millis%100 <10){
 
 			ringEdgeMemory = 0;
 		}
-
+/**/
 
 
 
@@ -474,9 +476,10 @@ void EXTI3_IRQHandler(void) {
     /* Make sure that interrupt flag is set */
     if (EXTI_GetITStatus(EXTI_Line3) != RESET) {
         /* Do your stuff when PD0 is changed */
-    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)){
-    		STM_EVAL_LEDToggle(LED4);
-    	}
+
+		IOBoardHandler[3]->ledSequenceInterruptHandler(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)); //input defines direction
+
+
         /* Clear interrupt flag */
         EXTI_ClearITPendingBit(EXTI_Line3);
 

@@ -65,6 +65,8 @@ class IOBoard{
 		void scanLeds();
 		void setLed(uint16_t ledNumber, bool value);
 		void toggleLed(uint16_t ledNumber);
+		void ledSequenceUpdate(bool directionIsForward);
+		void ledSequenceInterruptHandler(bool directionIsForward);
 
 		void initButtons();
 		void readButtons();
@@ -115,6 +117,8 @@ class IOBoard{
 		bool leds[16];
 		bool ledsInitialized;
 		uint32_t ledScanTimer;
+		const static uint32_t ledRingSequence [12] ;
+		int32_t sequenceCounter = 0;
 
 };
 
