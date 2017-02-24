@@ -23,6 +23,7 @@
 	static uint16_t adcSampleChannelCounter = 0;
 	static uint16_t adcNumberOfSampleCycles= 0;
 	static uint16_t  secondEdgeMemory= 0;
+	static uint16_t ringEdgeMemory =0;
 	static uint16_t  ticker20msEdgeMemory= 0;
 	uint32_t millis;
 

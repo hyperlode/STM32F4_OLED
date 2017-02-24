@@ -14,6 +14,11 @@
 
 char lodeStrTest []={'a','\0'};
 
+uint32_t ledRingSequence [] = {1,2,3,4,8,12,16,15,14,13,9,5};
+uint32_t ringCounter = 0;
+
+
+
 IOBoard* IOBoardHandler [2];
 /*
  * The USB data must be 4 byte aligned if DMA is enabled. This macro handles
@@ -80,18 +85,19 @@ int main(void)
 	IOBoard panel3(PANEL_3);
 	panel3.initLeds();
 	panel3.initButtons();
-
+*/
 	//panel4
 	IOBoard panel4(PANEL_4);
 	panel4.initLeds();
 	panel4.initButtons();
 
-//	for (uint16_t i = 0;i<16;i++){
-		//panel2.setLed(i,true);
-//		panel4.setLed(i,false);
-//	}
+	for (uint16_t i = 0;i<16;i++){
 
-*/
+		//panel4.setLed(i,true);
+		panel4.setLed(i,false);
+	}
+
+
 
 
 
@@ -103,8 +109,9 @@ int main(void)
 	while (1)
 	{
 		panel1.refresh(millis);
-
+		panel4.refresh(millis);
 		panel1.demoModeLoop();
+		//panel4.demoModeLoop();
 
 		for (uint16_t i = 0;i<4;i++){
 			if (panel1.getButtonEdgeDePressed(i)){
@@ -122,8 +129,30 @@ int main(void)
 			}
 		}
 
+		//ringLED timer
+		//each second triggered
+		if (millis%100 > 50 && ringEdgeMemory ==0){
+			ringEdgeMemory =1;
+			panel4.setLed(ledRingSequence[ringCounter] -1,false);
+			ringCounter ++;
+			if (ringCounter>=12){
+				ringCounter = 0;
+			}
+			panel4.setLed(ledRingSequence[ringCounter] -1,true);
+
+		}
+
+		if (millis%100 <10){
+
+			ringEdgeMemory = 0;
+		}
+
+
+
+
 		//each second triggered
 		if (ticker >= 500 && secondEdgeMemory ==0){
+
 			for (uint16_t i = 0;i<4;i++){
 				if (panel1.getButtonState(i)){
 					printf("button %d pressed!\r\n", i);
