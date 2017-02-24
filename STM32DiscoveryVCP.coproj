@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Project version="2G - 1.7.4" name="STM32Discovery_IOBoard_lode">
+<Project version="2G - 1.7.4" name="shovel_model_control">
   <Target name="STM32_Build" isCurrent="1">
     <Device manufacturerId="9" manufacturerName="ST" chipId="342" chipName="STM32F405RG" boardId="" boardName=""/>
     <BuildOption>
@@ -45,7 +45,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="0x00010000" startValue="0x10000000"/>
         </MemoryAreas>
-        <LocateLinkFile path="c:/coocox/coide/configuration/programdata/stm32discovery_ioboard_lode/arm-gcc-link.ld" type="0"/>
+        <LocateLinkFile path="c:/coocox/coide/configuration/programdata/shovel_model_control/arm-gcc-link.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -106,22 +106,22 @@
     <File name="usb_lib/otg/usb_defines.h" path="usb_lib/otg/usb_defines.h" type="1"/>
     <File name="usb_lib/core/usbd_req.c" path="usb_lib/core/usbd_req.c" type="1"/>
     <File name="usb_lib/cdc" path="" type="2"/>
+    <File name="usb_lib/cdc/usbd_cdc_vcp.c" path="usb_lib/cdc/usbd_cdc_vcp.c" type="1"/>
     <File name="cmsis_boot" path="" type="2"/>
     <File name="cmsis_lib/include/stm32f4xx_dac.h" path="cmsis_lib/include/stm32f4xx_dac.h" type="1"/>
-    <File name="usb_lib/cdc/usbd_cdc_vcp.c" path="usb_lib/cdc/usbd_cdc_vcp.c" type="1"/>
     <File name="cmsis_lib/include/stm32f4xx_syscfg.h" path="cmsis_lib/include/stm32f4xx_syscfg.h" type="1"/>
     <File name="STM32F4-Discovery/pdm_filter.h" path="STM32F4-Discovery/pdm_filter.h" type="1"/>
     <File name="cmsis_lib/include/stm32f4xx_usart.h" path="cmsis_lib/include/stm32f4xx_usart.h" type="1"/>
     <File name="usb_lib/otg/usb_dcd_int.c" path="usb_lib/otg/usb_dcd_int.c" type="1"/>
     <File name="usb_conf/usb_bsp.c" path="usb_conf/usb_bsp.c" type="1"/>
     <File name="STM32F4-Discovery/stm32f4_discovery.h" path="STM32F4-Discovery/stm32f4_discovery.h" type="1"/>
-    <File name="cmsis/core_cm4_simd.h" path="cmsis/core_cm4_simd.h" type="1"/>
     <File name="cmsis_boot/stm32f4xx.h" path="cmsis_boot/stm32f4xx.h" type="1"/>
+    <File name="cmsis/core_cm4_simd.h" path="cmsis/core_cm4_simd.h" type="1"/>
     <File name="cmsis_boot/startup" path="" type="2"/>
     <File name="cmsis_lib/source/stm32f4xx_spi.c" path="cmsis_lib/source/stm32f4xx_spi.c" type="1"/>
+    <File name="usb_conf/usbd_conf.h" path="usb_conf/usbd_conf.h" type="1"/>
     <File name="IOBoard.cpp" path="IOBoard.cpp" type="1"/>
     <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
-    <File name="usb_conf/usbd_conf.h" path="usb_conf/usbd_conf.h" type="1"/>
     <File name="cmsis/core_cm4.h" path="cmsis/core_cm4.h" type="1"/>
     <File name="main.h" path="main.h" type="1"/>
     <File name="cmsis_lib/source/misc.c" path="cmsis_lib/source/misc.c" type="1"/>

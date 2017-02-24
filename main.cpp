@@ -68,12 +68,13 @@ int main(void)
 	panel1.initLeds();
 	IOBoardHandler[0] = &panel1; //link the panel instance to the handler.
 
-
+/*
 	//panel 2
 	IOBoard panel2(PANEL_2);
 	panel2.initADC();
 	panel2.initButtons();
 	panel2.initLeds();
+	IOBoardHandler[1] = &panel2; //link the panel instance to the handler.
 
 	//panel 3
 	IOBoard panel3(PANEL_3);
@@ -90,35 +91,33 @@ int main(void)
 //		panel4.setLed(i,false);
 //	}
 
+*/
 
-	IOBoardHandler[1] = &panel2; //link the panel instance to the handler.
 
 
 
 	printf("Userinterface: \r\n");
 	printf("send 'v' for adc values \r\n");
+
+
 	while (1)
 	{
 		panel1.refresh(millis);
-		panel2.refresh(millis);
-		panel3.refresh(millis);
-		panel4.refresh(millis);
+
 		panel1.demoModeLoop();
-		panel2.demoModeLoop();
-		panel3.demoModeLoop();
-		panel4.demoModeLoop();
+
 		for (uint16_t i = 0;i<4;i++){
-			if (panel4.getButtonEdgeDePressed(i)){
+			if (panel1.getButtonEdgeDePressed(i)){
 				printf("button %d edge unpressed!\r\n", i);
 				printf("-----------------\r\n");
 			}
 
-			if (panel4.getButtonEdgePressed(i)){
+			if (panel1.getButtonEdgePressed(i)){
 				printf("button %d edge pressed!\r\n", i);
 			}
 
-			if (panel4.getButtonEdgePressed(i)){
-				printf("button panel 4 %d edge pressed!\r\n", i);
+			if (panel1.getButtonEdgePressed(i)){
+				printf("button panel 1 %d edge pressed!\r\n", i);
 
 			}
 		}
@@ -131,15 +130,18 @@ int main(void)
 					printf("buttonToggle Switch value: %d \r\n",panel1.getButtonValueToggleSwitch(i));
 				}
 			}
+			/*
 			for (uint16_t i = 0;i<4;i++){
 				if (panel2.getButtonState(i)){
 					printf("panel 2 button %d pressed!\r\n", i);
 				}
 			}
+			*/
 			STM_EVAL_LEDToggle(LED3) ;
 		}
-		secondEdgeMemory = ticker >= 500 ;
 
+		//edge handling
+		secondEdgeMemory = (ticker >= 500) ;
 		if (ticker>1000){
 			ticker =0;
 		}
@@ -156,6 +158,8 @@ int main(void)
 
 				if ( theByte == 'v'){
 					//printf ("value %d /r/n", ConvertedValue);
+
+					printf ("samples taken: %d \r\n", adcNumberOfSampleCycles);
 					printf ("value TEMPERATURE %d \r\n", temp);
 					printf ("value VREF %d \r\n", vref);
 
@@ -164,14 +168,16 @@ int main(void)
 						printf ("panel1 slider %d: %d \r\n", i, panel1.getSliderValue(i));
 
 					}
+					/*
 					for (uint8_t i=0; i<4;i++){
 						//printf ("value slider: %d = %d \r\n", i, adcValues[i]);
 						printf ("panel2 slider  %d: %d \r\n", i, panel2.getSliderValue(i));
 					}
-
+*/
 				}else if (theByte == 's'){
-					panel3.stats(lodeStrTest);
+					panel1.stats(lodeStrTest);
 					printf ("lets do this: %s ", lodeStrTest);
+
 				}else if (theByte == 'a') {
 					printf("Doing some action here. \r\n");
 				}else{
@@ -179,11 +185,7 @@ int main(void)
 					printf("No valid command detected. Please send v, s or a . \r\n");
 				}
 			}
-
-
 		}
-		STM_EVAL_LEDOn(LED6);
-		//blinkTheLED();
 	}
 
 	return 0;
@@ -197,6 +199,9 @@ void initDiscoveryBoard(){
 	STM_EVAL_LEDOn(LED5);
 
 	STM_EVAL_LEDInit(LED3);
+
+	STM_EVAL_LEDInit(LED4);
+
 
 	STM_EVAL_LEDInit(LED6);
 	STM_EVAL_LEDOff(LED6);
@@ -323,29 +328,31 @@ void ADC_IRQHandler() {
 
 
         value = ADC_GetConversionValue(ADC1);
-		switch (counter){
+		switch (adcSampleChannelCounter){
 		   case 0:
-				temp = value;
-				counter++;
+				//temp = value;
+				adcSampleChannelCounter++;
 				break;
 		   case 1:
 				vref = value;
-				counter++;
+				adcSampleChannelCounter++;
 				break;
 
 			//all the other channels.
 		   default:
-				if (counter<6){
-					IOBoardHandler[0]->ADCInterruptHandler(counter - 2, value); //IOBoard handle triggers.
+				if (adcSampleChannelCounter<6){
+					IOBoardHandler[0]->ADCInterruptHandler(adcSampleChannelCounter - 2, value); //IOBoard handle triggers.
 				}else{
-					IOBoardHandler[1]->ADCInterruptHandler(counter - 6, value); //IOBoard handle triggers.
+					//set adcSampleChannelCounter to 10IOBoardHandler[1]->ADCInterruptHandler(adcSampleChannelCounter - 6, value); //IOBoard handle triggers.
 				}
 
-				counter++;
-				if (counter ==10){
-					counter =0;
+				adcSampleChannelCounter++;
+				if (adcSampleChannelCounter ==6){
+					adcSampleChannelCounter =0;
+					adcNumberOfSampleCycles++;
 				}
 				break;
+
 		}
 
 

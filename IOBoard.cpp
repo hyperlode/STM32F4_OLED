@@ -13,6 +13,7 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 
 	//check ADC init for further magic numbers and specific initializations.
 	if (panelId == PANEL_1){
+		//4sliders, 4 leds, 4 buttons
 		numberOfLeds = 4;
 		ledCathodePins[0] = GPIO_Pin_6;
 		ledAnodePins[0] = GPIO_Pin_8;
@@ -36,6 +37,7 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		adcPeripheral = RCC_AHB1ENR_GPIOCEN;
 
 	}else if (panelId == PANEL_2){
+		//4sliders, 4 leds, 4 buttons
 		numberOfLeds = 4;
 		ledCathodePins[0] = GPIO_Pin_4;
 		ledAnodePins[0] = GPIO_Pin_5,
@@ -59,6 +61,7 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		adcPeripheral = RCC_AHB1ENR_GPIOAEN;
 
 	}else if (panelId == PANEL_3){
+		// 16 buttons, 16 leds
 		numberOfLeds = 16;
 		ledCathodePins[0] = GPIO_Pin_0;
 		ledCathodePins[1] = GPIO_Pin_1;
@@ -84,6 +87,7 @@ IOBoard::IOBoard(PanelId_TypeDef panelId){
 		buttonPeripheral = RCC_AHB1Periph_GPIOE;
 
 	}else if (panelId = PANEL_4){
+		// 4 buttons, 16 leds
 		numberOfLeds = 16;
 		ledCathodePins[0] = GPIO_Pin_0;
 		ledCathodePins[1] = GPIO_Pin_1;
@@ -261,8 +265,8 @@ void IOBoard::initADC(){
 		ADC_InitStructure.ADC_ExternalTrigConv= 0;
 		ADC_InitStructure.ADC_ExternalTrigConvEdge= 0;
 
-		//ADC_InitStructure.ADC_NbrOfConversion= 6;  //<----------------------------------------------------------------CHANGE ACCORDINGLY
-		ADC_InitStructure.ADC_NbrOfConversion= 10;  //<----------------------------------------------------------------CHANGE ACCORDINGLY should be static!
+		ADC_InitStructure.ADC_NbrOfConversion= 6;  //<--------------------------------------------CHANGE ACCORDINGLY
+		//ADC_InitStructure.ADC_NbrOfConversion= 10;  //<-------------------------------CHANGE ACCORDINGLY should be static!
 
 		ADC_Init(ADC1, &ADC_InitStructure);
 
@@ -318,7 +322,9 @@ void IOBoard::adcDoSingleConversion(){
 
 void IOBoard::ADCInterruptHandler(uint16_t slider, uint16_t value){
 	//call this from the interrupt vector. Will update the data in this class with the appropriate value.
+   // STM_EVAL_LEDOn(LED4);
 	this->sliderValues[slider] = value;
+	scanCounterTest ++;
 }
 
 uint16_t IOBoard::getSliderValue(uint16_t slider){
@@ -341,7 +347,7 @@ void IOBoard::initButtons(){
 		}else if (this->numberOfButtons == 16){
 			GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1] | buttonPins[2] | buttonPins[3] | buttonPins[4] | buttonPins[5] | buttonPins[6] | buttonPins[7];
 			//GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0];
-			scanCounterTest ++;
+
 		}else {
 			printf("init ERROR: number of buttons must be 4 or 16. ");
 		}

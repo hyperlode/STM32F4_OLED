@@ -20,7 +20,8 @@
 
 	static uint16_t temp = 0;
 	static uint16_t vref = 0;
-	static uint16_t counter = 0;
+	static uint16_t adcSampleChannelCounter = 0;
+	static uint16_t adcNumberOfSampleCycles= 0;
 	static uint16_t  secondEdgeMemory= 0;
 	static uint16_t  ticker20msEdgeMemory= 0;
 	uint32_t millis;
