@@ -38,6 +38,8 @@ __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
 #endif
  void init();
  void ColorfulRingOfDeath(void);
+void setUpHardWareInterrupt_PB3();
+void setUpInputPin_PB5();
 
 
 void SysTick_Handler(void);
@@ -65,6 +67,11 @@ int main(void)
 	init();
 
 	initDiscoveryBoard();
+
+	//set up test interrupt PB3
+	setUpHardWareInterrupt_PB3();
+	//setUpInputPin_PB5();
+
 
 	//panel 1
 	IOBoard panel1(PANEL_1);
@@ -151,8 +158,8 @@ int main(void)
 
 
 		//each second triggered
-		if (ticker >= 500 && secondEdgeMemory ==0){
-
+		if (millis%1000 >= 500 && secondEdgeMemory ==0){
+			secondEdgeMemory = 1;
 			for (uint16_t i = 0;i<4;i++){
 				if (panel1.getButtonState(i)){
 					printf("button %d pressed!\r\n", i);
@@ -170,11 +177,9 @@ int main(void)
 		}
 
 		//edge handling
-		secondEdgeMemory = (ticker >= 500) ;
-		if (ticker>1000){
-			ticker =0;
+		if (millis%1000 < 100){
+			secondEdgeMemory = 0;
 		}
-
 		// If there's data on the virtual serial port:
 		 //  - Echo it back
 		 //  - Turn the green LED on for 10ms
@@ -219,7 +224,6 @@ int main(void)
 
 	return 0;
 }
-
 
 
 void initDiscoveryBoard(){
@@ -387,6 +391,103 @@ void ADC_IRQHandler() {
 
 
 }
+
+void setUpInputPin_PB5(){
+	 /* Set variables used */
+		GPIO_InitTypeDef GPIO_InitStruct;
+		EXTI_InitTypeDef EXTI_InitStruct;
+		NVIC_InitTypeDef NVIC_InitStruct;
+
+		/* Enable clock for GPIOB */
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		/* Enable clock for SYSCFG */
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+		/* Set pin as input */
+		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+		GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;
+		//GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+
+		//GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5);
+
+}
+
+void setUpHardWareInterrupt_PB3(){
+	//https://stm32f4-discovery.net/2014/08/stm32f4-external-interrupts-tutorial/
+
+	 /* Set variables used */
+	    GPIO_InitTypeDef GPIO_InitStruct;
+	    EXTI_InitTypeDef EXTI_InitStruct;
+	    NVIC_InitTypeDef NVIC_InitStruct;
+
+	    /* Enable clock for GPIOB */
+	    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	    /* Enable clock for SYSCFG */
+	    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+	    /* Set pin as input */
+	    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+	    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
+	    //GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+	    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+	    GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	    /* Tell system that you will use PB12 for EXTI_Line3 */
+	    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource3);
+
+	    /* PB3 is connected to EXTI_Line3 */
+	    EXTI_InitStruct.EXTI_Line = EXTI_Line3;
+	    /* Enable interrupt */
+	    EXTI_InitStruct.EXTI_LineCmd = ENABLE;
+	    /* Interrupt mode */
+	    EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+	    /* Triggers on rising and falling edge */
+	    //EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	    /* Add to EXTI */
+	    EXTI_Init(&EXTI_InitStruct);
+
+	    /* Add IRQ vector to NVIC */
+	    /* PB12 is connected to EXTI_Line12, which has EXTI15_10_IRQn vector */
+	    NVIC_InitStruct.NVIC_IRQChannel = EXTI3_IRQn;
+	    /* Set priority */
+	    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
+	    /* Set sub priority */
+	    NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x01;
+	    /* Enable interrupt */
+	    NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	    /* Add to NVIC */
+	    NVIC_Init(&NVIC_InitStruct);
+
+
+}
+/* Set interrupt handlers */
+/* Handle PB3 interrupt */
+void EXTI3_IRQHandler(void) {
+    /* Make sure that interrupt flag is set */
+    if (EXTI_GetITStatus(EXTI_Line3) != RESET) {
+        /* Do your stuff when PD0 is changed */
+    	//if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)){
+    		STM_EVAL_LEDToggle(LED4);
+    	//}
+        /* Clear interrupt flag */
+        EXTI_ClearITPendingBit(EXTI_Line3);
+
+    }
+}
+
+
+
+
+
+
 #ifdef __cplusplus
  }
 #endif
