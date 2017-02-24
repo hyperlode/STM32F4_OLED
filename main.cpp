@@ -71,6 +71,10 @@ int main(void)
 	setUpInputPin_PB5();
 
 
+	//motor1
+	MotorControl motor1(1);
+
+
 	//panel 1
 	IOBoard panel1(PANEL_1);
 	panel1.initADC();
@@ -109,7 +113,7 @@ int main(void)
 
 
 	printf("Userinterface: \r\n");
-	printf("send 'v' for adc values \r\n");
+	printf("To interact. Please send v, s, m or a  \r\n");
 
 
 	while (1)
@@ -134,29 +138,19 @@ int main(void)
 
 			}
 		}
-/**/
+		/*
 		//ringLED timer
 		//each second triggered
 		if (millis%100 > 50 && ringEdgeMemory ==0){
-
 			ringEdgeMemory =1;
 			//panel4.ledSequenceUpdate(false);
-			/*
-			panel4.setLed(ledRingSequence[ringCounter] -1,false);
-			ringCounter ++;
-			if (ringCounter>=12){
-				ringCounter = 0;
-			}
-			panel4.setLed(ledRingSequence[ringCounter] -1,true);
-*/
 		}
 
 		if (millis%100 <10){
 
 			ringEdgeMemory = 0;
 		}
-/**/
-
+		 */
 
 
 		//each second triggered
@@ -216,9 +210,11 @@ int main(void)
 
 				}else if (theByte == 'a') {
 					printf("Doing some action here. \r\n");
+				}else if (theByte == 'm'){
+					printf("motor id: %d ", motor1.getMotorId());
 				}else{
 					//IOBoard testje;
-					printf("No valid command detected. Please send v, s or a . \r\n");
+					printf("No valid command detected. Please send v, s,m or a . \r\n");
 				}
 			}
 		}
@@ -365,7 +361,7 @@ void ADC_IRQHandler() {
         value = ADC_GetConversionValue(ADC1);
 		switch (adcSampleChannelCounter){
 		   case 0:
-				//temp = value;
+				temp = value;
 				adcSampleChannelCounter++;
 				break;
 		   case 1:

@@ -9,6 +9,7 @@
 
 #ifdef __cplusplus
 	#include "IOBoard.h"
+	#include "MotorControl.h"
 	#include <stdio.h>
 	extern "C"
 	{
