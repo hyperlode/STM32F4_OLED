@@ -167,10 +167,16 @@ void IOBoard::refresh(uint32_t millis){
 
 void IOBoard::demoModeLoop(){
 	if (millis - demoLooptimer > DEMOLOOP_UPDATE_DELAY){
+
+		demoLooptimer = millis;
 		if(adcInitialized){
 			//panels with 4 sliders, 4 leds, 4 buttons
+			for (uint8_t i=0;i<4;i++){
+				setLed(i,true);
+				setLedBlinkPeriodMillis(i, getSliderValue(i));
+			}
 
-			demoLooptimer = millis;
+			/*
 			//call every 20 ms --> 50Hz
 			for (uint8_t i=0;i<4;i++){
 				this->demoLoopCounter[i]++; //update counter
@@ -190,7 +196,7 @@ void IOBoard::demoModeLoop(){
 					this->demoLoopCounter[i] = 0;
 				}
 			}
-
+			*/
 		}else if (numberOfButtons == 16 && numberOfLeds == 16){
 			//panels with 16 buttons, 16 leds.
 			for (uint16_t i=0; i<this->numberOfButtons;i++){
@@ -533,14 +539,14 @@ void IOBoard::initLeds(){
 			GPIO_SetBits(ledPort, ledAnodePins[anode]);
 		}
 
-		//initialize leds, standard off
-		for (uint16_t led = 0; led<this->numberOfLeds; led++){
-			setLed(led, false);
-			//this->leds[0] = 0;
-		}
+
 
 	}
-
+	//initialize leds
+	for (uint16_t led = 0; led<this->numberOfLeds; led++){
+		setLed(led, false); //, standard off
+		setLedBlinkPeriodMillis(led, 0); //standard continous
+	}
 	this->ledsInitialized = true;
 
 }
@@ -582,8 +588,19 @@ void IOBoard::scanLeds(){
 			scanCathode =0;
 		}
 
+
+
+
+
 		for (uint8_t anode=0; anode<4;anode++){
-			if (leds[(this->numberOfLeds/4)*scanCathode + anode]){
+			//led enabled AND blinking ok.
+			uint32_t blinkPeriodMillis = ledsBlinkPeriod[(this->numberOfLeds/4)*scanCathode + anode]; //total blink period
+			bool blinkOnPhase = true;
+			if (blinkPeriodMillis != 0){
+				blinkOnPhase = (this->millis % blinkPeriodMillis) > blinkPeriodMillis/2;
+			}
+
+			if (leds[(this->numberOfLeds/4)*scanCathode + anode] && blinkOnPhase){
 				GPIO_SetBits(ledPort,this->ledAnodePins[anode]);
 			}else{
 				GPIO_ResetBits(ledPort,this->ledAnodePins[anode]);
@@ -595,8 +612,21 @@ void IOBoard::scanLeds(){
 
 }
 
+void IOBoard::setLedBlinkPeriodMillis(uint16_t ledNumber, uint32_t value){
+	//values to about 50ms are displayed ok (see update scan frequency)
+	//value: 0 is continuous, all the rest is millis.
+	if (value ==0){
+		//continuous
+		ledsBlinkPeriod[ledNumber] = 0;
+	}else{
+		ledsBlinkPeriod[ledNumber] = value; //
+	}
+}
+
 void IOBoard::setLed(uint16_t ledNumber, bool value){
+	//ledNumber is index in array.
 	this->leds[ledNumber] = value;
+
 }
 
 void IOBoard::toggleLed(uint16_t ledNumber){

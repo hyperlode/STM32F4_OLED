@@ -2,6 +2,9 @@
 #define MAIN_H
 
 
+#define MODE_NORMAL 0
+#define MODE_TEST 1
+#define MODE_CALIBRATE 2
 
 
 
@@ -24,9 +27,14 @@
 	static uint16_t adcSampleChannelCounter = 0;
 	static uint16_t adcNumberOfSampleCycles= 0;
 	static uint16_t  secondEdgeMemory= 0;
-	static uint16_t ringEdgeMemory =0;
+	static uint16_t edgeMemory =0;
 	static uint16_t  ticker20msEdgeMemory= 0;
 	uint32_t millis;
+
+	// motor controller
+	uint8_t motorControllerMode=0;
+
+
 
 	#include "stm32f4xx_adc.h"
 	#include "stm32f4xx_conf.h"

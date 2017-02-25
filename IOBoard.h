@@ -64,6 +64,7 @@ class IOBoard{
 		void initLeds();
 		void scanLeds();
 		void setLed(uint16_t ledNumber, bool value);
+		void setLedBlinkPeriodMillis(uint16_t ledNumber, uint32_t value);
 		void toggleLed(uint16_t ledNumber);
 		void ledSequenceUpdate(bool directionIsForward);
 		void ledSequenceInterruptHandler(bool directionIsForward);
@@ -115,6 +116,8 @@ class IOBoard{
 		GPIO_TypeDef* ledPort;
 		uint32_t ledPeripheral;
 		bool leds[16];
+		uint32_t ledsBlinkPeriod[16];
+
 		bool ledsInitialized;
 		uint32_t ledScanTimer;
 		const static uint32_t ledRingSequence [12] ;
