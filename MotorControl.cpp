@@ -3,12 +3,21 @@
 MotorControl::MotorControl(uint32_t motorId){
 	this->motorId = motorId;
 	this->position = 0;
-	resetLimit(true); //lower
-	resetLimit(false); //upper
+	this->mode = MODE_NORMAL;
+
+	//choose selected limit
+	this->selectedLimitForCalibrationIsMax =false;//limit to be calibrated
+
+	resetPositionAndLimits();
+
 }
 
 uint32_t MotorControl::getMotorId(){
 	return this->motorId;
+}
+
+void MotorControl::resetPosition(){
+	this->position = 0;
 }
 
 int32_t MotorControl::getPosition(){
@@ -22,16 +31,36 @@ void MotorControl::updatePositionOneStep(bool rotationIsCCW){
 		this->position--;
 	}
 }
-void MotorControl::setCurrentPositionAsLimit(bool maxLimitElseMin){
-	if (maxLimitElseMin){
+void MotorControl::setCurrentPositionAsLimit(){
+	if (selectedLimitForCalibrationIsMax){
 		this->limitMaximum = this->position;
 	}else{
 		this->limitMinimum = this->position;
 	}
 }
-
-void MotorControl::resetLimit(bool maxLimitElseMin){
+uint32_t MotorControl::getLimit(bool maxLimitElseMin){
 	if (maxLimitElseMin){
+		return this->limitMaximum;
+	}else{
+		return this->limitMinimum;
+	}
+
+}
+void MotorControl::resetPositionAndLimits(){
+	bool tmpSelectSaver = this->selectedLimitForCalibrationIsMax; //save selected limit
+	//reset limits
+	this->selectedLimitForCalibrationIsMax =false;//limit to be calibrated
+	resetLimit(); //lower
+	this->selectedLimitForCalibrationIsMax =true;//limit to be calibrated
+	resetLimit(); //upper
+
+	this->selectedLimitForCalibrationIsMax = tmpSelectSaver;
+
+	resetPosition();
+
+}
+void MotorControl::resetLimit(){
+	if (this-> selectedLimitForCalibrationIsMax){
 		this->limitMaximum = 2147483647;
 	}else{
 		this->limitMinimum = -2147483648;
@@ -39,13 +68,121 @@ void MotorControl::resetLimit(bool maxLimitElseMin){
 }
 
 bool MotorControl::belowLimitMinimum(){
-	return this->position < this->limitMinimum;
+	return this->position <= this->limitMinimum;
 }
 
 bool MotorControl::aboveLimitMaximum(){
-	return this->position > this->limitMaximum;
+	return this->position >= this->limitMaximum;
 }
 
 bool MotorControl::withinRange(){
 	return !belowLimitMinimum() && !aboveLimitMaximum();
+}
+
+void MotorControl::setMode(uint8_t mode){
+	//see defines for different modes.
+	this->mode = mode;
+
+}
+
+uint8_t MotorControl::getMode(){
+	return this->mode;
+}
+
+void MotorControl::toggleLimitToBeCalibrated(){
+	//when limit calibration button is set, the limit selected here will be set.
+	this-> selectedLimitForCalibrationIsMax = !this-> selectedLimitForCalibrationIsMax;
+}
+
+bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
+	//this is purely led light output! not status! i.e. an led might blink, so it will be 0 or 1 time dependent, not status depended.
+	//see defines for led numbers.
+	//provide millis for blinking function
+
+	bool blink1Hz = millis%1000 > 500; //do XOR with the other value (MUST BE BOOL see:normalize to boolean), this way, there will always be blinking
+
+	//uint8_t loddde = MODE_NORMAL;
+	switch (this->mode){
+		//	switch (loddde){
+		case MODE_NORMAL:
+
+
+			switch (led){
+				case LED_LIMIT_MIN:
+					return belowLimitMinimum();
+					break;
+				case LED_LIMIT_MAX:
+					return aboveLimitMaximum();
+					break;
+				case LED_WITHIN_RANGE:
+					return withinRange();
+					break;
+				case LED_ENABLE:
+					break;
+				case LED_ROTATING_RIGHT:
+					break;
+				case LED_ROTATING_LEFT:
+					break;
+				default:
+					return false;
+					break;
+			}
+			break;
+
+
+
+
+	case MODE_TEST:
+		switch (led){
+			case LED_LIMIT_MIN:
+				return belowLimitMinimum();
+				break;
+			case LED_LIMIT_MAX:
+				return aboveLimitMaximum();
+				break;
+			case LED_WITHIN_RANGE:
+				return withinRange()!= blink1Hz ;
+				break;
+			case LED_ENABLE:
+				break;
+			case LED_ROTATING_RIGHT:
+				break;
+			case LED_ROTATING_LEFT:
+				break;
+			default:
+				return false;
+				break;
+		}
+	case MODE_CALIBRATE:
+		switch (led){
+			case LED_LIMIT_MIN:
+				return belowLimitMinimum() &&!(!blink1Hz && !selectedLimitForCalibrationIsMax) || (!belowLimitMinimum() && !selectedLimitForCalibrationIsMax && blink1Hz);
+				break;
+			case LED_LIMIT_MAX:
+				//return aboveLimitMaximum();
+				return aboveLimitMaximum() &&!(!blink1Hz && selectedLimitForCalibrationIsMax) || (!aboveLimitMaximum() && selectedLimitForCalibrationIsMax && blink1Hz);
+
+				break;
+			case LED_WITHIN_RANGE:
+				return withinRange();
+				break;
+			case LED_ENABLE:
+				break;
+			case LED_ROTATING_RIGHT:
+				break;
+			case LED_ROTATING_LEFT:
+				break;
+			default:
+				return false;
+				break;
+		}
+	break;
+	default:
+
+		break;
+
+	}
+
+
+
 }

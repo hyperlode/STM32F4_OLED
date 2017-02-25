@@ -6,8 +6,7 @@
 #define MODE_TEST 1
 #define MODE_CALIBRATE 2
 
-
-
+#define NUMBER_OF_MOTORS 1
 
 
 #ifdef __cplusplus
@@ -17,6 +16,15 @@
 	extern "C"
 	{
 #endif
+
+
+	char lodeStrTest []={'a','\0'};
+	IOBoard* IOBoardHandler [4];
+	MotorControl* MotorControlHandles[6];
+
+	static uint8_t activeMotorForTestingOrCalibration =0; //motorcontrolhandles
+
+
 
 	//volatile uint32_t ticker, downTicker;
 	static uint32_t ticker, downTicker,ticker20ms ;

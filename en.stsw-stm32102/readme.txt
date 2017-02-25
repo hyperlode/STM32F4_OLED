@@ -1,3 +1,7 @@
+VCP_V1.4.0_Setup.exe
+
+
+
 /******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
 * File Name          : readme.txt
 * Author             : MCD Application Team

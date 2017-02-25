@@ -12,13 +12,9 @@
 
 #include "main.h"
 
-char lodeStrTest []={'a','\0'};
 
 
 
-
-IOBoard* IOBoardHandler [4];
-MotorControl* MotorControlHandles[6];
 /*
  * The USB data must be 4 byte aligned if DMA is enabled. This macro handles
  * the alignment, if necessary (it's actually magic, but don't tell anyone).
@@ -67,15 +63,6 @@ int main(void)
 
 	initDiscoveryBoard();
 
-	//set up test interrupt PB3
-	setUpHardWareInterrupt_PB3();
-	setUpInputPin_PB5();
-
-
-	//motor1
-	MotorControl motor1(1);
-	MotorControlHandles[0] = &motor1;
-	motorControllerMode = MODE_NORMAL;
 
 
 	//panel 1
@@ -113,8 +100,24 @@ int main(void)
 		panel4.setLed(i,false);
 	}
 
+	//set up test interrupt PB3
+	setUpHardWareInterrupt_PB3();
+	setUpInputPin_PB5();
 
 
+	//motor1
+	MotorControl motor1(1);
+	MotorControlHandles[0] = &motor1;
+	motorControllerMode = MODE_NORMAL;
+
+
+	//INIT mode for motorcontrollermode
+	motorControllerMode  = 0;
+	for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
+		MotorControlHandles[i]->setMode(motorControllerMode);
+	}
+	panel1.setLed(3,true);
+	panel1.setLedBlinkPeriodMillis(3,0);
 
 
 
@@ -129,25 +132,6 @@ int main(void)
 		//panel1.demoModeLoop();
 		//panel4.demoModeLoop();
 
-
-		/*
-		for (uint16_t i = 0;i<4;i++){
-			if (panel1.getButtonEdgeDePressed(i)){
-				printf("button %d edge unpressed!\r\n", i);
-				printf("-----------------\r\n");
-			}
-
-			if (panel1.getButtonEdgePressed(i)){
-				printf("button %d edge pressed!\r\n", i);
-			}
-
-			if (panel1.getButtonEdgePressed(i)){
-				printf("button panel 1 %d edge pressed!\r\n", i);
-
-			}
-		}
-		*/
-
 		//MOTOR CONTROL test
 
 		//select mode with button4 on panel
@@ -156,7 +140,6 @@ int main(void)
 				if (motorControllerMode>2){
 					motorControllerMode  = 0;
 				}
-				printf("%d", motorControllerMode);
 
 				switch (motorControllerMode){
 					case MODE_NORMAL:
@@ -174,17 +157,57 @@ int main(void)
 					default:
 						panel1.setLed(3,false);
 						break;
+				}
 
+				//update the motors
+				for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
+					MotorControlHandles[i]->setMode(motorControllerMode);
 				}
 
 		}
+		switch (motorControllerMode){
+			case MODE_NORMAL:
+				break;
+			case MODE_TEST:
+				break;
+			case MODE_CALIBRATE:
+				//if calibration selected select limit and set limit buttons active
+				if (panel1.getButtonEdgePressed(0)){
+					//select limit to configure
+					activeMotorForTestingOrCalibration++;
+					if (activeMotorForTestingOrCalibration >= NUMBER_OF_MOTORS){
+						activeMotorForTestingOrCalibration = 0;
+					}
+					MotorControlHandles[activeMotorForTestingOrCalibration]->toggleLimitToBeCalibrated();
+				}
+				if (panel1.getButtonEdgePressed(1)){
+					MotorControlHandles[activeMotorForTestingOrCalibration]->setCurrentPositionAsLimit();
+				}
+				if (panel1.getButtonEdgePressed(2)){
+					MotorControlHandles[activeMotorForTestingOrCalibration]->resetLimit();
+				}
+
+
+
+				break;
+			default:
+				panel1.setLed(3,false);
+				break;
+		}
+
+
+
+
+
+
 
 
 		if (millis%10 > 5 && edgeMemory ==0){
 			edgeMemory =1;
-			panel1.setLed(1,motor1.withinRange());
-			panel1.setLed(0,motor1.belowLimitMinimum());
-			panel1.setLed(2,motor1.aboveLimitMaximum());
+			panel1.setLed(0,motor1.getStatusLed(LED_LIMIT_MIN,millis));
+			panel1.setLed(1,motor1.getStatusLed(LED_WITHIN_RANGE, millis));
+			panel1.setLed(2,motor1.getStatusLed(LED_LIMIT_MAX, millis));
+
 		}
 
 		if (millis%10 <10){
@@ -255,6 +278,7 @@ int main(void)
 				}else if (theByte == 'm'){
 					printf("motor id: %d \r\n", motor1.getMotorId());
 					printf("position: %d \r\n", motor1.getPosition());
+					printf("limits:  min:  %d  --  max: %d \r\n", motor1.getLimit(false), motor1.getLimit(true));
 				}else{
 					//IOBoard testje;
 					printf("No valid command detected. Please send v, \r\n s, \r\nm for motor status  ,\r\nor a . \r\n");
@@ -517,7 +541,7 @@ void EXTI3_IRQHandler(void) {
         /* Do your stuff when PD0 is changed */
 
     	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5);
-		IOBoardHandler[3]->ledSequenceInterruptHandler(isCCW); //input defines direction
+		IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
 		MotorControlHandles[0]->updatePositionOneStep(isCCW); //2 channel encoder update.
 
         /* Clear interrupt flag */
