@@ -17,6 +17,7 @@
 #define ADC_SAMPLE_PERIOD_MILLIS 50 //every 50ms adc sampling.
 #define DEMOLOOP_UPDATE_DELAY 20	//millis
 #define LED_SCAN_PERIOD_MILLIS 4  //with trial and error, leds are not flickering.
+#define NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP 1000
 typedef enum
 {
   PANEL_1 = 0,
@@ -122,6 +123,7 @@ class IOBoard{
 		uint32_t ledScanTimer;
 		const static uint32_t ledRingSequence [12] ;
 		int32_t sequenceCounter = 0;
+		int32_t substeps =0;
 
 };
 

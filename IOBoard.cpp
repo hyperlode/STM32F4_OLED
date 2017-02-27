@@ -566,14 +566,28 @@ void IOBoard::ledSequenceUpdate(bool directionIsForward){
     		//CCW
     		sequenceCounter --;
     		if (sequenceCounter<0){
-    			sequenceCounter = 12;
+    			sequenceCounter = 11;
     		}
     	}
 	setLed(ledRingSequence[sequenceCounter] -1,true);
 }
 
 void IOBoard::ledSequenceInterruptHandler(bool directionIsForward){
-	ledSequenceUpdate( directionIsForward);
+
+	if (directionIsForward){
+		substeps++;
+		if (substeps>NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP){
+			ledSequenceUpdate( directionIsForward);
+			substeps = 0;
+		}
+	}else{
+		substeps--;
+		if (substeps<0){
+			ledSequenceUpdate( directionIsForward);
+			substeps = NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP;
+		}
+	}
+
 
 }
 

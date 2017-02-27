@@ -14,14 +14,14 @@
 
 
 
-
+#ifdef USE_VCP
 /*
  * The USB data must be 4 byte aligned if DMA is enabled. This macro handles
  * the alignment, if necessary (it's actually magic, but don't tell anyone).
  */
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
 
-
+#endif
 
 
 /*
@@ -46,8 +46,10 @@ void UsageFault_Handler(void);
 void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
+#ifdef USE_VCP
 void OTG_FS_IRQHandler(void);
 void OTG_FS_WKUP_IRQHandler(void);
+#endif
 
 #ifdef __cplusplus
 }
@@ -94,11 +96,13 @@ int main(void)
 	panel4.initButtons();
 	IOBoardHandler[3] = &panel4; //link the panel instance to the handler.
 
+
 	for (uint16_t i = 0;i<16;i++){
 
 		//panel4.setLed(i,true);
 		panel4.setLed(i,false);
 	}
+	panel4.setLed(0,true);
 
 	//set up test interrupt PB3
 	setUpHardWareInterrupt_PB3();
@@ -120,10 +124,10 @@ int main(void)
 	panel1.setLedBlinkPeriodMillis(3,0);
 
 
-
+#ifdef USE_VCP
 	printf("Userinterface: \r\n");
 	printf("To interact. Please send v, s, m or a  \r\n");
-
+#endif
 
 	while (1)
 	{
@@ -241,6 +245,10 @@ int main(void)
 		if (millis%1000 < 100){
 			secondEdgeMemory = 0;
 		}
+
+
+
+#ifdef USE_VCP
 		// If there's data on the virtual serial port:
 		 //  - Echo it back
 		 //  - Turn the green LED on for 10ms
@@ -285,9 +293,11 @@ int main(void)
 				}
 			}
 		}
+
+#endif
 	}
 
-	return 0;
+
 }
 
 
@@ -325,34 +335,36 @@ void init()
 
 
 
-	/* GPIOD Periph clock enable */
-	  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	// GPIOD Periph clock enable
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
-	  GPIO_InitTypeDef GPIO_InitStructure;
-	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-	  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-	  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
-	  //GPIO_Init(GPIOD, &GPIO_InitStructure);
-	  GPIO_Init(GPIOA, &GPIO_InitStructure);
+	//GPIO_Init(GPIOD, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	/* Setup SysTick or CROD! */
+
+	//Setup SysTick or CROD!
 	if (SysTick_Config(SystemCoreClock / 1000))
 	{
 		ColorfulRingOfDeath();
-	}
+}
 
-
-	/* Setup USB */
+#ifdef USE_VCP
+	// Setup USB
 	USBD_Init(&USB_OTG_dev,
 	            USB_OTG_FS_CORE_ID,
 	            &USR_desc,
 	            &USBD_CDC_cb,
 	            &USR_cb);
-
+#endif
 	return;
+
 }
 
 
@@ -396,6 +408,7 @@ void SVC_Handler(void)       {}
 void DebugMon_Handler(void)  {}
 void PendSV_Handler(void)    {}
 
+#ifdef USE_VCP
 void OTG_FS_IRQHandler(void)
 {
   USBD_OTG_ISR_Handler (&USB_OTG_dev);
@@ -412,7 +425,7 @@ void OTG_FS_WKUP_IRQHandler(void)
   EXTI_ClearITPendingBit(EXTI_Line18);
 }
 
-
+#endif
 
 /*
  * void adc_multiChannelConfigure(){
@@ -554,16 +567,11 @@ void EXTI3_IRQHandler(void) {
 			//negative edge
 			ch2Memory = isCCW; //store ch2.
     	}
-
         /* Clear interrupt flag */
         EXTI_ClearITPendingBit(EXTI_Line3);
 
     }
 }
-
-
-
-
 
 
 #ifdef __cplusplus

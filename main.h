@@ -1,6 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#define USE_VCP
 
 #define MODE_NORMAL 0
 #define MODE_TEST 1
@@ -52,11 +53,13 @@
 	#include "stm32f4xx_gpio.h"
 	#include "stm32f4xx_rcc.h"
 	#include "stm32f4xx_exti.h"
+#ifdef USE_VCP
 	#include "usbd_cdc_core.h"
 	#include "usbd_usr.h"
 	#include "usbd_desc.h"
 	#include "usbd_cdc_vcp.h"
 	#include "usb_dcd_int.h"
+#endif
 	#include "stm32f4_discovery.h"
 
 	void initDiscoveryBoard();
