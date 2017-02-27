@@ -26,6 +26,7 @@
 
 
 
+
 	//volatile uint32_t ticker, downTicker;
 	static uint32_t ticker, downTicker,ticker20ms ;
 	static int ConvertedValue = 0; //Converted value readed from ADC
@@ -38,6 +39,7 @@
 	static uint16_t edgeMemory =0;
 	static uint16_t  ticker20msEdgeMemory= 0;
 	uint32_t millis;
+	static bool ch2Memory=0;
 
 	// motor controller
 	uint8_t motorControllerMode=0;

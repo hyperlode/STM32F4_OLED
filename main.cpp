@@ -504,7 +504,7 @@ void setUpHardWareInterrupt_PB3(){
 	    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
 	    GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-	    /* Tell system that you will use PB12 for EXTI_Line3 */
+	    /* Tell system that you will use PB3 for EXTI_Line3 */
 	    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource3);
 
 	    /* PB3 is connected to EXTI_Line3 */
@@ -514,8 +514,8 @@ void setUpHardWareInterrupt_PB3(){
 	    /* Interrupt mode */
 	    EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
 	    /* Triggers on rising and falling edge */
-	    //EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-	    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	    //EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
 	    /* Add to EXTI */
 	    EXTI_Init(&EXTI_InitStruct);
 
@@ -536,13 +536,24 @@ void setUpHardWareInterrupt_PB3(){
 /* Set interrupt handlers */
 /* Handle PB3 interrupt */
 void EXTI3_IRQHandler(void) {
-    /* Make sure that interrupt flag is set */
-    if (EXTI_GetITStatus(EXTI_Line3) != RESET) {
-        /* Do your stuff when PD0 is changed */
+
+	//triggers on rising and falling edge of encoder channel
+	//we are not interested in the added accuracy, but we need to check the edges (jitter at standstill could cause erroneous possition change)
+	//edge up --> position change ,(only if channel 2 is different from edge down value)
+	//edge down --> store channel 2
+    if (EXTI_GetITStatus(EXTI_Line3) != RESET) { //Make sure that interrupt flag is set
 
     	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5);
-		IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
-		MotorControlHandles[0]->updatePositionOneStep(isCCW); //2 channel encoder update.
+    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_3)){
+    		//positive edge
+    		if (isCCW != ch2Memory){
+				IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
+				MotorControlHandles[0]->updatePositionOneStep(isCCW); //2 channel encoder update.
+    		}
+		}else{
+			//negative edge
+			ch2Memory = isCCW; //store ch2.
+    	}
 
         /* Clear interrupt flag */
         EXTI_ClearITPendingBit(EXTI_Line3);

@@ -12,8 +12,11 @@
 #define LED_ROTATING_LEFT 5
 */
 #define MODE_NORMAL 0
-#define MODE_TEST 1
+#define MODE_TEST 1  //shows which limits are configured.
 #define MODE_CALIBRATE 2
+
+#define RESET_VALUE_LIMIT_MINIMUM -2147483648
+#define RESET_VALUE_LIMIT_MAXIMUM 2147483647
 
 typedef enum
 {
@@ -31,20 +34,21 @@ class MotorControl{
 
 		 MotorControl (uint32_t motorId);
 		 uint32_t getMotorId();
+		 void setMode(uint8_t mode);
+		 uint8_t getMode();
+
 		 int32_t getPosition();
 		 void updatePositionOneStep(bool rotationIsCW);
 		 void setCurrentPositionAsLimit();
 		 void resetLimit();
 		 void resetPositionAndLimits();
 		 void resetPosition();
-		 uint32_t getLimit(bool maxLimitElseMin);
+
+		 int32_t getLimit(bool maxLimitElseMin);
 		 bool belowLimitMinimum();
 		 bool aboveLimitMaximum();
 		 bool withinRange();
 
-
-		 void setMode(uint8_t mode);
-		 uint8_t getMode();
 		 void toggleLimitToBeCalibrated();
 		 bool getStatusLed(uint8_t led, uint32_t millis);
 

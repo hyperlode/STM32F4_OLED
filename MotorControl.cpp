@@ -9,7 +9,15 @@ MotorControl::MotorControl(uint32_t motorId){
 	this->selectedLimitForCalibrationIsMax =false;//limit to be calibrated
 
 	resetPositionAndLimits();
+}
 
+void MotorControl::setMode(uint8_t mode){
+	//see defines for different modes.
+	this->mode = mode;
+}
+
+uint8_t MotorControl::getMode(){
+	return this->mode;
 }
 
 uint32_t MotorControl::getMotorId(){
@@ -31,6 +39,11 @@ void MotorControl::updatePositionOneStep(bool rotationIsCCW){
 		this->position--;
 	}
 }
+
+
+
+
+
 void MotorControl::setCurrentPositionAsLimit(){
 	if (selectedLimitForCalibrationIsMax){
 		this->limitMaximum = this->position;
@@ -38,7 +51,7 @@ void MotorControl::setCurrentPositionAsLimit(){
 		this->limitMinimum = this->position;
 	}
 }
-uint32_t MotorControl::getLimit(bool maxLimitElseMin){
+int32_t MotorControl::getLimit(bool maxLimitElseMin){
 	if (maxLimitElseMin){
 		return this->limitMaximum;
 	}else{
@@ -61,11 +74,13 @@ void MotorControl::resetPositionAndLimits(){
 }
 void MotorControl::resetLimit(){
 	if (this-> selectedLimitForCalibrationIsMax){
-		this->limitMaximum = 2147483647;
+		this->limitMaximum = RESET_VALUE_LIMIT_MAXIMUM;
 	}else{
-		this->limitMinimum = -2147483648;
+		this->limitMinimum = RESET_VALUE_LIMIT_MINIMUM;
 	}
 }
+
+
 
 bool MotorControl::belowLimitMinimum(){
 	return this->position <= this->limitMinimum;
@@ -79,15 +94,7 @@ bool MotorControl::withinRange(){
 	return !belowLimitMinimum() && !aboveLimitMaximum();
 }
 
-void MotorControl::setMode(uint8_t mode){
-	//see defines for different modes.
-	this->mode = mode;
 
-}
-
-uint8_t MotorControl::getMode(){
-	return this->mode;
-}
 
 void MotorControl::toggleLimitToBeCalibrated(){
 	//when limit calibration button is set, the limit selected here will be set.
@@ -99,8 +106,8 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 	//see defines for led numbers.
 	//provide millis for blinking function
 
-	bool blink1Hz = millis%1000 > 500; //do XOR with the other value (MUST BE BOOL see:normalize to boolean), this way, there will always be blinking
-
+	bool blink1Hz = millis%1000 > 500; //do XOR (boolean != blink1Hz) with the other value (MUST BE BOOL see:normalize to boolean), this way, there will always be blinking
+	bool blinkHalfHz = millis%500>250;
 	//uint8_t loddde = MODE_NORMAL;
 	switch (this->mode){
 		//	switch (loddde){
@@ -135,13 +142,35 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 	case MODE_TEST:
 		switch (led){
 			case LED_LIMIT_MIN:
-				return belowLimitMinimum();
+
+				if (getLimit(false) == RESET_VALUE_LIMIT_MINIMUM ){
+					return false;
+				}else if (getLimit(false) > 0){
+					return blinkHalfHz;
+				}else{
+					return true;
+				}
 				break;
 			case LED_LIMIT_MAX:
-				return aboveLimitMaximum();
+				if (getLimit(true) == RESET_VALUE_LIMIT_MAXIMUM ){
+					return false;
+				}else if (getLimit(true) < 0){
+					return blinkHalfHz;
+				}else{
+					return true;
+				}
+				break;
+
 				break;
 			case LED_WITHIN_RANGE:
-				return withinRange()!= blink1Hz ;
+				if (getLimit(false) > getLimit(true)){
+					//error condition
+					return blinkHalfHz;
+
+				}else{
+					return true;
+				}
+				//return withinRange()!= blink1Hz ;
 				break;
 			case LED_ENABLE:
 				break;
