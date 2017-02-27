@@ -68,14 +68,14 @@ int main(void)
 
 
 	//panel 1
-	IOBoard panel1(PANEL_1);
-	panel1.initADC();
-	panel1.initButtons();
-	panel1.initLeds();
-	IOBoardHandler[0] = &panel1; //link the panel instance to the handler.
-	for (uint16_t i = 0;i<4;i++){
-		panel1.setLed(i,false);
-	}
+	//IOBoard panel1(PANEL_1);
+	//panel1.initADC();
+	//panel1.initButtons();
+	//panel1.initLeds();
+	//IOBoardHandler[0] = &panel1; //link the panel instance to the handler.
+	//for (uint16_t i = 0;i<4;i++){
+	//	panel1.setLed(i,false);
+	//}
 
 /*
 	//panel 2
@@ -102,7 +102,7 @@ int main(void)
 		//panel4.setLed(i,true);
 		panel4.setLed(i,false);
 	}
-	panel4.setLed(0,true);
+	panel4.ledSequenceInterruptHandler(false);
 
 	//set up test interrupt PB3
 	setUpHardWareInterrupt_PB3();
@@ -120,8 +120,8 @@ int main(void)
 	for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 		MotorControlHandles[i]->setMode(motorControllerMode);
 	}
-	panel1.setLed(3,true);
-	panel1.setLedBlinkPeriodMillis(3,0);
+//	panel1.setLed(3,true);
+//	panel1.setLedBlinkPeriodMillis(3,0);
 
 
 #ifdef USE_VCP
@@ -131,7 +131,7 @@ int main(void)
 
 	while (1)
 	{
-		panel1.refresh(millis);
+		//panel1.refresh(millis);
 		panel4.refresh(millis);
 		//panel1.demoModeLoop();
 		//panel4.demoModeLoop();
@@ -139,7 +139,7 @@ int main(void)
 		//MOTOR CONTROL test
 
 		//select mode with button4 on panel
-		if (panel1.getButtonEdgePressed(3)){
+		if (panel4.getButtonEdgePressed(3)){
 				motorControllerMode++;
 				if (motorControllerMode>2){
 					motorControllerMode  = 0;
@@ -147,19 +147,19 @@ int main(void)
 
 				switch (motorControllerMode){
 					case MODE_NORMAL:
-						panel1.setLed(3,true);
-						panel1.setLedBlinkPeriodMillis(3,0);
+						panel4.setLed(3,true);
+						panel4.setLedBlinkPeriodMillis(3,0);
 						break;
 					case MODE_TEST:
-						panel1.setLed(3,true);
-						panel1.setLedBlinkPeriodMillis(3,1000);
+						panel4.setLed(3,true);
+						panel4.setLedBlinkPeriodMillis(3,1000);
 						break;
 					case MODE_CALIBRATE:
-						panel1.setLed(3,true);
-						panel1.setLedBlinkPeriodMillis(3,250);
+						panel4.setLed(3,true);
+						panel4.setLedBlinkPeriodMillis(3,250);
 						break;
 					default:
-						panel1.setLed(3,false);
+						panel4.setLed(3,false);
 						break;
 				}
 
@@ -169,6 +169,8 @@ int main(void)
 				}
 
 		}
+
+
 		switch (motorControllerMode){
 			case MODE_NORMAL:
 				break;
@@ -176,7 +178,7 @@ int main(void)
 				break;
 			case MODE_CALIBRATE:
 				//if calibration selected select limit and set limit buttons active
-				if (panel1.getButtonEdgePressed(0)){
+				if (panel4.getButtonEdgePressed(0)){
 					//select limit to configure
 					activeMotorForTestingOrCalibration++;
 					if (activeMotorForTestingOrCalibration >= NUMBER_OF_MOTORS){
@@ -184,10 +186,10 @@ int main(void)
 					}
 					MotorControlHandles[activeMotorForTestingOrCalibration]->toggleLimitToBeCalibrated();
 				}
-				if (panel1.getButtonEdgePressed(1)){
+				if (panel4.getButtonEdgePressed(1)){
 					MotorControlHandles[activeMotorForTestingOrCalibration]->setCurrentPositionAsLimit();
 				}
-				if (panel1.getButtonEdgePressed(2)){
+				if (panel4.getButtonEdgePressed(2)){
 					MotorControlHandles[activeMotorForTestingOrCalibration]->resetLimit();
 				}
 
@@ -195,22 +197,17 @@ int main(void)
 
 				break;
 			default:
-				panel1.setLed(3,false);
+				panel4.setLed(3,false);
 				break;
 		}
 
 
 
-
-
-
-
-
 		if (millis%10 > 5 && edgeMemory ==0){
 			edgeMemory =1;
-			panel1.setLed(0,motor1.getStatusLed(LED_LIMIT_MIN,millis));
-			panel1.setLed(1,motor1.getStatusLed(LED_WITHIN_RANGE, millis));
-			panel1.setLed(2,motor1.getStatusLed(LED_LIMIT_MAX, millis));
+			panel4.setLed(0,motor1.getStatusLed(LED_LIMIT_MIN,millis));
+			panel4.setLed(1,motor1.getStatusLed(LED_WITHIN_RANGE, millis));
+			panel4.setLed(2,motor1.getStatusLed(LED_LIMIT_MAX, millis));
 
 		}
 
@@ -268,7 +265,7 @@ int main(void)
 
 					for (uint8_t i=0; i<4;i++){
 						//printf ("value slider: %d = %d \r\n", i, adcValues[i]);
-						printf ("panel1 slider %d: %d \r\n", i, panel1.getSliderValue(i));
+						//printf ("panel1 slider %d: %d \r\n", i, panel1.getSliderValue(i));
 
 					}
 					/*
@@ -278,8 +275,8 @@ int main(void)
 					}
 */
 				}else if (theByte == 's'){
-					panel1.stats(lodeStrTest);
-					printf ("lets do this: %s \r\n", lodeStrTest);
+					//panel1.stats(lodeStrTest);
+					//printf ("lets do this: %s \r\n", lodeStrTest);
 
 				}else if (theByte == 'a') {
 					printf("Doing some action here. \r\n");

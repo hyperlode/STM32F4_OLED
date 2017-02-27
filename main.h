@@ -9,6 +9,9 @@
 
 #define NUMBER_OF_MOTORS 1
 
+//#define LED_MOTOR_HOIST_LIMIT_MIN
+
+
 
 #ifdef __cplusplus
 	#include "IOBoard.h"

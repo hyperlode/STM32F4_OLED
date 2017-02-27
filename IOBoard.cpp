@@ -6,7 +6,8 @@
 //all items of a certain type (leds, sliders, buttons) must use the same port per panel.
 
 
-const uint32_t IOBoard::ledRingSequence[] = {1,2,3,4,8,12,16,15,14,13,9,5};
+//const uint32_t IOBoard::ledRingSequence[] = {1,2,3,4,8,12,16,15,14,13,9,5};
+const uint32_t IOBoard::ledRingSequence[] = {13,14,15,16,13,14,15,16,13,14,15,16};
 
 IOBoard::IOBoard(PanelId_TypeDef panelId){
 	this ->panelId = panelId;
@@ -576,13 +577,13 @@ void IOBoard::ledSequenceInterruptHandler(bool directionIsForward){
 
 	if (directionIsForward){
 		substeps++;
-		if (substeps>NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP){
+		if (substeps>=NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP){
 			ledSequenceUpdate( directionIsForward);
 			substeps = 0;
 		}
 	}else{
 		substeps--;
-		if (substeps<0){
+		if (substeps<=0){
 			ledSequenceUpdate( directionIsForward);
 			substeps = NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP;
 		}
