@@ -113,7 +113,7 @@ int main(void)
 	MotorControl motor1(1);
 	MotorControlHandles[0] = &motor1;
 	motorControllerMode = MODE_NORMAL;
-
+	panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
 
 	//INIT mode for motorcontrollermode
 	motorControllerMode  = 0;
@@ -139,7 +139,7 @@ int main(void)
 		//MOTOR CONTROL test
 
 		//select mode with button4 on panel
-		if (panel4.getButtonEdgePressed(3)){
+		if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SELECT_MODE)){
 				motorControllerMode++;
 				if (motorControllerMode>2){
 					motorControllerMode  = 0;
@@ -147,19 +147,19 @@ int main(void)
 
 				switch (motorControllerMode){
 					case MODE_NORMAL:
-						panel4.setLed(3,true);
-						panel4.setLedBlinkPeriodMillis(3,0);
+						panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
+						panel4.setLedBlinkPeriodMillis(LED_MOTORCONTROLLER_MODE,0);
 						break;
 					case MODE_TEST:
-						panel4.setLed(3,true);
-						panel4.setLedBlinkPeriodMillis(3,1000);
+						panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
+						panel4.setLedBlinkPeriodMillis(LED_MOTORCONTROLLER_MODE,1000);
 						break;
 					case MODE_CALIBRATE:
-						panel4.setLed(3,true);
-						panel4.setLedBlinkPeriodMillis(3,250);
+						panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
+						panel4.setLedBlinkPeriodMillis(LED_MOTORCONTROLLER_MODE,250);
 						break;
 					default:
-						panel4.setLed(3,false);
+						panel4.setLed(LED_MOTORCONTROLLER_MODE,false);
 						break;
 				}
 
@@ -178,7 +178,7 @@ int main(void)
 				break;
 			case MODE_CALIBRATE:
 				//if calibration selected select limit and set limit buttons active
-				if (panel4.getButtonEdgePressed(0)){
+				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SELECT_LIMIT_FOR_SETTING)){
 					//select limit to configure
 					activeMotorForTestingOrCalibration++;
 					if (activeMotorForTestingOrCalibration >= NUMBER_OF_MOTORS){
@@ -186,10 +186,10 @@ int main(void)
 					}
 					MotorControlHandles[activeMotorForTestingOrCalibration]->toggleLimitToBeCalibrated();
 				}
-				if (panel4.getButtonEdgePressed(1)){
+				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SET_SELECTED_LIMIT_TO_CURRENT_POSITION)){
 					MotorControlHandles[activeMotorForTestingOrCalibration]->setCurrentPositionAsLimit();
 				}
-				if (panel4.getButtonEdgePressed(2)){
+				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_RESET_ALL_LIMITS)){
 					MotorControlHandles[activeMotorForTestingOrCalibration]->resetLimit();
 				}
 
@@ -197,7 +197,7 @@ int main(void)
 
 				break;
 			default:
-				panel4.setLed(3,false);
+				panel4.setLed(LED_MOTORCONTROLLER_MODE,false);
 				break;
 		}
 
@@ -205,9 +205,9 @@ int main(void)
 
 		if (millis%10 > 5 && edgeMemory ==0){
 			edgeMemory =1;
-			panel4.setLed(0,motor1.getStatusLed(LED_LIMIT_MIN,millis));
-			panel4.setLed(1,motor1.getStatusLed(LED_WITHIN_RANGE, millis));
-			panel4.setLed(2,motor1.getStatusLed(LED_LIMIT_MAX, millis));
+			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MIN,motor1.getStatusLed(LED_LIMIT_MIN,millis));
+			panel4.setLed(LED_MOTOR_HOIST_INRANGE,motor1.getStatusLed(LED_WITHIN_RANGE, millis));
+			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,motor1.getStatusLed(LED_LIMIT_MAX, millis));
 
 		}
 
