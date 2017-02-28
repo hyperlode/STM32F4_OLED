@@ -7,7 +7,7 @@
 #define MODE_TEST 1
 #define MODE_CALIBRATE 2
 
-#define NUMBER_OF_MOTORS 1
+#define NUMBER_OF_MOTORS 2
 
 #define LED_MOTOR_HOIST_LIMIT_MIN	4
 #define LED_MOTOR_HOIST_LIMIT_MAX	6
@@ -36,10 +36,6 @@
 
 
 	char lodeStrTest []={'a','\0'};
-	IOBoard* IOBoardHandler [4];
-	MotorControl* MotorControlHandles[6];
-
-	static uint8_t activeMotorForTestingOrCalibration =0; //motorcontrolhandles
 
 
 
@@ -56,11 +52,17 @@
 	static uint16_t edgeMemory =0;
 	static uint16_t  ticker20msEdgeMemory= 0;
 	uint32_t millis;
+
+	//motor variables
+	MotorControl* MotorControlHandles[6];
+	static uint8_t activeMotorForTestingOrCalibration =0; //motorcontrolhandles
 	static bool ch2Memory=0;
+	static bool motor2_chBMemory =0;
 
 	// motor controller
+	IOBoard* IOBoardHandler [4];
 	uint8_t motorControllerMode=0;
-
+	int8_t activeLimit=0;
 
 
 	#include "stm32f4xx_adc.h"

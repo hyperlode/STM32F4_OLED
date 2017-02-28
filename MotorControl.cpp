@@ -6,7 +6,7 @@ MotorControl::MotorControl(uint32_t motorId){
 	this->mode = MODE_NORMAL;
 
 	//choose selected limit
-	this->selectedLimitForCalibrationIsMax =false;//limit to be calibrated
+	this->calibrationSelectedLimit = 0;//limit to be calibrated
 
 	resetPositionAndLimits();
 }
@@ -41,13 +41,10 @@ void MotorControl::updatePositionOneStep(bool rotationIsCCW){
 }
 
 
-
-
-
 void MotorControl::setCurrentPositionAsLimit(){
-	if (selectedLimitForCalibrationIsMax){
+	if (this->calibrationSelectedLimit == CALIBRATION_SELECTED_LIMIT_MAX){
 		this->limitMaximum = this->position;
-	}else{
+	}else if (this->calibrationSelectedLimit == CALIBRATION_SELECTED_LIMIT_MIN) {
 		this->limitMinimum = this->position;
 	}
 }
@@ -60,27 +57,25 @@ int32_t MotorControl::getLimit(bool maxLimitElseMin){
 
 }
 void MotorControl::resetPositionAndLimits(){
-	bool tmpSelectSaver = this->selectedLimitForCalibrationIsMax; //save selected limit
+	bool tmpSelectSaver = this->calibrationSelectedLimit; //save selected limit
 	//reset limits
-	this->selectedLimitForCalibrationIsMax =false;//limit to be calibrated
+	this->calibrationSelectedLimit =CALIBRATION_SELECTED_LIMIT_MIN;//limit to be calibrated
 	resetLimit(); //lower
-	this->selectedLimitForCalibrationIsMax =true;//limit to be calibrated
+	this->calibrationSelectedLimit =CALIBRATION_SELECTED_LIMIT_MAX;//limit to be calibrated
 	resetLimit(); //upper
 
-	this->selectedLimitForCalibrationIsMax = tmpSelectSaver;
+	this->calibrationSelectedLimit = tmpSelectSaver;
 
 	resetPosition();
 
 }
 void MotorControl::resetLimit(){
-	if (this-> selectedLimitForCalibrationIsMax){
+	if (this->calibrationSelectedLimit == CALIBRATION_SELECTED_LIMIT_MAX){
 		this->limitMaximum = RESET_VALUE_LIMIT_MAXIMUM;
-	}else{
+	}else if (this->calibrationSelectedLimit == CALIBRATION_SELECTED_LIMIT_MIN) {
 		this->limitMinimum = RESET_VALUE_LIMIT_MINIMUM;
 	}
 }
-
-
 
 bool MotorControl::belowLimitMinimum(){
 	return this->position <= this->limitMinimum;
@@ -94,11 +89,14 @@ bool MotorControl::withinRange(){
 	return !belowLimitMinimum() && !aboveLimitMaximum();
 }
 
-
-
-void MotorControl::toggleLimitToBeCalibrated(){
+void MotorControl::selectLimitToBeCalibrated(int8_t selectLimit){
+	//0 is no limit selected!
 	//when limit calibration button is set, the limit selected here will be set.
-	this-> selectedLimitForCalibrationIsMax = !this-> selectedLimitForCalibrationIsMax;
+	//this-> selectedLimitForCalibrationIsMax = !this-> selectedLimitForCalibrationIsMax;
+	this->calibrationSelectedLimit = selectLimit;
+}
+int8_t MotorControl::getSelectedLimitForCalibration(){
+	return this->calibrationSelectedLimit;
 }
 
 bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
@@ -185,11 +183,23 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 	case MODE_CALIBRATE:
 		switch (led){
 			case LED_LIMIT_MIN:
-				return belowLimitMinimum() &&!(!blink1Hz && !selectedLimitForCalibrationIsMax) || (!belowLimitMinimum() && !selectedLimitForCalibrationIsMax && blink1Hz);
+				if (getSelectedLimitForCalibration() ==1){
+					return belowLimitMinimum() != blink1Hz;
+				}else{
+					return belowLimitMinimum();
+				}
+
+				//return belowLimitMinimum() &&!(!blink1Hz && !selectedLimitForCalibrationIsMax) || (!belowLimitMinimum() && !selectedLimitForCalibrationIsMax && blink1Hz);
 				break;
 			case LED_LIMIT_MAX:
+				if (getSelectedLimitForCalibration() ==2){
+					return aboveLimitMaximum() != blink1Hz;
+				}else{
+					return aboveLimitMaximum();
+				}
+
 				//return aboveLimitMaximum();
-				return aboveLimitMaximum() &&!(!blink1Hz && selectedLimitForCalibrationIsMax) || (!aboveLimitMaximum() && selectedLimitForCalibrationIsMax && blink1Hz);
+			///	return aboveLimitMaximum() &&!(!blink1Hz && selectedLimitForCalibrationIsMax) || (!aboveLimitMaximum() && selectedLimitForCalibrationIsMax && blink1Hz);
 
 				break;
 			case LED_WITHIN_RANGE:

@@ -33,8 +33,11 @@ __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
 #endif
  void init();
  void ColorfulRingOfDeath(void);
-void setUpHardWareInterrupt_PB3();
-void setUpInputPin_PB5();
+void setUpHardWareInterrupt_motor1_channelA();
+void setUpInputPin_motor1_channelB();
+//motor2
+void setUpHardWareInterrupt_motor2_channelA();
+void setUpInputPin_motor2_channelB();
 
 
 void SysTick_Handler(void);
@@ -104,18 +107,27 @@ int main(void)
 	}
 	panel4.ledSequenceInterruptHandler(false);
 
-	//set up test interrupt PB3
-	setUpHardWareInterrupt_PB3();
-	setUpInputPin_PB5();
-
-
 	//motor1
+	setUpHardWareInterrupt_motor1_channelA();
+	setUpInputPin_motor1_channelB();
+	//motor2
+	setUpHardWareInterrupt_motor2_channelA();
+	setUpInputPin_motor2_channelB();
+
+
+	//motor1 hoist
 	MotorControl motor1(1);
 	MotorControlHandles[0] = &motor1;
-	motorControllerMode = MODE_NORMAL;
-	panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
+
+	//motor2 crowd
+	MotorControl motor2(2);
+	MotorControlHandles[1] = &motor2;
+
+
 
 	//INIT mode for motorcontrollermode
+	motorControllerMode = MODE_NORMAL;
+	panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
 	motorControllerMode  = 0;
 	for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 		MotorControlHandles[i]->setMode(motorControllerMode);
@@ -180,11 +192,23 @@ int main(void)
 				//if calibration selected select limit and set limit buttons active
 				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SELECT_LIMIT_FOR_SETTING)){
 					//select limit to configure
-					activeMotorForTestingOrCalibration++;
+
+					activeLimit = MotorControlHandles[activeMotorForTestingOrCalibration]->getSelectedLimitForCalibration();
+
+					if (activeLimit >= 2){
+						MotorControlHandles[activeMotorForTestingOrCalibration]->selectLimitToBeCalibrated(0);
+						activeMotorForTestingOrCalibration++;
+						activeLimit = 0;//because of ++ will be set to 1 further down this routine
+
+					}
+
 					if (activeMotorForTestingOrCalibration >= NUMBER_OF_MOTORS){
 						activeMotorForTestingOrCalibration = 0;
 					}
-					MotorControlHandles[activeMotorForTestingOrCalibration]->toggleLimitToBeCalibrated();
+					activeLimit++;
+					printf("%d-",activeMotorForTestingOrCalibration);
+					printf("%d\r\n",activeLimit);
+					MotorControlHandles[activeMotorForTestingOrCalibration]->selectLimitToBeCalibrated(activeLimit);
 				}
 				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SET_SELECTED_LIMIT_TO_CURRENT_POSITION)){
 					MotorControlHandles[activeMotorForTestingOrCalibration]->setCurrentPositionAsLimit();
@@ -192,8 +216,6 @@ int main(void)
 				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_RESET_ALL_LIMITS)){
 					MotorControlHandles[activeMotorForTestingOrCalibration]->resetLimit();
 				}
-
-
 
 				break;
 			default:
@@ -208,6 +230,10 @@ int main(void)
 			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MIN,motor1.getStatusLed(LED_LIMIT_MIN,millis));
 			panel4.setLed(LED_MOTOR_HOIST_INRANGE,motor1.getStatusLed(LED_WITHIN_RANGE, millis));
 			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,motor1.getStatusLed(LED_LIMIT_MAX, millis));
+
+			panel4.setLed(LED_MOTOR_CROWD_LIMIT_MIN,motor2.getStatusLed(LED_LIMIT_MIN,millis));
+			panel4.setLed(LED_MOTOR_CROWD_INRANGE,motor2.getStatusLed(LED_WITHIN_RANGE, millis));
+			panel4.setLed(LED_MOTOR_CROWD_LIMIT_MAX,motor2.getStatusLed(LED_LIMIT_MAX, millis));
 
 		}
 
@@ -281,9 +307,9 @@ int main(void)
 				}else if (theByte == 'a') {
 					printf("Doing some action here. \r\n");
 				}else if (theByte == 'm'){
-					printf("motor id: %d \r\n", motor1.getMotorId());
-					printf("position: %d \r\n", motor1.getPosition());
-					printf("limits:  min:  %d  --  max: %d \r\n", motor1.getLimit(false), motor1.getLimit(true));
+					printf("motor id: %d \r\n", motor2.getMotorId());
+					printf("position: %d \r\n", motor2.getPosition());
+					printf("limits:  min:  %d  --  max: %d \r\n", motor2.getLimit(false), motor2.getLimit(true));
 				}else{
 					//IOBoard testje;
 					printf("No valid command detected. Please send v, \r\n s, \r\nm for motor status  ,\r\nor a . \r\n");
@@ -467,7 +493,125 @@ void ADC_IRQHandler() {
 
 }
 
-void setUpInputPin_PB5(){
+
+void setUpInputPin_motor2_channelB(){
+	//PB8
+	 /* Set variables used */
+		GPIO_InitTypeDef GPIO_InitStruct;
+		EXTI_InitTypeDef EXTI_InitStruct;
+		NVIC_InitTypeDef NVIC_InitStruct;
+
+		/* Enable clock for GPIOB */
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		/* Enable clock for SYSCFG */
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+		/* Set pin as input */
+		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+		GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
+		//GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+}
+
+void setUpHardWareInterrupt_motor2_channelA(){
+	//PB4
+	//https://stm32f4-discovery.net/2014/08/stm32f4-external-interrupts-tutorial/
+
+	 /* Set variables used */
+	    GPIO_InitTypeDef GPIO_InitStruct;
+	    EXTI_InitTypeDef EXTI_InitStruct;
+	    NVIC_InitTypeDef NVIC_InitStruct;
+
+	    /* Enable clock for GPIOB */
+	    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	    /* Enable clock for SYSCFG */
+	    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+	    /* Set pin as input */
+	    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+	    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
+	    //GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+	    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+	    GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+
+	    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource4);
+
+	    EXTI_InitStruct.EXTI_Line = EXTI_Line4;
+	    /* Enable interrupt */
+	    EXTI_InitStruct.EXTI_LineCmd = ENABLE;
+	    /* Interrupt mode */
+	    EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+	    /* Triggers on rising and falling edge */
+	    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	    //EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	    /* Add to EXTI */
+	    EXTI_Init(&EXTI_InitStruct);
+
+	    /* Add IRQ vector to NVIC */
+	    NVIC_InitStruct.NVIC_IRQChannel = EXTI4_IRQn;
+	    /* Set priority */
+	    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
+	    /* Set sub priority */
+	    NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x01;
+	    /* Enable interrupt */
+	    NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	    /* Add to NVIC */
+	    NVIC_Init(&NVIC_InitStruct);
+
+
+}
+
+
+void EXTI4_IRQHandler(void) {
+
+	//triggers on rising and falling edge of encoder channel
+	//we are not interested in the added accuracy, but we need to check the edges (jitter at standstill could cause erroneous possition change)
+	//edge up --> position change ,(only if channel 2 is different from edge down value)
+	//edge down --> store channel 2
+    if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Make sure that interrupt flag is set
+    	//printf ("motor2\r\n");
+    	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8);//check channel B
+    	//printf("chB: %d\r\n", isCCW);
+    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_4)){
+    		//positive edge
+    		if (isCCW != motor2_chBMemory){
+				IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
+				MotorControlHandles[1]->updatePositionOneStep(isCCW); //2 channel encoder update.
+    		}
+		}else{
+			//negative edge
+			motor2_chBMemory = isCCW; //store ch2.
+    	}
+        /* Clear interrupt flag */
+        EXTI_ClearITPendingBit(EXTI_Line4);
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+//---------------------------------------------------------------------------------------
+
+
+
+
+
+void setUpInputPin_motor1_channelB(){
+	//PB5
 	 /* Set variables used */
 		GPIO_InitTypeDef GPIO_InitStruct;
 		EXTI_InitTypeDef EXTI_InitStruct;
@@ -492,7 +636,8 @@ void setUpInputPin_PB5(){
 
 }
 
-void setUpHardWareInterrupt_PB3(){
+void setUpHardWareInterrupt_motor1_channelA(){
+	//PB3
 	//https://stm32f4-discovery.net/2014/08/stm32f4-external-interrupts-tutorial/
 
 	 /* Set variables used */
@@ -543,6 +688,7 @@ void setUpHardWareInterrupt_PB3(){
 
 
 }
+
 /* Set interrupt handlers */
 /* Handle PB3 interrupt */
 void EXTI3_IRQHandler(void) {
@@ -552,7 +698,7 @@ void EXTI3_IRQHandler(void) {
 	//edge up --> position change ,(only if channel 2 is different from edge down value)
 	//edge down --> store channel 2
     if (EXTI_GetITStatus(EXTI_Line3) != RESET) { //Make sure that interrupt flag is set
-
+    	printf ("checkkflelfl;f");
     	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5);
     	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_3)){
     		//positive edge

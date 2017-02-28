@@ -18,6 +18,10 @@
 #define RESET_VALUE_LIMIT_MINIMUM -2147483648
 #define RESET_VALUE_LIMIT_MAXIMUM 2147483647
 
+#define CALIBRATION_SELECTED_LIMIT_MIN 1
+#define CALIBRATION_SELECTED_LIMIT_MAX 2
+#define CALIBRATION_SELECTED_LIMIT_NONE 0
+
 typedef enum
 {
 	LED_LIMIT_MIN = 0,
@@ -27,6 +31,8 @@ typedef enum
 	LED_ROTATING_RIGHT = 4,
 	LED_ROTATING_LEFT = 5
 } StatusLed_TypeDef;
+
+
 
 
 class MotorControl{
@@ -49,7 +55,8 @@ class MotorControl{
 		 bool aboveLimitMaximum();
 		 bool withinRange();
 
-		 void toggleLimitToBeCalibrated();
+		 void selectLimitToBeCalibrated(int8_t selectLimit);
+		 int8_t getSelectedLimitForCalibration();
 		 bool getStatusLed(uint8_t led, uint32_t millis);
 
 
@@ -59,7 +66,8 @@ class MotorControl{
 		 int32_t position;
 		 int32_t limitMinimum;
 		 int32_t limitMaximum;
-		 bool selectedLimitForCalibrationIsMax;
+		 //bool selectedLimitForCalibrationIsMax;
+		 int8_t calibrationSelectedLimit;
 
 };
 
