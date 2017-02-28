@@ -17,7 +17,7 @@
 #define ADC_SAMPLE_PERIOD_MILLIS 50 //every 50ms adc sampling.
 #define DEMOLOOP_UPDATE_DELAY 20	//millis
 #define LED_SCAN_PERIOD_MILLIS 4  //with trial and error, leds are not flickering.
-#define NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP 1
+#define NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP 1000
 typedef enum
 {
   PANEL_1 = 0,

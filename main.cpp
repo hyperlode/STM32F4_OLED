@@ -206,8 +206,6 @@ int main(void)
 						activeMotorForTestingOrCalibration = 0;
 					}
 					activeLimit++;
-					printf("%d-",activeMotorForTestingOrCalibration);
-					printf("%d\r\n",activeLimit);
 					MotorControlHandles[activeMotorForTestingOrCalibration]->selectLimitToBeCalibrated(activeLimit);
 				}
 				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SET_SELECTED_LIMIT_TO_CURRENT_POSITION)){
