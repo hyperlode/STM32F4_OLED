@@ -18,6 +18,8 @@
 #define DEMOLOOP_UPDATE_DELAY 20	//millis
 #define LED_SCAN_PERIOD_MILLIS 4  //with trial and error, leds are not flickering.
 #define NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP 1
+
+#define UNEXISTING_LED 666
 typedef enum
 {
   PANEL_1 = 0,
@@ -71,6 +73,8 @@ class IOBoard{
 		void toggleLed(uint16_t ledNumber);
 		void ledSequenceUpdate(bool directionIsForward);
 		void ledSequenceInterruptHandler(bool directionIsForward);
+		void ledSequenceUser_reset();
+		void ledSequenceUser_set(uint8_t arrayIndex, uint32_t ledNumber);
 
 		void initButtons();
 		void readButtons();
@@ -121,9 +125,11 @@ class IOBoard{
 		bool leds[16];
 		uint32_t ledsBlinkPeriod[16];
 
+		uint32_t ledRingSequence_user[16];
+
 		bool ledsInitialized;
 		uint32_t ledScanTimer;
-		const static uint32_t ledRingSequence [12] ;
+		const static uint32_t ledRingSequence_default [12] ;
 		int32_t sequenceCounter = 0;
 		int32_t substeps =0;
 

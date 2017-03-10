@@ -6,8 +6,8 @@
 //all items of a certain type (leds, sliders, buttons) must use the same port per panel.
 
 
-//const uint32_t IOBoard::ledRingSequence[] = {1,2,3,4,8,12,16,15,14,13,9,5};
-const uint32_t IOBoard::ledRingSequence[] = {13,14,15,16,13,14,15,16,13,14,15,16};
+const uint32_t IOBoard::ledRingSequence_default[] = {0,1,2,3,7,11,15,14,13,12,8,4};
+
 
 IOBoard::IOBoard(){
 	//first thing to do is init --> with a panelId!
@@ -112,6 +112,7 @@ void IOBoard::init(PanelId_TypeDef panelId){
 		}
 
 
+		ledSequenceUser_reset();
 
 		buttonTimer = 0;
 		buttonsReadHighElseLow =false;
@@ -556,14 +557,27 @@ void IOBoard::initLeds(){
 
 }
 
+void IOBoard::ledSequenceUser_reset(){
+	for (uint8_t i=0;i<16;i++){
+		this->ledRingSequence_user[i]=UNEXISTING_LED;
+	}
+}
+
+void IOBoard::ledSequenceUser_set(uint8_t arrayIndex, uint32_t ledNumber ){
+	this->ledRingSequence_user[arrayIndex] = ledNumber;
+}
+
 void IOBoard::ledSequenceUpdate(bool directionIsForward){
-	setLed(this->ledRingSequence[sequenceCounter] -1,false);
+
+	if (ledRingSequence_user[0] == UNEXISTING_LED){
+
+		setLed(this->ledRingSequence_default[sequenceCounter] ,false);
 
     	if (directionIsForward){
     		//STM_EVAL_LEDToggle(LED4);
     		//CW
     		sequenceCounter ++;
-			if (sequenceCounter>=12){
+			if (sequenceCounter>=12 ){
 				sequenceCounter = 0;
 			}
 
@@ -574,7 +588,33 @@ void IOBoard::ledSequenceUpdate(bool directionIsForward){
     			sequenceCounter = 11;
     		}
     	}
-	setLed(ledRingSequence[sequenceCounter] -1,true);
+    	setLed(ledRingSequence_default[sequenceCounter] ,true);
+	}else{
+
+		setLed(this->ledRingSequence_user[sequenceCounter] ,false);
+
+    	if (directionIsForward){
+    		//STM_EVAL_LEDToggle(LED4);
+    		//CW
+    		sequenceCounter ++;
+			if (sequenceCounter>=16 || ledRingSequence_user[sequenceCounter] == UNEXISTING_LED ){
+				sequenceCounter = 0;
+			}
+
+    	}else{
+    		//CCW
+    		sequenceCounter --;
+    		if (sequenceCounter<0){
+
+    			sequenceCounter = 15;
+    			while (ledRingSequence_user[sequenceCounter] == UNEXISTING_LED){
+    				sequenceCounter--;
+    			}
+    		}
+    	}
+    	setLed(ledRingSequence_user[sequenceCounter] ,true);
+
+	}
 }
 
 void IOBoard::ledSequenceInterruptHandler(bool directionIsForward){

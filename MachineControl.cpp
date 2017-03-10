@@ -15,7 +15,14 @@ MachineControl::MachineControl(){
 		//panel4.setLed(i,true);
 		panel4.setLed(i,false);
 	}
+
+	//set up the desired sequence.
+	panel4.ledSequenceUser_set(0,1);
+	panel4.ledSequenceUser_set(1,2);
+	panel4.ledSequenceUser_set(2,3);
+
 	panel4.ledSequenceInterruptHandler(false);
+
 
 	//motor1
 	setUpHardWareInterrupt_motor1_channelA();
@@ -96,7 +103,7 @@ void MachineControl::refresh(uint32_t millis){
 
 		}
 
-
+		//check button presses depending on activated mode.
 		switch (motorControllerMode){
 			case MODE_NORMAL:
 				break;
@@ -136,7 +143,7 @@ void MachineControl::refresh(uint32_t millis){
 		}
 
 
-
+		//refresh motor status lights
 		if (millis%10 > 5 && edgeMemory ==0){
 			edgeMemory =1;
 			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MIN,motor1.getStatusLed(LED_LIMIT_MIN,millis));
@@ -182,7 +189,7 @@ void MachineControl::refresh(uint32_t millis){
 		}
 
 
-#define USE_VCP
+
 #ifdef USE_VCP
 		// If there's data on the virtual serial port:
 		 //  - Echo it back

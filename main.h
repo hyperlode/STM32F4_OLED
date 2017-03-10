@@ -1,7 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define USE_VCP
+//#define USE_VCP //in coocox in precompiler directives defined
 
 
 

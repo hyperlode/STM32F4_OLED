@@ -18,6 +18,7 @@
           <Define name="STM32F405RG"/>
           <Define name="STM32F4XX"/>
           <Define name="__FPU_USED"/>
+          <Define name="USE_VCP"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
