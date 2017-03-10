@@ -17,6 +17,7 @@
 
 #define RESET_VALUE_LIMIT_MINIMUM -2147483648
 #define RESET_VALUE_LIMIT_MAXIMUM 2147483647
+#define POSITION_ZERO_DEFAULT_MARGIN  0
 
 #define CALIBRATION_SELECTED_LIMIT_MIN 1
 #define CALIBRATION_SELECTED_LIMIT_MAX 2
@@ -51,6 +52,11 @@ class MotorControl{
 		 void resetPositionAndLimits();
 		 void resetPosition();
 
+		 void setZeroPositionMargin(uint32_t margin);
+		 bool getPositionAtZero();
+		 void setCurrentPositionToZero();
+
+
 		 int32_t getLimit(bool maxLimitElseMin);
 		 bool belowLimitMinimum();
 		 bool aboveLimitMaximum();
@@ -67,6 +73,8 @@ class MotorControl{
 		 int32_t position;
 		 int32_t limitMinimum;
 		 int32_t limitMaximum;
+		 uint32_t zeroPositionMargin;
+		 bool zeroingAxisHappenedAtLeastOnce;
 		 //bool selectedLimitForCalibrationIsMax;
 		 int8_t calibrationSelectedLimit;
 

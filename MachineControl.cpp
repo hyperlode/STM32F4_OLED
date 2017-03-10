@@ -17,9 +17,9 @@ MachineControl::MachineControl(){
 	}
 
 	//set up the desired sequence.
-	panel4.ledSequenceUser_set(0,1);
+	panel4.ledSequenceUser_set(0,3);
 	panel4.ledSequenceUser_set(1,2);
-	panel4.ledSequenceUser_set(2,3);
+	panel4.ledSequenceUser_set(2,1);
 
 	panel4.ledSequenceInterruptHandler(false);
 
@@ -103,9 +103,19 @@ void MachineControl::refresh(uint32_t millis){
 
 		}
 
-		//check button presses depending on activated mode.
+		//button pressed actions (depending on mode)
 		switch (motorControllerMode){
 			case MODE_NORMAL:
+
+				if (panel4.getButtonEdgePressed(BUTTON_ZEROING_ALL_AXIS)){
+					this->zeroingButtonPressStartTime = this->millis;
+				}
+
+				if ( panel4.getButtonState(BUTTON_ZEROING_ALL_AXIS) &&  this->millis - this->zeroingButtonPressStartTime > ZEROING_BUTTON_TIME_DELAY_MILLIS ){
+					motor1.setCurrentPositionToZero();
+					motor2.setCurrentPositionToZero();
+				}
+
 				break;
 			case MODE_TEST:
 				break;

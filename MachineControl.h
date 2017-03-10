@@ -30,8 +30,8 @@
 #define BUTTON_MOTORCONTROLLER_SELECT_LIMIT_FOR_SETTING 1
 #define BUTTON_MOTORCONTROLLER_SET_SELECTED_LIMIT_TO_CURRENT_POSITION 2
 #define BUTTON_MOTORCONTROLLER_RESET_ALL_LIMITS 3
-
-
+#define BUTTON_ZEROING_ALL_AXIS 2 //dual usage of button, depending on mode.
+#define ZEROING_BUTTON_TIME_DELAY_MILLIS 2000
 
 
 
@@ -72,7 +72,7 @@ private:
 	uint16_t edgeMemory =0;
 	uint16_t  secondEdgeMemory= 0;
 
-
+	uint32_t zeroingButtonPressStartTime;
 
 };
 
