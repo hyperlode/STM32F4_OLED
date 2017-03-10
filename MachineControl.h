@@ -8,8 +8,10 @@
 
 
 #define MODE_NORMAL 0
-#define MODE_TEST 1
-#define MODE_CALIBRATE 2
+//#define MODE_TEST 2
+#define MODE_CALIBRATE 1
+#define NUMBER_OF_MODES 2
+
 
 #define NUMBER_OF_MOTORS 2
 
@@ -46,6 +48,7 @@ public:
 	void setUpHardWareInterrupt_motor2_channelA();
 	void Motor2InterruptHandler();
 
+	bool getAllMotorsAreZeroed();
 	void setUpInputPin_motor1_channelB();
 	void setUpHardWareInterrupt_motor1_channelA();
 	void Motor1InterruptHandler();

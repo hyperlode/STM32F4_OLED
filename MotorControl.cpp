@@ -55,6 +55,10 @@ void MotorControl::setCurrentPositionToZero(){
 	this->zeroingAxisHappenedAtLeastOnce=true;
 }
 
+bool MotorControl::getZeroingAxisHappenedAtLeastOnce(){
+	return this->zeroingAxisHappenedAtLeastOnce;
+}
+
 void MotorControl::updatePositionOneStep(bool rotationIsCCW){
 	if (rotationIsCCW){
 		this->position++;
@@ -63,14 +67,19 @@ void MotorControl::updatePositionOneStep(bool rotationIsCCW){
 	}
 }
 
-
 void MotorControl::setCurrentPositionAsLimit(){
-	if (this->calibrationSelectedLimit == CALIBRATION_SELECTED_LIMIT_MAX){
-		this->limitMaximum = this->position;
-	}else if (this->calibrationSelectedLimit == CALIBRATION_SELECTED_LIMIT_MIN) {
-		this->limitMinimum = this->position;
+
+	if (getZeroingAxisHappenedAtLeastOnce()){
+		if (this->calibrationSelectedLimit == CALIBRATION_SELECTED_LIMIT_MAX){
+			this->limitMaximum = this->position;
+		}else if (this->calibrationSelectedLimit == CALIBRATION_SELECTED_LIMIT_MIN) {
+			this->limitMinimum = this->position;
+		}
+	}else{
+		printf ("USER ASSERT ERROR: as long as the axis was never zeroed, setting a limit is not allowed\r\n");
 	}
 }
+
 int32_t MotorControl::getLimit(bool maxLimitElseMin){
 	if (maxLimitElseMin){
 		return this->limitMaximum;
@@ -79,6 +88,7 @@ int32_t MotorControl::getLimit(bool maxLimitElseMin){
 	}
 
 }
+
 void MotorControl::resetPositionAndLimits(){
 	bool tmpSelectSaver = this->calibrationSelectedLimit; //save selected limit
 	//reset limits
@@ -154,7 +164,7 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 					}
 					break;
 				case LED_WITHIN_RANGE:
-					if (!this->zeroingAxisHappenedAtLeastOnce){
+					if (!getZeroingAxisHappenedAtLeastOnce()){
 						return blink2Hz;
 					}else if (getPositionAtZero()){
 						return blink1Hz;

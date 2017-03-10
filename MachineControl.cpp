@@ -45,7 +45,7 @@ MachineControl::MachineControl(){
 	//INIT mode for motorcontrollermode
 	motorControllerMode = MODE_NORMAL;
 	panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
-	motorControllerMode  = 0;
+	motorControllerMode  = MODE_NORMAL;
 	for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 		MotorControlHandles[i]->setMode(motorControllerMode);
 	}
@@ -72,9 +72,16 @@ void MachineControl::refresh(uint32_t millis){
 		//MOTOR CONTROL test
 
 		//select mode with button4 on panel
-		if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SELECT_MODE)){
+
+		//if (panel4.getButtonState(BUTTON_MOTORCONTROLLER_SELECT_MODE)){
+			//while button is pressed, led goes off(as feedback)
+		//	panel4.setLed(LED_MOTORCONTROLLER_MODE,false);
+		//}
+
+		if (panel4.getButtonEdgeDePressed(BUTTON_MOTORCONTROLLER_SELECT_MODE)){
+			if (getAllMotorsAreZeroed()){ //no way we will do calibration if the motors are not zeroed.
 				motorControllerMode++;
-				if (motorControllerMode>2){
+				if (motorControllerMode>=NUMBER_OF_MODES){
 					motorControllerMode  = 0;
 				}
 
@@ -83,10 +90,10 @@ void MachineControl::refresh(uint32_t millis){
 						panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
 						panel4.setLedBlinkPeriodMillis(LED_MOTORCONTROLLER_MODE,0);
 						break;
-					case MODE_TEST:
-						panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
-						panel4.setLedBlinkPeriodMillis(LED_MOTORCONTROLLER_MODE,1000);
-						break;
+					//case MODE_TEST:
+					//	panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
+					//	panel4.setLedBlinkPeriodMillis(LED_MOTORCONTROLLER_MODE,1000);
+					//	break;
 					case MODE_CALIBRATE:
 						panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
 						panel4.setLedBlinkPeriodMillis(LED_MOTORCONTROLLER_MODE,250);
@@ -100,6 +107,7 @@ void MachineControl::refresh(uint32_t millis){
 				for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 					MotorControlHandles[i]->setMode(motorControllerMode);
 				}
+			}
 
 		}
 
@@ -112,13 +120,15 @@ void MachineControl::refresh(uint32_t millis){
 				}
 
 				if ( panel4.getButtonState(BUTTON_ZEROING_ALL_AXIS) &&  this->millis - this->zeroingButtonPressStartTime > ZEROING_BUTTON_TIME_DELAY_MILLIS ){
-					motor1.setCurrentPositionToZero();
-					motor2.setCurrentPositionToZero();
+
+					for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
+						MotorControlHandles[i]->setCurrentPositionToZero();
+					}
 				}
 
 				break;
-			case MODE_TEST:
-				break;
+			//case MODE_TEST:
+			//	break;
 			case MODE_CALIBRATE:
 				//if calibration selected select limit and set limit buttons active
 				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SELECT_LIMIT_FOR_SETTING)){
@@ -253,7 +263,16 @@ void MachineControl::refresh(uint32_t millis){
 }
 
 
-
+bool MachineControl::getAllMotorsAreZeroed(){
+	bool allMotorsOk = true;
+	//check all motors for axis was zeroed.
+	for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
+		if (!MotorControlHandles[i]->getZeroingAxisHappenedAtLeastOnce()){
+			allMotorsOk = false;
+		}
+	}
+	return allMotorsOk;
+}
 
 
 

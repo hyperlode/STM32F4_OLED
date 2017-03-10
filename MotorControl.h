@@ -55,7 +55,7 @@ class MotorControl{
 		 void setZeroPositionMargin(uint32_t margin);
 		 bool getPositionAtZero();
 		 void setCurrentPositionToZero();
-
+		 bool getZeroingAxisHappenedAtLeastOnce();
 
 		 int32_t getLimit(bool maxLimitElseMin);
 		 bool belowLimitMinimum();
