@@ -12,8 +12,7 @@
 #define LED_ROTATING_LEFT 5
 */
 #define MODE_NORMAL 0
-#define MODE_TEST 1  //shows which limits are configured.
-#define MODE_CALIBRATE 2
+#define MODE_CALIBRATE 1
 
 #define RESET_VALUE_LIMIT_MINIMUM -2147483648
 #define RESET_VALUE_LIMIT_MAXIMUM 2147483647

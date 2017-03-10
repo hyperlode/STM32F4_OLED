@@ -18,14 +18,17 @@
 #define LED_MOTOR_HOIST_LIMIT_MIN	5
 #define LED_MOTOR_HOIST_LIMIT_MAX	7
 #define LED_MOTOR_HOIST_INRANGE		6
+#define LED_MOTOR_HOIST_ENABLE		4
 
 #define LED_MOTOR_CROWD_LIMIT_MIN	9
 #define LED_MOTOR_CROWD_LIMIT_MAX	11
 #define LED_MOTOR_CROWD_INRANGE		10
+#define LED_MOTOR_CROWD_ENABLE		8
 
 #define LED_MOTOR_SWING_LIMIT_MIN	13
 #define LED_MOTOR_SWING_LIMIT_MAX	15
 #define LED_MOTOR_SWING_INRANGE		14
+#define LED_MOTOR_SWING_ENABLE		12
 
 #define LED_MOTORCONTROLLER_MODE 0
 #define BUTTON_MOTORCONTROLLER_SELECT_MODE 0
@@ -48,7 +51,9 @@ public:
 	void setUpHardWareInterrupt_motor2_channelA();
 	void Motor2InterruptHandler();
 
-	bool getAllMotorsAreZeroed();
+	bool getMotorsZeroedSinceStartup();
+	void selectNextLimitToBeCalibrated();
+
 	void setUpInputPin_motor1_channelB();
 	void setUpHardWareInterrupt_motor1_channelA();
 	void Motor1InterruptHandler();

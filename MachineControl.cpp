@@ -49,6 +49,10 @@ MachineControl::MachineControl(){
 	for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 		MotorControlHandles[i]->setMode(motorControllerMode);
 	}
+
+
+
+	selectNextLimitToBeCalibrated();
 //	panel1.setLed(3,true);
 //	panel1.setLedBlinkPeriodMillis(3,0);
 
@@ -64,12 +68,8 @@ MachineControl::MachineControl(){
 void MachineControl::refresh(uint32_t millis){
 
 		this-> millis = millis;
-		//panel1.refresh(millis);
-		panel4.refresh(millis);
-		//panel1.demoModeLoop();
-		//panel4.demoModeLoop();
 
-		//MOTOR CONTROL test
+		panel4.refresh(millis);
 
 		//select mode with button4 on panel
 
@@ -79,7 +79,7 @@ void MachineControl::refresh(uint32_t millis){
 		//}
 
 		if (panel4.getButtonEdgeDePressed(BUTTON_MOTORCONTROLLER_SELECT_MODE)){
-			if (getAllMotorsAreZeroed()){ //no way we will do calibration if the motors are not zeroed.
+			if (getMotorsZeroedSinceStartup()){ //no way we will do calibration if the motors are not zeroed.
 				motorControllerMode++;
 				if (motorControllerMode>=NUMBER_OF_MODES){
 					motorControllerMode  = 0;
@@ -108,7 +108,6 @@ void MachineControl::refresh(uint32_t millis){
 					MotorControlHandles[i]->setMode(motorControllerMode);
 				}
 			}
-
 		}
 
 		//button pressed actions (depending on mode)
@@ -120,7 +119,6 @@ void MachineControl::refresh(uint32_t millis){
 				}
 
 				if ( panel4.getButtonState(BUTTON_ZEROING_ALL_AXIS) &&  this->millis - this->zeroingButtonPressStartTime > ZEROING_BUTTON_TIME_DELAY_MILLIS ){
-
 					for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 						MotorControlHandles[i]->setCurrentPositionToZero();
 					}
@@ -134,20 +132,9 @@ void MachineControl::refresh(uint32_t millis){
 				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SELECT_LIMIT_FOR_SETTING)){
 					//select limit to configure
 
-					activeLimit = MotorControlHandles[activeMotorForTestingOrCalibration]->getSelectedLimitForCalibration();
+					selectNextLimitToBeCalibrated();
 
-					if (activeLimit >= 2){
-						MotorControlHandles[activeMotorForTestingOrCalibration]->selectLimitToBeCalibrated(0);
-						activeMotorForTestingOrCalibration++;
-						activeLimit = 0;//because of ++ will be set to 1 further down this routine
 
-					}
-
-					if (activeMotorForTestingOrCalibration >= NUMBER_OF_MOTORS){
-						activeMotorForTestingOrCalibration = 0;
-					}
-					activeLimit++;
-					MotorControlHandles[activeMotorForTestingOrCalibration]->selectLimitToBeCalibrated(activeLimit);
 				}
 				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SET_SELECTED_LIMIT_TO_CURRENT_POSITION)){
 					MotorControlHandles[activeMotorForTestingOrCalibration]->setCurrentPositionAsLimit();
@@ -166,14 +153,24 @@ void MachineControl::refresh(uint32_t millis){
 		//refresh motor status lights
 		if (millis%10 > 5 && edgeMemory ==0){
 			edgeMemory =1;
+			/*
+			//update leds for all motors.
+			for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
+					panel4.setLed(LED_MOTOR_HOIST_LIMIT_MIN,MotorControlHandles[i]->getStatusLed(LED_LIMIT_MIN,millis));
+					panel4.setLed(LED_MOTOR_HOIST_INRANGE,MotorControlHandles[i]->getStatusLed(LED_WITHIN_RANGE, millis));
+					panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,MotorControlHandles[i]->getStatusLed(LED_LIMIT_MAX, millis));
+					panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,MotorControlHandles[i]->getStatusLed(LED_ENABLE, millis));
+			}
+			*/
 			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MIN,motor1.getStatusLed(LED_LIMIT_MIN,millis));
 			panel4.setLed(LED_MOTOR_HOIST_INRANGE,motor1.getStatusLed(LED_WITHIN_RANGE, millis));
 			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,motor1.getStatusLed(LED_LIMIT_MAX, millis));
+			panel4.setLed(LED_MOTOR_HOIST_ENABLE,motor1.getStatusLed(LED_ENABLE, millis));
 
 			panel4.setLed(LED_MOTOR_CROWD_LIMIT_MIN,motor2.getStatusLed(LED_LIMIT_MIN,millis));
 			panel4.setLed(LED_MOTOR_CROWD_INRANGE,motor2.getStatusLed(LED_WITHIN_RANGE, millis));
 			panel4.setLed(LED_MOTOR_CROWD_LIMIT_MAX,motor2.getStatusLed(LED_LIMIT_MAX, millis));
-
+			panel4.setLed(LED_MOTOR_CROWD_ENABLE,motor2.getStatusLed(LED_ENABLE, millis));
 		}
 
 		if (millis%10 <10){
@@ -263,7 +260,7 @@ void MachineControl::refresh(uint32_t millis){
 }
 
 
-bool MachineControl::getAllMotorsAreZeroed(){
+bool MachineControl::getMotorsZeroedSinceStartup(){
 	bool allMotorsOk = true;
 	//check all motors for axis was zeroed.
 	for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
@@ -274,7 +271,23 @@ bool MachineControl::getAllMotorsAreZeroed(){
 	return allMotorsOk;
 }
 
+void MachineControl::selectNextLimitToBeCalibrated(){
 
+	activeLimit = MotorControlHandles[activeMotorForTestingOrCalibration]->getSelectedLimitForCalibration();
+
+	if (activeLimit >= 2){
+		MotorControlHandles[activeMotorForTestingOrCalibration]->selectLimitToBeCalibrated(0);
+		activeMotorForTestingOrCalibration++;
+		activeLimit = 0;//because of ++ will be set to 1 further down this routine
+	}
+
+	if (activeMotorForTestingOrCalibration >= NUMBER_OF_MOTORS){
+		activeMotorForTestingOrCalibration = 0;
+	}
+
+	activeLimit++;
+	MotorControlHandles[activeMotorForTestingOrCalibration]->selectLimitToBeCalibrated(activeLimit);
+}
 
 
 void MachineControl::setUpInputPin_motor2_channelB(){

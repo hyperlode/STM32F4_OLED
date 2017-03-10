@@ -139,12 +139,8 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 
 	bool blink1Hz = millis%1000 > 500; //do XOR (boolean != blink1Hz) with the other value (MUST BE BOOL see:normalize to boolean), this way, there will always be blinking
 	bool blink2Hz = millis%500>250;
-	//uint8_t loddde = MODE_NORMAL;
 	switch (this->mode){
-		//	switch (loddde){
 		case MODE_NORMAL:
-
-
 			switch (led){
 				case LED_LIMIT_MIN:
 
@@ -173,6 +169,7 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 					}
 					break;
 				case LED_ENABLE:
+					return blink2Hz;
 					break;
 				case LED_ROTATING_RIGHT:
 					break;
@@ -186,7 +183,7 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 
 
 
-
+/*
 	case MODE_TEST:
 		switch (led){
 			case LED_LIMIT_MIN:
@@ -209,7 +206,7 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 				}
 				break;
 
-				break;
+
 			case LED_WITHIN_RANGE:
 				if (getLimit(false) > getLimit(true)){
 					//error condition
@@ -221,6 +218,7 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 				//return withinRange()!= blink1Hz ;
 				break;
 			case LED_ENABLE:
+
 				break;
 			case LED_ROTATING_RIGHT:
 				break;
@@ -230,6 +228,7 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 				return false;
 				break;
 		}
+		*/
 	case MODE_CALIBRATE:
 		switch (led){
 			case LED_LIMIT_MIN:
@@ -256,6 +255,7 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 				return withinRange();
 				break;
 			case LED_ENABLE:
+				return blink1Hz;
 				break;
 			case LED_ROTATING_RIGHT:
 				break;
