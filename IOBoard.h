@@ -17,7 +17,7 @@
 #define ADC_SAMPLE_PERIOD_MILLIS 50 //every 50ms adc sampling.
 #define DEMOLOOP_UPDATE_DELAY 20	//millis
 #define LED_SCAN_PERIOD_MILLIS 4  //with trial and error, leds are not flickering.
-#define NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP 1000
+#define NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP 1
 typedef enum
 {
   PANEL_1 = 0,
@@ -50,8 +50,10 @@ typedef enum
 
 class IOBoard{
 	public:
-		IOBoard(PanelId_TypeDef panelId);
+
+		IOBoard();
 		//void initSlider(SliderNumber_TypeDef sliderNumberOnBoard, GPIOPinSlider_TypeDef adcPin);
+		void init(PanelId_TypeDef panelId);
 		void stats(char* outputString);
 		void refresh(uint32_t millis);
 		void demoModeLoop();

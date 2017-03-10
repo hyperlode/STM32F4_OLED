@@ -1,6 +1,10 @@
 #include "MotorControl.h"
 
-MotorControl::MotorControl(uint32_t motorId){
+MotorControl::MotorControl(){
+	//first thing to do: init
+}
+
+void MotorControl::init(uint32_t motorId){
 	this->motorId = motorId;
 	this->position = 0;
 	this->mode = MODE_NORMAL;
@@ -9,6 +13,8 @@ MotorControl::MotorControl(uint32_t motorId){
 	this->calibrationSelectedLimit = 0;//limit to be calibrated
 
 	resetPositionAndLimits();
+
+
 }
 
 void MotorControl::setMode(uint8_t mode){

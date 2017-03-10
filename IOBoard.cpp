@@ -9,116 +9,120 @@
 //const uint32_t IOBoard::ledRingSequence[] = {1,2,3,4,8,12,16,15,14,13,9,5};
 const uint32_t IOBoard::ledRingSequence[] = {13,14,15,16,13,14,15,16,13,14,15,16};
 
-IOBoard::IOBoard(PanelId_TypeDef panelId){
-	this ->panelId = panelId;
-
-	//check ADC init for further magic numbers and specific initializations.
-	if (panelId == PANEL_1){
-		//4sliders, 4 leds, 4 buttons
-		numberOfLeds = 4;
-		ledCathodePins[0] = GPIO_Pin_6;
-		ledAnodePins[0] = GPIO_Pin_8;
-		ledAnodePins[1] = GPIO_Pin_9;
-		ledAnodePins[2] = GPIO_Pin_11;
-		ledAnodePins[3] = GPIO_Pin_13;
-		ledPort = GPIOC;
-		ledPeripheral = RCC_AHB1Periph_GPIOC;
-
-		numberOfButtons =4;
-		buttonPins[0] = GPIO_Pin_13; //two buttons per pin
-		buttonPins[1] = GPIO_Pin_14; //two buttons per pin
-		buttonPort = GPIOB;
-		buttonPeripheral = RCC_AHB1Periph_GPIOB;
-
-		adcPins[0] = GPIO_Pin_0;
-		adcPins[1] = GPIO_Pin_1;
-		adcPins[2] = GPIO_Pin_2;
-		adcPins[3] = GPIO_Pin_3;
-		adcPort  = GPIOC;
-		adcPeripheral = RCC_AHB1ENR_GPIOCEN;
-
-	}else if (panelId == PANEL_2){
-		//4sliders, 4 leds, 4 buttons
-		numberOfLeds = 4;
-		ledCathodePins[0] = GPIO_Pin_4;
-		ledAnodePins[0] = GPIO_Pin_5,
-		ledAnodePins[1] = GPIO_Pin_6;
-		ledAnodePins[2] = GPIO_Pin_7;
-		ledAnodePins[3] = GPIO_Pin_8 ;
-		ledPort = GPIOB;
-		ledPeripheral = RCC_AHB1Periph_GPIOB;
-
-		numberOfButtons =4;
-		buttonPins[0] = GPIO_Pin_3; //two buttons per pin
-		buttonPins[1] = GPIO_Pin_12; //two buttons per pin
-		buttonPort = GPIOB;
-		buttonPeripheral = RCC_AHB1Periph_GPIOB;
-
-		adcPins[0] = GPIO_Pin_0;
-		adcPins[1] = GPIO_Pin_1;
-		adcPins[2] = GPIO_Pin_2;
-		adcPins[3] = GPIO_Pin_3;
-		adcPort  = GPIOA;
-		adcPeripheral = RCC_AHB1ENR_GPIOAEN;
-
-	}else if (panelId == PANEL_3){
-		// 16 buttons, 16 leds
-		numberOfLeds = 16;
-		ledCathodePins[0] = GPIO_Pin_0;
-		ledCathodePins[1] = GPIO_Pin_1;
-		ledCathodePins[2] = GPIO_Pin_2;
-		ledCathodePins[3] = GPIO_Pin_3;
-		ledAnodePins[0] = GPIO_Pin_4,
-		ledAnodePins[1] = GPIO_Pin_5;
-		ledAnodePins[2] = GPIO_Pin_6;
-		ledAnodePins[3] = GPIO_Pin_7 ;
-		ledPort = GPIOE;
-		ledPeripheral = RCC_AHB1Periph_GPIOE;
-
-		numberOfButtons =16;
-		buttonPins[0] = GPIO_Pin_8;
-		buttonPins[1] = GPIO_Pin_9;
-		buttonPins[2] = GPIO_Pin_10;
-		buttonPins[3] = GPIO_Pin_11;
-		buttonPins[4] = GPIO_Pin_12;
-		buttonPins[5] = GPIO_Pin_13;
-		buttonPins[6] = GPIO_Pin_14;
-		buttonPins[7] = GPIO_Pin_15;
-		buttonPort = GPIOE;
-		buttonPeripheral = RCC_AHB1Periph_GPIOE;
-
-	}else if (panelId = PANEL_4){
-		// 4 buttons, 16 leds
-		numberOfLeds = 16;
-		ledCathodePins[0] = GPIO_Pin_0;
-		ledCathodePins[1] = GPIO_Pin_1;
-		ledCathodePins[2] = GPIO_Pin_2;
-		ledCathodePins[3] = GPIO_Pin_3;
-		ledAnodePins[0] = GPIO_Pin_4,
-		ledAnodePins[1] = GPIO_Pin_5;
-		ledAnodePins[2] = GPIO_Pin_6;
-		ledAnodePins[3] = GPIO_Pin_7 ;
-		ledPort = GPIOD;
-		ledPeripheral = RCC_AHB1Periph_GPIOD;
-
-		numberOfButtons =4;
-		buttonPins[0] = GPIO_Pin_10; //two buttons per pin
-		buttonPins[1] = GPIO_Pin_11; //two buttons per pin
-		buttonPort = GPIOB;
-		buttonPeripheral = RCC_AHB1Periph_GPIOB;
-	}
-
-
-
-	buttonTimer = 0;
-	buttonsReadHighElseLow =false;
-	scanCathode = 0;
-	scanCounterTest = 0;
-
-	adcInitialized = false;
-	buttonsInitialized = false;
-	ledsInitialized = false;
+IOBoard::IOBoard(){
+	//first thing to do is init --> with a panelId!
 }
+
+void IOBoard::init(PanelId_TypeDef panelId){
+	this ->panelId = panelId;
+	//check ADC init for further magic numbers and specific initializations.
+		if (panelId == PANEL_1){
+			//4sliders, 4 leds, 4 buttons
+			numberOfLeds = 4;
+			ledCathodePins[0] = GPIO_Pin_6;
+			ledAnodePins[0] = GPIO_Pin_8;
+			ledAnodePins[1] = GPIO_Pin_9;
+			ledAnodePins[2] = GPIO_Pin_11;
+			ledAnodePins[3] = GPIO_Pin_13;
+			ledPort = GPIOC;
+			ledPeripheral = RCC_AHB1Periph_GPIOC;
+
+			numberOfButtons =4;
+			buttonPins[0] = GPIO_Pin_13; //two buttons per pin
+			buttonPins[1] = GPIO_Pin_14; //two buttons per pin
+			buttonPort = GPIOB;
+			buttonPeripheral = RCC_AHB1Periph_GPIOB;
+
+			adcPins[0] = GPIO_Pin_0;
+			adcPins[1] = GPIO_Pin_1;
+			adcPins[2] = GPIO_Pin_2;
+			adcPins[3] = GPIO_Pin_3;
+			adcPort  = GPIOC;
+			adcPeripheral = RCC_AHB1ENR_GPIOCEN;
+
+		}else if (panelId == PANEL_2){
+			//4sliders, 4 leds, 4 buttons
+			numberOfLeds = 4;
+			ledCathodePins[0] = GPIO_Pin_4;
+			ledAnodePins[0] = GPIO_Pin_5,
+			ledAnodePins[1] = GPIO_Pin_6;
+			ledAnodePins[2] = GPIO_Pin_7;
+			ledAnodePins[3] = GPIO_Pin_8 ;
+			ledPort = GPIOB;
+			ledPeripheral = RCC_AHB1Periph_GPIOB;
+
+			numberOfButtons =4;
+			buttonPins[0] = GPIO_Pin_3; //two buttons per pin
+			buttonPins[1] = GPIO_Pin_12; //two buttons per pin
+			buttonPort = GPIOB;
+			buttonPeripheral = RCC_AHB1Periph_GPIOB;
+
+			adcPins[0] = GPIO_Pin_0;
+			adcPins[1] = GPIO_Pin_1;
+			adcPins[2] = GPIO_Pin_2;
+			adcPins[3] = GPIO_Pin_3;
+			adcPort  = GPIOA;
+			adcPeripheral = RCC_AHB1ENR_GPIOAEN;
+
+		}else if (panelId == PANEL_3){
+			// 16 buttons, 16 leds
+			numberOfLeds = 16;
+			ledCathodePins[0] = GPIO_Pin_0;
+			ledCathodePins[1] = GPIO_Pin_1;
+			ledCathodePins[2] = GPIO_Pin_2;
+			ledCathodePins[3] = GPIO_Pin_3;
+			ledAnodePins[0] = GPIO_Pin_4,
+			ledAnodePins[1] = GPIO_Pin_5;
+			ledAnodePins[2] = GPIO_Pin_6;
+			ledAnodePins[3] = GPIO_Pin_7 ;
+			ledPort = GPIOE;
+			ledPeripheral = RCC_AHB1Periph_GPIOE;
+
+			numberOfButtons =16;
+			buttonPins[0] = GPIO_Pin_8;
+			buttonPins[1] = GPIO_Pin_9;
+			buttonPins[2] = GPIO_Pin_10;
+			buttonPins[3] = GPIO_Pin_11;
+			buttonPins[4] = GPIO_Pin_12;
+			buttonPins[5] = GPIO_Pin_13;
+			buttonPins[6] = GPIO_Pin_14;
+			buttonPins[7] = GPIO_Pin_15;
+			buttonPort = GPIOE;
+			buttonPeripheral = RCC_AHB1Periph_GPIOE;
+
+		}else if (panelId = PANEL_4){
+			// 4 buttons, 16 leds
+			numberOfLeds = 16;
+			ledCathodePins[0] = GPIO_Pin_0;
+			ledCathodePins[1] = GPIO_Pin_1;
+			ledCathodePins[2] = GPIO_Pin_2;
+			ledCathodePins[3] = GPIO_Pin_3;
+			ledAnodePins[0] = GPIO_Pin_4,
+			ledAnodePins[1] = GPIO_Pin_5;
+			ledAnodePins[2] = GPIO_Pin_6;
+			ledAnodePins[3] = GPIO_Pin_7 ;
+			ledPort = GPIOD;
+			ledPeripheral = RCC_AHB1Periph_GPIOD;
+
+			numberOfButtons =4;
+			buttonPins[0] = GPIO_Pin_10; //two buttons per pin
+			buttonPins[1] = GPIO_Pin_11; //two buttons per pin
+			buttonPort = GPIOB;
+			buttonPeripheral = RCC_AHB1Periph_GPIOB;
+		}
+
+
+
+		buttonTimer = 0;
+		buttonsReadHighElseLow =false;
+		scanCathode = 0;
+		scanCounterTest = 0;
+
+		adcInitialized = false;
+		buttonsInitialized = false;
+		ledsInitialized = false;
+}
+
 
 void IOBoard::stats(char* outputString){
 

@@ -1,7 +1,7 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef MOTORCONTROL_H
 #define MOTORCONTROL_H
- #include <stdint.h>
+#include <stdint.h>
 #include <stdio.h>
 /*
 #define LED_LIMIT_MIN 0
@@ -38,7 +38,8 @@ typedef enum
 class MotorControl{
 	public:
 
-		 MotorControl (uint32_t motorId);
+		 MotorControl ();
+		 void init(uint32_t motorId);
 		 uint32_t getMotorId();
 		 void setMode(uint8_t mode);
 		 uint8_t getMode();
