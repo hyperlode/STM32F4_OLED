@@ -13,7 +13,7 @@
 #define NUMBER_OF_MODES 2
 
 
-#define NUMBER_OF_MOTORS 2
+#define NUMBER_OF_MOTORS 3
 
 #define LED_MOTOR_HOIST_LIMIT_MIN	5
 #define LED_MOTOR_HOIST_LIMIT_MAX	7
@@ -47,9 +47,6 @@ public:
 	MotorControl* MotorControlHandles[6];
 	MachineControl();
 	void refresh(uint32_t millis);
-	void setUpInputPin_motor2_channelB();
-	void setUpHardWareInterrupt_motor2_channelA();
-	void Motor2InterruptHandler();
 
 	bool getMotorsZeroedSinceStartup();
 	void selectNextLimitToBeCalibrated();
@@ -57,6 +54,15 @@ public:
 	void setUpInputPin_motor1_channelB();
 	void setUpHardWareInterrupt_motor1_channelA();
 	void Motor1InterruptHandler();
+
+	void setUpInputPin_motor2_channelB();
+	void setUpHardWareInterrupt_motor2_channelA();
+	void Motor2InterruptHandler();
+
+	void setUpInputPin_motor3_channelB();
+	void setUpHardWareInterrupt_motor3_channelA();
+	void Motor3InterruptHandler();
+
 	int (*getCharFunctionPointer)(uint8_t *buf);
 
 private:
@@ -65,6 +71,7 @@ private:
 	uint8_t activeMotorForTestingOrCalibration =0; //motorcontrolhandles
 	bool ch2Memory=0;
 	bool motor2_chBMemory =0;
+	bool motor3ChannelBMemory = 0;
 
 	// motor controller
 	//IOBoard panel4(PANEL_4);
@@ -75,6 +82,7 @@ private:
 
 	MotorControl motor1;
 	MotorControl motor2;
+	MotorControl motor3;
 
 	uint32_t millis;
 	uint16_t edgeMemory =0;

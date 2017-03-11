@@ -27,10 +27,14 @@ MachineControl::MachineControl(){
 	//motor1
 	setUpHardWareInterrupt_motor1_channelA();
 	setUpInputPin_motor1_channelB();
+
 	//motor2
 	setUpHardWareInterrupt_motor2_channelA();
 	setUpInputPin_motor2_channelB();
 
+	//motor3
+	setUpHardWareInterrupt_motor3_channelA();
+	setUpInputPin_motor3_channelB();
 
 	//motor1 hoist
 	motor1.init(1);
@@ -40,7 +44,9 @@ MachineControl::MachineControl(){
 	motor2.init(2);
 	MotorControlHandles[1] = &motor2;
 
-
+	//motor 3 swing
+	motor3.init(3);
+	MotorControlHandles[2] = &motor3;
 
 	//INIT mode for motorcontrollermode
 	motorControllerMode = MODE_NORMAL;
@@ -50,12 +56,7 @@ MachineControl::MachineControl(){
 		MotorControlHandles[i]->setMode(motorControllerMode);
 	}
 
-
-
 	selectNextLimitToBeCalibrated();
-//	panel1.setLed(3,true);
-//	panel1.setLedBlinkPeriodMillis(3,0);
-
 
 #ifdef USE_VCP
 	printf("Userinterface: \r\n");
@@ -171,6 +172,11 @@ void MachineControl::refresh(uint32_t millis){
 			panel4.setLed(LED_MOTOR_CROWD_INRANGE,motor2.getStatusLed(LED_WITHIN_RANGE, millis));
 			panel4.setLed(LED_MOTOR_CROWD_LIMIT_MAX,motor2.getStatusLed(LED_LIMIT_MAX, millis));
 			panel4.setLed(LED_MOTOR_CROWD_ENABLE,motor2.getStatusLed(LED_ENABLE, millis));
+
+			panel4.setLed(LED_MOTOR_SWING_LIMIT_MIN,motor3.getStatusLed(LED_LIMIT_MIN,millis));
+			panel4.setLed(LED_MOTOR_SWING_INRANGE,motor3.getStatusLed(LED_WITHIN_RANGE, millis));
+			panel4.setLed(LED_MOTOR_SWING_LIMIT_MAX,motor3.getStatusLed(LED_LIMIT_MAX, millis));
+			panel4.setLed(LED_MOTOR_SWING_ENABLE,motor3.getStatusLed(LED_ENABLE, millis));
 		}
 
 		if (millis%10 <10){
@@ -246,6 +252,11 @@ void MachineControl::refresh(uint32_t millis){
 					printf("motor id: %d \r\n", motor2.getMotorId());
 					printf("position: %d \r\n", motor2.getPosition());
 					printf("limits:  min:  %d  --  max: %d \r\n", motor2.getLimit(false), motor2.getLimit(true));
+				}else if (theByte == '3'){
+					printf("motor id: %d \r\n", motor3.getMotorId());
+					printf("position: %d \r\n", motor3.getPosition());
+					printf("limits:  min:  %d  --  max: %d \r\n", motor3.getLimit(false), motor3.getLimit(true));
+
 				}else{
 					//IOBoard testje;
 					printf("No valid command detected. Please send v, \r\n s, \r\nm for motor status  ,\r\nor a . \r\n");
@@ -500,6 +511,112 @@ void MachineControl::Motor1InterruptHandler(){
 	    	}
 	        // Clear interrupt flag
 	        EXTI_ClearITPendingBit(EXTI_Line3);
+
+	    }
+}
+
+//----------------------------------------------------------------------------
+
+
+
+
+
+void MachineControl::setUpInputPin_motor3_channelB(){
+	//PB0
+	 // Set variables used
+		GPIO_InitTypeDef GPIO_InitStruct;
+		EXTI_InitTypeDef EXTI_InitStruct;
+		NVIC_InitTypeDef NVIC_InitStruct;
+
+		// Enable clock for GPIOB
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		// Enable clock for SYSCFG
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+		// Set pin as input
+		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+		GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
+		//GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+}
+
+void MachineControl::setUpHardWareInterrupt_motor3_channelA(){
+	//PB1
+	//https://stm32f4-discovery.net/2014/08/stm32f4-external-interrupts-tutorial/
+
+	 // Set variables used
+	    GPIO_InitTypeDef GPIO_InitStruct;
+	    EXTI_InitTypeDef EXTI_InitStruct;
+	    NVIC_InitTypeDef NVIC_InitStruct;
+
+	    // Enable clock for GPIOB
+	    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	    // Enable clock for SYSCFG
+	    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+	    // Set pin as input
+	    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+	    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
+	    //GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+	    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+	    GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	    // Tell system that you will use PB3 for EXTI_Line1
+	    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource1);
+
+	    // PB3 is connected to EXTI_Line1
+	    EXTI_InitStruct.EXTI_Line = EXTI_Line1;
+	    // Enable interrupt
+	    EXTI_InitStruct.EXTI_LineCmd = ENABLE;
+	    // Interrupt mode
+	    EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+	    // Triggers on rising and falling edge
+	    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	    //EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	    // Add to EXTI
+	    EXTI_Init(&EXTI_InitStruct);
+
+	    // Add IRQ vector to NVIC
+	    // PB1 is connected to EXTI_Line1, which has     vectors for 0,1,2,3,4,  5-9, 10-15 . i.e. EXTI15_10_IRQn vector
+	    NVIC_InitStruct.NVIC_IRQChannel = EXTI1_IRQn;
+	    // Set priority
+	    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
+	    // Set sub priority
+	    NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x01;
+	    // Enable interrupt
+	    NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	    // Add to NVIC
+	    NVIC_Init(&NVIC_InitStruct);
+
+
+}
+
+void MachineControl::Motor3InterruptHandler(){
+	//triggers on rising and falling edge of encoder channel
+		//we are not interested in the added accuracy, but we need to check the edges (jitter at standstill could cause erroneous possition change)
+		//edge up --> position change ,(only if channel 2 is different from edge down value)
+		//edge down --> store channel 2
+	    if (EXTI_GetITStatus(EXTI_Line1) != RESET) { //Make sure that interrupt flag is set
+	    	//printf ("checkkflelfl;f");
+	    	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_0);//check other channel
+	    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)){
+	    		//positive edge
+	    		if (isCCW != motor3ChannelBMemory){
+					IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
+					MotorControlHandles[2]->updatePositionOneStep(isCCW); //2 channel encoder update.
+	    		}
+			}else{
+				//negative edge
+				motor3ChannelBMemory = isCCW; //store ch2.
+	    	}
+	        // Clear interrupt flag
+	        EXTI_ClearITPendingBit(EXTI_Line1);
 
 	    }
 }

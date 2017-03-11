@@ -278,6 +278,11 @@ void EXTI3_IRQHandler(void) {
 
 }
 
+/// Handle PB3 interrupt
+void EXTI1_IRQHandler(void) {
+	machineControlPointer->Motor3InterruptHandler();
+
+}
 
 #ifdef __cplusplus
  }
