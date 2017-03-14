@@ -34,7 +34,7 @@ __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
  void init();
  void ColorfulRingOfDeath(void);
 
-
+void DAC_Setup();
 
 
 void SysTick_Handler(void);
@@ -63,6 +63,8 @@ int main(void)
 	/* Initialize USB, IO, SysTick, and all those other things you do in the morning */
 	init();
 
+
+	DAC_Setup();
 	initDiscoveryBoard();
 
 	//init machine control
@@ -109,6 +111,55 @@ void initDiscoveryBoard(){
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+ void DAC_Setup(){
+
+		//GPIO PA4 and PA5
+		GPIO_InitTypeDef GPIO_InitStructure;
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
+		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_Init(GPIOA,&GPIO_InitStructure);
+
+		DAC_InitTypeDef DAC_InitStructure;
+/**/
+		//PA4 dac channel 1
+		// DAC_GPIO_Config();
+
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC,ENABLE);
+		DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;
+		DAC_InitStructure.DAC_Trigger = DAC_Trigger_Software;
+		DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Enable;
+		DAC_Init(DAC_Channel_1,&DAC_InitStructure);
+
+		DAC_Cmd(DAC_Channel_1,ENABLE);
+		DAC_SetChannel1Data(DAC_Align_12b_R,0x3E8);//ffff=2.89 , fff=2.89,0fff=2.89,fff0 =2.89, ff00=2.76,00ff=0.185,ff=0.185,
+		DAC_SoftwareTriggerCmd(DAC_Channel_1,ENABLE);
+	/*	*/
+/**/
+	   //PA5 dac channel 2
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC,ENABLE);
+		DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;
+		DAC_InitStructure.DAC_Trigger = DAC_Trigger_Software;
+		DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Enable;
+		DAC_Init(DAC_Channel_2,&DAC_InitStructure);
+
+		DAC_Cmd(DAC_Channel_2,ENABLE);
+		DAC_SetChannel2Data(DAC_Align_12b_R,0x7D0);//ffff=2.89 , fff=2.89,0fff=2.89,fff0 =2.89, ff00=2.76,00ff=0.185,ff=0.185,
+		DAC_SoftwareTriggerCmd(DAC_Channel_2,ENABLE);
+/**/
+
+
+
+
+	   //setup
+
+
+ }
+
 void init()
 {
 	/* STM32F4 discovery LEDs */
@@ -123,8 +174,9 @@ void init()
 	//LED_Config.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	//GPIO_Init(GPIOD, &LED_Config);
 
-
-
+	//dac test
+	//DAC_GPIO_Config();
+	//DAC_Config();
 
 	// GPIOD Periph clock enable
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -223,6 +275,36 @@ void OTG_FS_WKUP_IRQHandler(void)
 
 }
 */
+/*
+void DAC_GPIO_Config(void)
+{
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_Init(GPIOA,&GPIO_InitStructure);
+
+}
+void DAC_Config(void)
+{
+  DAC_GPIO_Config();
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC,ENABLE);
+  DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;
+  DAC_InitStructure.DAC_Trigger = DAC_Trigger_Software;
+  DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Enable;
+  DAC_Init(DAC_Channel_1,&DAC_InitStructure);
+
+  DAC_Cmd(DAC_Channel_1,ENABLE);
+  DAC_SetChannel1Data(DAC_Align_12b_R,0x0000);
+
+  DAC_SoftwareTriggerCmd(DAC_Channel_1,ENABLE);
+}
+*/
+//DAC_SetChannel1Data(DAC_Align_12b_R,0xF0F0);
+
+
 
 /*
 void ADC_IRQHandler() {
@@ -262,7 +344,7 @@ void ADC_IRQHandler() {
 
 
 }
-*/
+/**/
 
 // ---external C
 /// Set interrupt handlers

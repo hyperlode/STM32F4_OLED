@@ -44,6 +44,7 @@
 	#include "stm32f4xx_gpio.h"
 	#include "stm32f4xx_rcc.h"
 	#include "stm32f4xx_exti.h"
+	#include "stm32f4xx_dac.h"
 #ifdef USE_VCP
 	#include "usbd_cdc_core.h"
 	#include "usbd_usr.h"
