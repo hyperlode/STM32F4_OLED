@@ -179,11 +179,21 @@ void MachineControl::refresh(uint32_t millis){
 			//printf( "----------\r\n");
 			for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 				int32_t adcRaw = panel1.getSliderValue(i); //joystick input mimics panel1... (0 to 4095) -> from 0->5V
+
 				//percentage  = (100*(uint32_t)(adcRaw)) / 4095;
 
 				//printf( "slider %d--> raw:%d, percentage: %d\r\n", i, adcRaw, (200*adcRaw) / 4095  ) - 100;
 
-				MotorControlHandles[i]->setSpeedPercentageDesired( ((200*adcRaw) / 4095  ) - 100); ///range [0,4095]  --> [-100,100]
+
+				int32_t adcCorrected =adcRaw - ADC_MOTOR_HOIST_ZERO_SPEED_VALUE;
+				if (adcCorrected<0){
+					MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / ADC_MOTOR_HOIST_ZERO_SPEED_VALUE);
+
+				}else{
+					MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / (4095-ADC_MOTOR_HOIST_ZERO_SPEED_VALUE));
+				}
+
+				//MotorControlHandles[i]->setSpeedPercentageDesired( ((200*adcRaw) / 4095  ) - 100); ///range [0,4095]  --> [-100,100]
 
 			}
 
@@ -208,7 +218,19 @@ void MachineControl::refresh(uint32_t millis){
 			dacSpeedControl_Hoist.assignValue(dacSpeedControl_Hoist_Value);
 			dacSpeedControl_Crowd.assignValue(dacSpeedControl_Crowd_Value);
 			/**/
-			dacSpeedControl_Hoist_Value = (4095 *  (MotorControlHandles[0]->getSpeedPercentageChecked()+100 )) / 200; //range [-100,100] --> [0,4095]
+			//dacSpeedControl_Hoist_Value = (4095 *  (MotorControlHandles[0]->getSpeedPercentageChecked()+100 )) / 200; //range [-100,100] --> [0,4095]
+
+			int32_t interval;
+			if (MotorControlHandles[0]->getSpeedPercentageChecked() >0 ){
+
+				interval = 4095 - DAC_MOTOR_HOIST_ZERO_SPEED_VALUE;
+			}else{
+				interval = DAC_MOTOR_HOIST_ZERO_SPEED_VALUE;
+			}
+
+			dacSpeedControl_Hoist_Value  = DAC_MOTOR_HOIST_ZERO_SPEED_VALUE + ((interval * MotorControlHandles[0]->getSpeedPercentageChecked())/100) ;
+
+
 			dacSpeedControl_Hoist.assignValue(dacSpeedControl_Hoist_Value);
 			dacSpeedControl_Crowd.assignValue(dacSpeedControl_Crowd_Value);
 
@@ -300,8 +322,8 @@ void MachineControl::refresh(uint32_t millis){
 					//printf ("value %d /r/n", ConvertedValue);
 
 				//	printf ("samples taken: %d \r\n", adcNumberOfSampleCycles);
-				//	printf ("value TEMPERATURE %d \r\n", temp);
-				//	printf ("value VREF %d \r\n", vref);
+					//printf ("value TEMPERATURE %d \r\n", temp);
+					printf ("value VREF %d \r\n", this->vref);
 
 					for (uint8_t i=0; i<4;i++){
 						//printf ("value slider: %d = %d \r\n", i, adcValues[i]);
@@ -323,6 +345,7 @@ void MachineControl::refresh(uint32_t millis){
 				}else if (theByte == '1') {
 					printf("motor id: %d \r\n", motor1.getMotorId());
 					printf("speed Setting: %d, speed Out: %d \r\n", motor1.getSpeedPercentageDesired(), motor1.getSpeedPercentageChecked() );
+					printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(0),this->dacSpeedControl_Hoist_Value);
 					printf("position: %d \r\n", motor1.getPosition());
 					printf("limits:  min:  %d  --  max: %d \r\n", motor1.getLimit(false), motor1.getLimit(true));
 				}else if (theByte == '2'){
@@ -347,6 +370,10 @@ void MachineControl::refresh(uint32_t millis){
 
 }
 
+void  MachineControl::logVref(uint16_t value){
+	this->vref = value;
+
+}
 
 bool MachineControl::getMotorsZeroedSinceStartup(){
 	bool allMotorsOk = true;

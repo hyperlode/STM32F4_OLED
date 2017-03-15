@@ -258,6 +258,7 @@ void ADC_IRQHandler() {
 		   case 1:
 				vref = value;
 				adcSampleChannelCounter++;
+				machineControlPointer->logVref(value);
 				break;
 
 			//all the other channels.

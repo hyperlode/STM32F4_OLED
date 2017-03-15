@@ -39,9 +39,11 @@
 #define BUTTON_ZEROING_ALL_AXIS 2 //dual usage of button, depending on mode.
 #define ZEROING_BUTTON_TIME_DELAY_MILLIS 2000
 
-#define REFRESH_DELAY_MILLIS_ADC 1000
-#define REFRESH_DELAY_MILLIS_DAC 4
+#define REFRESH_DELAY_MILLIS_ADC 50
+#define REFRESH_DELAY_MILLIS_DAC 50
 
+#define ADC_MOTOR_HOIST_ZERO_SPEED_VALUE 2600 //empirical value, derived from joystick on controller chair, raw adc value when at zero. //1950 //2660 //2217
+#define DAC_MOTOR_HOIST_ZERO_SPEED_VALUE 2180
 
 
 class MachineControl{
@@ -66,6 +68,7 @@ public:
 	void setUpHardWareInterrupt_motor3_channelA();
 	void Motor3InterruptHandler();
 
+	void logVref(uint16_t);
 
 
 	void speedInputADCInterrupt(uint16_t potentioNumber, uint16_t value);
@@ -106,6 +109,7 @@ private:
 	uint32_t millisMemory_adcProcess;
 
 	uint32_t zeroingButtonPressStartTime;
+	uint16_t vref;
 
 };
 
