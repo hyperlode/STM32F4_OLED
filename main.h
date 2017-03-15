@@ -32,7 +32,7 @@
 	static uint16_t adcNumberOfSampleCycles= 0;
 
 
-	static uint16_t  ticker20msEdgeMemory= 0;
+	uint16_t  timingEdge= 0;
 	uint32_t millis;
 
 

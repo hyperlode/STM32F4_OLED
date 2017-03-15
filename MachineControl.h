@@ -5,6 +5,7 @@
 
 #include "IOBoard.h"
 #include "MotorControl.h"
+#include "AppliedDAC.h"
 
 
 #define MODE_NORMAL 0
@@ -64,6 +65,11 @@ public:
 	void Motor3InterruptHandler();
 
 	int (*getCharFunctionPointer)(uint8_t *buf);
+	AppliedDAC dacSpeedControl_Hoist;
+	uint32_t dacSpeedControl_Hoist_Value =0;
+
+	AppliedDAC dacSpeedControl_Crowd;
+	uint32_t dacSpeedControl_Crowd_Value =0;
 
 private:
 	//motor variables
@@ -77,6 +83,7 @@ private:
 	//IOBoard panel4(PANEL_4);
 	IOBoard panel4;
 	IOBoard* IOBoardHandler [4];
+
 	uint8_t motorControllerMode=0;
 	int8_t activeLimit=0;
 

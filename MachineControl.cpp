@@ -23,6 +23,16 @@ MachineControl::MachineControl(){
 
 	panel4.ledSequenceInterruptHandler(false);
 
+	//dacTest.initDAC1();
+	//dacTest.triggerDAC1(0);
+
+	dacSpeedControl_Hoist.init(1);
+	dacSpeedControl_Crowd.init(2);
+
+	dacSpeedControl_Hoist_Value = 4095;
+	dacSpeedControl_Hoist.assignValue(dacSpeedControl_Hoist_Value);
+	dacSpeedControl_Crowd_Value = 2000;
+	dacSpeedControl_Crowd.assignValue(dacSpeedControl_Crowd_Value);
 
 	//motor1
 	setUpHardWareInterrupt_motor1_channelA();
@@ -67,7 +77,7 @@ MachineControl::MachineControl(){
 
 
 void MachineControl::refresh(uint32_t millis){
-
+/**/
 		this-> millis = millis;
 
 		panel4.refresh(millis);
@@ -150,19 +160,35 @@ void MachineControl::refresh(uint32_t millis){
 				break;
 		}
 
-
+/**/
 		//refresh motor status lights
 		if (millis%10 > 5 && edgeMemory ==0){
 			edgeMemory =1;
-			/*
-			//update leds for all motors.
-			for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
-					panel4.setLed(LED_MOTOR_HOIST_LIMIT_MIN,MotorControlHandles[i]->getStatusLed(LED_LIMIT_MIN,millis));
-					panel4.setLed(LED_MOTOR_HOIST_INRANGE,MotorControlHandles[i]->getStatusLed(LED_WITHIN_RANGE, millis));
-					panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,MotorControlHandles[i]->getStatusLed(LED_LIMIT_MAX, millis));
-					panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,MotorControlHandles[i]->getStatusLed(LED_ENABLE, millis));
+
+
+			dacSpeedControl_Hoist_Value += 10;
+			if (dacSpeedControl_Hoist_Value> 4095){
+				dacSpeedControl_Hoist_Value = 0;
 			}
-			*/
+
+			dacSpeedControl_Crowd_Value += 10;
+			if (dacSpeedControl_Crowd_Value > 4095){
+				dacSpeedControl_Crowd_Value =0;
+			}
+
+			dacSpeedControl_Hoist.assignValue(dacSpeedControl_Hoist_Value);
+			dacSpeedControl_Crowd.assignValue(dacSpeedControl_Crowd_Value);
+
+			//dacTest.initDAC1();
+			//dacTest.triggerDAC1(millis%4000);
+			//update leds for all motors.
+			//for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
+			//		panel4.setLed(LED_MOTOR_HOIST_LIMIT_MIN,MotorControlHandles[i]->getStatusLed(LED_LIMIT_MIN,millis));
+			//		panel4.setLed(LED_MOTOR_HOIST_INRANGE,MotorControlHandles[i]->getStatusLed(LED_WITHIN_RANGE, millis));
+			//		panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,MotorControlHandles[i]->getStatusLed(LED_LIMIT_MAX, millis));
+			//		panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,MotorControlHandles[i]->getStatusLed(LED_ENABLE, millis));
+			//}
+
 			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MIN,motor1.getStatusLed(LED_LIMIT_MIN,millis));
 			panel4.setLed(LED_MOTOR_HOIST_INRANGE,motor1.getStatusLed(LED_WITHIN_RANGE, millis));
 			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,motor1.getStatusLed(LED_LIMIT_MAX, millis));
@@ -179,7 +205,7 @@ void MachineControl::refresh(uint32_t millis){
 			panel4.setLed(LED_MOTOR_SWING_ENABLE,motor3.getStatusLed(LED_ENABLE, millis));
 		}
 
-		if (millis%10 <10){
+		if (millis%10 <3){
 			edgeMemory = 0;
 		}
 

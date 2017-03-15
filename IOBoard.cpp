@@ -2,7 +2,7 @@
 
 //Lode custom made IO boards with four sliders, four buttons and four leds in standard configurations.
 // if no sliders: 16 buttons, 16 leds.
-//not completly abstract. every panel is still hard wired to this class. also, for the ADC, watch closely how to deal with the conversion interrupt! Check if ADC is initialized.
+//not completely abstract. every panel is still hard wired to this class. also, for the ADC, watch closely how to deal with the conversion interrupt! Check if ADC is initialized.
 //all items of a certain type (leds, sliders, buttons) must use the same port per panel.
 
 
@@ -572,6 +572,7 @@ void IOBoard::ledSequenceUpdate(bool directionIsForward){
 	if (ledRingSequence_user[0] == UNEXISTING_LED){
 
 		setLed(this->ledRingSequence_default[sequenceCounter] ,false);
+		//this->leds[this->ledRingSequence_default[sequenceCounter]] = false;
 
     	if (directionIsForward){
     		//STM_EVAL_LEDToggle(LED4);
@@ -589,9 +590,11 @@ void IOBoard::ledSequenceUpdate(bool directionIsForward){
     		}
     	}
     	setLed(ledRingSequence_default[sequenceCounter] ,true);
+    	//this->leds[this->ledRingSequence_default[sequenceCounter]] = true;
 	}else{
 
 		setLed(this->ledRingSequence_user[sequenceCounter] ,false);
+		//this->leds[this->ledRingSequence_user[sequenceCounter]] = false;
 
     	if (directionIsForward){
     		//STM_EVAL_LEDToggle(LED4);
@@ -613,6 +616,7 @@ void IOBoard::ledSequenceUpdate(bool directionIsForward){
     		}
     	}
     	setLed(ledRingSequence_user[sequenceCounter] ,true);
+    	//this->leds[this->ledRingSequence_user[sequenceCounter]] = true;
 
 	}
 }
