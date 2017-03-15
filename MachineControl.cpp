@@ -172,12 +172,29 @@ void MachineControl::refresh(uint32_t millis){
 				break;
 		}
 
-/**/
-		//refresh motor status lights
-		if (millis%10 > 5 && edgeMemory ==0){
-			edgeMemory =1;
+
+		//adc speed input potentio meters (joystick)
+		if (millis - millisMemory_adcProcess >= REFRESH_DELAY_MILLIS_ADC){
+			this->millisMemory_adcProcess = millis;
+			//printf( "----------\r\n");
+			for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
+				int32_t adcRaw = panel1.getSliderValue(i); //joystick input mimics panel1... (0 to 4095) -> from 0->5V
+				//percentage  = (100*(uint32_t)(adcRaw)) / 4095;
+
+				//printf( "slider %d--> raw:%d, percentage: %d\r\n", i, adcRaw, (200*adcRaw) / 4095  ) - 100;
+
+				MotorControlHandles[i]->setSpeedPercentageDesired( ((200*adcRaw) / 4095  ) - 100); ///range [0,4095]  --> [-100,100]
+
+			}
 
 
+		}
+
+
+		//dac speed output
+		if (millis - millisMemory_dacProcess >= REFRESH_DELAY_MILLIS_DAC){
+			/*
+			this->millisMemory_dacProcess = millis;
 			dacSpeedControl_Hoist_Value += 10;
 			if (dacSpeedControl_Hoist_Value> 4095){
 				dacSpeedControl_Hoist_Value = 0;
@@ -190,6 +207,22 @@ void MachineControl::refresh(uint32_t millis){
 
 			dacSpeedControl_Hoist.assignValue(dacSpeedControl_Hoist_Value);
 			dacSpeedControl_Crowd.assignValue(dacSpeedControl_Crowd_Value);
+			/**/
+			dacSpeedControl_Hoist_Value = (4095 *  (MotorControlHandles[0]->getSpeedPercentageChecked()+100 )) / 200; //range [-100,100] --> [0,4095]
+			dacSpeedControl_Hoist.assignValue(dacSpeedControl_Hoist_Value);
+			dacSpeedControl_Crowd.assignValue(dacSpeedControl_Crowd_Value);
+
+
+		}
+
+
+
+
+		//refresh motor status lights
+		if (millis%10 > 5 && edgeMemory ==0){
+			edgeMemory =1;
+
+
 
 			//dacTest.initDAC1();
 			//dacTest.triggerDAC1(millis%4000);
@@ -289,6 +322,7 @@ void MachineControl::refresh(uint32_t millis){
 
 				}else if (theByte == '1') {
 					printf("motor id: %d \r\n", motor1.getMotorId());
+					printf("speed Setting: %d, speed Out: %d \r\n", motor1.getSpeedPercentageDesired(), motor1.getSpeedPercentageChecked() );
 					printf("position: %d \r\n", motor1.getPosition());
 					printf("limits:  min:  %d  --  max: %d \r\n", motor1.getLimit(false), motor1.getLimit(true));
 				}else if (theByte == '2'){

@@ -65,6 +65,11 @@ class MotorControl{
 		 int8_t getSelectedLimitForCalibration();
 		 bool getStatusLed(uint8_t led, uint32_t millis);
 
+		 void setSpeedPercentageDesired(int8_t speed);
+		 int8_t getSpeedPercentageDesired();
+		 int8_t getSpeedPercentageChecked();
+
+
 
 	private:
 		 uint8_t mode;
@@ -76,6 +81,8 @@ class MotorControl{
 		 bool zeroingAxisHappenedAtLeastOnce;
 		 //bool selectedLimitForCalibrationIsMax;
 		 int8_t calibrationSelectedLimit;
+
+		 int8_t setSpeedPercentage;
 
 };
 

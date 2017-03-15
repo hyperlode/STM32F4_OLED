@@ -17,6 +17,7 @@ void MotorControl::init(uint32_t motorId){
 
 }
 
+
 void MotorControl::setMode(uint8_t mode){
 	//see defines for different modes.
 	this->mode = mode;
@@ -270,6 +271,63 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 
 		break;
 
+	}
+
+
+
+}
+
+
+void MotorControl::setSpeedPercentageDesired(int8_t speed){
+	//input from operator.
+	this->setSpeedPercentage = speed;
+}
+
+int8_t MotorControl::getSpeedPercentageDesired(){
+	return this->setSpeedPercentage;
+}
+
+int8_t MotorControl::getSpeedPercentageChecked(){
+	//modify allowed speed according to axis condition and position.
+
+
+	//normal mode
+	//if limit active --> don't allow in limit direction
+	//if not zeroed --> allow only 10percent of speed.
+
+	//calibration mode
+	//ten percent of speed
+
+	switch (getMode()){
+
+		case MODE_NORMAL:
+			if(!getZeroingAxisHappenedAtLeastOnce()){
+				//not zeroed --> only super low speed allowed.
+				return this->setSpeedPercentage/10;
+			}else if (withinRange()  || (belowLimitMinimum() && this->setSpeedPercentage>0) || (aboveLimitMaximum() && this->setSpeedPercentage<0) ){
+				//full speed if zeroed and not crossing limits.
+				return this->setSpeedPercentage;
+			}else{
+				//limit violated
+				return 0;
+			}
+			break;
+
+		case MODE_CALIBRATE:
+			if(!getZeroingAxisHappenedAtLeastOnce()){
+				//not zeroed --> only super low speed allowed.
+				return this->setSpeedPercentage/10;
+			}else if (withinRange()  || (belowLimitMinimum() && this->setSpeedPercentage>0) || (aboveLimitMaximum() && this->setSpeedPercentage<0) ){
+				//full speed if zeroed and not crossing limits.
+				return this->setSpeedPercentage/2;
+			}else{
+				//limit violated or not yet set...
+				return this->setSpeedPercentage/10;
+			}
+			break;
+
+		default:
+			break;
 	}
 
 

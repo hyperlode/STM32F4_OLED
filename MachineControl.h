@@ -39,6 +39,8 @@
 #define BUTTON_ZEROING_ALL_AXIS 2 //dual usage of button, depending on mode.
 #define ZEROING_BUTTON_TIME_DELAY_MILLIS 2000
 
+#define REFRESH_DELAY_MILLIS_ADC 1000
+#define REFRESH_DELAY_MILLIS_DAC 4
 
 
 
@@ -100,6 +102,8 @@ private:
 	uint32_t millis;
 	uint16_t edgeMemory =0;
 	uint16_t  secondEdgeMemory= 0;
+	uint32_t millisMemory_dacProcess;
+	uint32_t millisMemory_adcProcess;
 
 	uint32_t zeroingButtonPressStartTime;
 
