@@ -34,7 +34,7 @@ __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
  void init();
  void ColorfulRingOfDeath(void);
 
-//void DAC_Setup();
+
 
 
 void SysTick_Handler(void);
@@ -91,7 +91,7 @@ int main(void)
 
 		//	printf("oieoe what didd is dooo.");
 		//}
-		/*
+
 		uint8_t theByte;
 		if (VCP_get_char(&theByte))
 		{
@@ -101,7 +101,7 @@ int main(void)
 
 
 		}
-/**/
+
 	}
 }
 
@@ -240,38 +240,9 @@ void OTG_FS_WKUP_IRQHandler(void)
 
 }
 */
-/*
-void DAC_GPIO_Config(void)
-{
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_Init(GPIOA,&GPIO_InitStructure);
-
-}
-void DAC_Config(void)
-{
-  DAC_GPIO_Config();
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC,ENABLE);
-  DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;
-  DAC_InitStructure.DAC_Trigger = DAC_Trigger_Software;
-  DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Enable;
-  DAC_Init(DAC_Channel_1,&DAC_InitStructure);
-
-  DAC_Cmd(DAC_Channel_1,ENABLE);
-  DAC_SetChannel1Data(DAC_Align_12b_R,0x0000);
-
-  DAC_SoftwareTriggerCmd(DAC_Channel_1,ENABLE);
-}
-*/
-//DAC_SetChannel1Data(DAC_Align_12b_R,0xF0F0);
 
 
-
-/*
+/**/
 void ADC_IRQHandler() {
         // acknowledge interrupt
         uint16_t value;
@@ -292,7 +263,10 @@ void ADC_IRQHandler() {
 			//all the other channels.
 		   default:
 				if (adcSampleChannelCounter<6){
-					IOBoardHandler[0]->ADCInterruptHandler(adcSampleChannelCounter - 2, value); //IOBoard handle triggers.
+					//
+					//IOBoardHandler[0]->ADCInterruptHandler(adcSampleChannelCounter - 2, value); //IOBoard handle triggers.
+					machineControlPointer->speedInputADCInterrupt(adcSampleChannelCounter - 2, value);
+
 				}else{
 					//set adcSampleChannelCounter to 10IOBoardHandler[1]->ADCInterruptHandler(adcSampleChannelCounter - 6, value); //IOBoard handle triggers.
 				}

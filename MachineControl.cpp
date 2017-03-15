@@ -2,8 +2,14 @@
 
 MachineControl::MachineControl(){
 
-	//panel4
 
+	//panel 1 (we implement panel 1 for the potentio meters)
+	panel1.init(PANEL_1);
+	panel1.initADC(); //GPIOC 0,1,2,3
+	IOBoardHandler[0] = &panel1; //link the panel instance to the handler.
+
+
+	//panel4
 	panel4.init(PANEL_4);
 	panel4.initLeds();
 	panel4.initButtons();
@@ -75,12 +81,18 @@ MachineControl::MachineControl(){
 
 }
 
+void MachineControl::speedInputADCInterrupt(uint16_t potentioNumber, uint16_t value){
+	IOBoardHandler[0]->ADCInterruptHandler(potentioNumber, value);
+
+}
 
 void MachineControl::refresh(uint32_t millis){
 /**/
 		this-> millis = millis;
 
 		panel4.refresh(millis);
+		panel1.refresh(millis);
+
 
 		//select mode with button4 on panel
 
@@ -266,9 +278,14 @@ void MachineControl::refresh(uint32_t millis){
 
 					printf("nothing here yet.");
 				}else if (theByte == 's'){
-					//panel1.stats(lodeStrTest);
+					//char lodeStrTest [100]; //={'a','\0'};
+					//lodeStrTest[99] = '\0';
+					//char lodeStrTest []={'a','\0'};
+					//panel1.stats(&lodeStrTest);
 					//printf ("lets do this: %s \r\n", lodeStrTest);
-					printf("nothing here yet.");
+					//printf("nothing here yet.");
+					printf ("slider value:%d \r\n", IOBoardHandler[0]->getSliderValue(0));
+
 
 				}else if (theByte == '1') {
 					printf("motor id: %d \r\n", motor1.getMotorId());

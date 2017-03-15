@@ -64,6 +64,9 @@ public:
 	void setUpHardWareInterrupt_motor3_channelA();
 	void Motor3InterruptHandler();
 
+
+
+	void speedInputADCInterrupt(uint16_t potentioNumber, uint16_t value);
 	int (*getCharFunctionPointer)(uint8_t *buf);
 	AppliedDAC dacSpeedControl_Hoist;
 	uint32_t dacSpeedControl_Hoist_Value =0;
@@ -81,8 +84,11 @@ private:
 
 	// motor controller
 	//IOBoard panel4(PANEL_4);
+
+	IOBoard panel1;
 	IOBoard panel4;
-	IOBoard* IOBoardHandler [4];
+
+	IOBoard* IOBoardHandler [4]; //contains pointers to the IOBoards
 
 	uint8_t motorControllerMode=0;
 	int8_t activeLimit=0;
