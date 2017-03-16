@@ -34,6 +34,7 @@ MachineControl::MachineControl(){
 	adcRanges[1]=ADC_MOTOR_CROWD_MAX_VALUE;
 	adcRanges[2]=ADC_MOTOR_SWING_MAX_VALUE;
 
+
 	//DAC --> control the MAXON motor boards
 	dacSpeedControl_Hoist.init(1);
 	DacHandlerPointers[0] = &dacSpeedControl_Hoist;
@@ -174,10 +175,7 @@ void MachineControl::refresh(uint32_t millis){
 				//if calibration selected select limit and set limit buttons active
 				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SELECT_LIMIT_FOR_SETTING)){
 					//select limit to configure
-
 					selectNextLimitToBeCalibrated();
-
-
 				}
 				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_SET_SELECTED_LIMIT_TO_CURRENT_POSITION)){
 					MotorControlHandles[activeMotorForTestingOrCalibration]->setCurrentPositionAsLimit();
@@ -185,7 +183,6 @@ void MachineControl::refresh(uint32_t millis){
 				if (panel4.getButtonEdgePressed(BUTTON_MOTORCONTROLLER_RESET_ALL_LIMITS)){
 					MotorControlHandles[activeMotorForTestingOrCalibration]->resetLimit();
 				}
-
 				break;
 			default:
 				panel4.setLed(LED_MOTORCONTROLLER_MODE,false);
@@ -196,30 +193,24 @@ void MachineControl::refresh(uint32_t millis){
 		//adc speed input potentio meters (joystick)
 		if (millis - millisMemory_adcProcess >= REFRESH_DELAY_MILLIS_ADC){
 			this->millisMemory_adcProcess = millis;
-			//printf( "----------\r\n");
 			for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 				int32_t adcRaw = panel1.getSliderValue(i); //joystick input mimics panel1... (0 to 4095) -> from 0->5V
 
-				//percentage  = (100*(uint32_t)(adcRaw)) / 4095;
+				int32_t adcCorrected =adcRaw - this->dacZeroSpeedRawValues[i];
 
-				//printf( "slider %d--> raw:%d, percentage: %d\r\n", i, adcRaw, (200*adcRaw) / 4095  ) - 100;
-
-
-				int32_t adcCorrected =adcRaw - ADC_MOTOR_HOIST_ZERO_SPEED_VALUE;
-				if (adcCorrected<0){
-					MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / ADC_MOTOR_HOIST_ZERO_SPEED_VALUE);
 
 				}else{
 					MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / (adcRanges[i] - ADC_MOTOR_HOIST_ZERO_SPEED_VALUE));
+
+				//int32_t range = this->dacZeroSpeedRawValues[i]; //if negative range from 0 to zero speed point
+				//if (adcCorrected >0 ){
+				//	range = adcRanges[i] - range;  //if positive range from  zero speed point to maximum.
+
 				}
-
-				//MotorControlHandles[i]->setSpeedPercentageDesired( ((200*adcRaw) / 4095  ) - 100); ///range [0,4095]  --> [-100,100]
-
+				//percentage  = value/ range *100
+				MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / range);
 			}
-
-
 		}
-
 
 		//dac speed output
 		if (millis - millisMemory_dacProcess >= REFRESH_DELAY_MILLIS_DAC){
@@ -230,6 +221,7 @@ void MachineControl::refresh(uint32_t millis){
 			if (dacValues[2]> 255){
 				dacValues[2] = 0;
 			}
+<<<<<<< HEAD
 
 			DacHandlerPointers[2]->assignValue(dacValues[2]);
 
@@ -262,30 +254,28 @@ void MachineControl::refresh(uint32_t millis){
 				int32_t interval;
 				if (MotorControlHandles[i]->getSpeedPercentageChecked() >0 ){
 
+=======
+
+			DacHandlerPointers[2]->assignValue(dacValues[2]);
+*/
+			for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
+				int32_t interval; //interval is the plus or minus range.
+				if (MotorControlHandles[i]->getSpeedPercentageChecked() >0 ){
+>>>>>>> dac3 added with r2r resistor bridge on GPIOE. All controls working now and calibrated.
 					interval = dacRanges[i] - dacZeroSpeedValues[i];
 				}else{
 					interval = dacZeroSpeedValues[i];
 				}
 
+				//rangeValue = range * percentage /100;
 				dacValues[i]  = dacZeroSpeedValues[i] + ((interval * MotorControlHandles[i]->getSpeedPercentageChecked())/100) ;
-
-
 				DacHandlerPointers[i]->assignValue(dacValues[i]);
-
-				//DacHandlerPointers[1].assignValue(dacSpeedControl_Crowd_Value);
-
 			}
 		}
-
-
-
 
 		//refresh motor status lights
 		if (millis%10 > 5 && edgeMemory ==0){
 			edgeMemory =1;
-
-
-
 			//dacTest.initDAC1();
 			//dacTest.triggerDAC1(millis%4000);
 			//update leds for all motors.
@@ -299,17 +289,25 @@ void MachineControl::refresh(uint32_t millis){
 			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MIN,motor1.getStatusLed(LED_LIMIT_MIN,millis));
 			panel4.setLed(LED_MOTOR_HOIST_INRANGE,motor1.getStatusLed(LED_WITHIN_RANGE, millis));
 			panel4.setLed(LED_MOTOR_HOIST_LIMIT_MAX,motor1.getStatusLed(LED_LIMIT_MAX, millis));
-			panel4.setLed(LED_MOTOR_HOIST_ENABLE,motor1.getStatusLed(LED_ENABLE, millis));
+		//	panel4.setLed(LED_MOTOR_HOIST_ENABLE,motor1.getStatusLed(LED_ENABLE, millis));
 
 			panel4.setLed(LED_MOTOR_CROWD_LIMIT_MIN,motor2.getStatusLed(LED_LIMIT_MIN,millis));
 			panel4.setLed(LED_MOTOR_CROWD_INRANGE,motor2.getStatusLed(LED_WITHIN_RANGE, millis));
 			panel4.setLed(LED_MOTOR_CROWD_LIMIT_MAX,motor2.getStatusLed(LED_LIMIT_MAX, millis));
-			panel4.setLed(LED_MOTOR_CROWD_ENABLE,motor2.getStatusLed(LED_ENABLE, millis));
+		//	panel4.setLed(LED_MOTOR_CROWD_ENABLE,motor2.getStatusLed(LED_ENABLE, millis));
+
+			//testing
+		//	panel4.setLed(LED_MOTOR_CROWD_POS,motor2.getStatusLed(LED_MOVING_POSITIVE, millis));
+		//	panel4.setLed(LED_MOTOR_CROWD_NEG,motor2.getStatusLed(LED_MOVING_NEGATIVE, millis));
+
+
+
+
 
 			panel4.setLed(LED_MOTOR_SWING_LIMIT_MIN,motor3.getStatusLed(LED_LIMIT_MIN,millis));
 			panel4.setLed(LED_MOTOR_SWING_INRANGE,motor3.getStatusLed(LED_WITHIN_RANGE, millis));
 			panel4.setLed(LED_MOTOR_SWING_LIMIT_MAX,motor3.getStatusLed(LED_LIMIT_MAX, millis));
-			panel4.setLed(LED_MOTOR_SWING_ENABLE,motor3.getStatusLed(LED_ENABLE, millis));
+			//panel4.setLed(LED_MOTOR_SWING_ENABLE,motor3.getStatusLed(LED_ENABLE, millis));
 		}
 
 		if (millis%10 <3){
@@ -394,6 +392,7 @@ void MachineControl::refresh(uint32_t millis){
 					printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(1),this->dacValues[1]);
 					printf("position: %d \r\n", motor2.getPosition());
 					printf("limits:  min:  %d  --  max: %d \r\n", motor2.getLimit(false), motor2.getLimit(true));
+
 				}else if (theByte == '3'){
 					printf("motor id: %d \r\n", motor3.getMotorId());
 					printf("speed Setting: %d, speed Out: %d \r\n", motor3.getSpeedPercentageDesired(), motor3.getSpeedPercentageChecked() );

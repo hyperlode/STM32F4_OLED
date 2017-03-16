@@ -172,9 +172,11 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 				case LED_ENABLE:
 					return blink2Hz;
 					break;
-				case LED_ROTATING_RIGHT:
+				case LED_MOVING_POSITIVE:
+					return false;
 					break;
-				case LED_ROTATING_LEFT:
+				case LED_MOVING_NEGATIVE:
+					return false;
 					break;
 				default:
 					return false;
@@ -183,53 +185,6 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 			break;
 
 
-
-/*
-	case MODE_TEST:
-		switch (led){
-			case LED_LIMIT_MIN:
-
-				if (getLimit(false) == RESET_VALUE_LIMIT_MINIMUM ){
-					return false;
-				}else if (getLimit(false) > 0){
-					return blink2Hz;
-				}else{
-					return true;
-				}
-				break;
-			case LED_LIMIT_MAX:
-				if (getLimit(true) == RESET_VALUE_LIMIT_MAXIMUM ){
-					return false;
-				}else if (getLimit(true) < 0){
-					return blink2Hz;
-				}else{
-					return true;
-				}
-				break;
-
-
-			case LED_WITHIN_RANGE:
-				if (getLimit(false) > getLimit(true)){
-					//error condition
-					return blink2Hz;
-
-				}else{
-					return true;
-				}
-				//return withinRange()!= blink1Hz ;
-				break;
-			case LED_ENABLE:
-
-				break;
-			case LED_ROTATING_RIGHT:
-				break;
-			case LED_ROTATING_LEFT:
-				break;
-			default:
-				return false;
-				break;
-		}
-		*/
 	case MODE_CALIBRATE:
 		switch (led){
 			case LED_LIMIT_MIN:
@@ -258,9 +213,13 @@ bool MotorControl::getStatusLed(uint8_t led, uint32_t millis){
 			case LED_ENABLE:
 				return blink1Hz;
 				break;
-			case LED_ROTATING_RIGHT:
+			case LED_MOVING_POSITIVE:
+				//return (belowLimitMinimum() && this->setSpeedPercentage>0);
+				return false;
 				break;
-			case LED_ROTATING_LEFT:
+			case LED_MOVING_NEGATIVE:
+				return false;
+				//return (aboveLimitMaximum() && this->setSpeedPercentage<0);
 				break;
 			default:
 				return false;
@@ -319,7 +278,7 @@ int8_t MotorControl::getSpeedPercentageChecked(){
 				return this->setSpeedPercentage/10;
 			}else if (withinRange()  || (belowLimitMinimum() && this->setSpeedPercentage>0) || (aboveLimitMaximum() && this->setSpeedPercentage<0) ){
 				//full speed if zeroed and not crossing limits.
-				return this->setSpeedPercentage/2;
+				return this->setSpeedPercentage/4;
 			}else{
 				//limit violated or not yet set...
 				return this->setSpeedPercentage/10;
