@@ -15,6 +15,8 @@
 
 
 #define NUMBER_OF_MOTORS 3
+#define NUMBER_OF_DACS 2
+
 
 #define LED_MOTOR_HOIST_LIMIT_MIN	5
 #define LED_MOTOR_HOIST_LIMIT_MAX	7
@@ -42,14 +44,22 @@
 #define REFRESH_DELAY_MILLIS_ADC 50
 #define REFRESH_DELAY_MILLIS_DAC 50
 
-#define ADC_MOTOR_HOIST_ZERO_SPEED_VALUE 2600 //empirical value, derived from joystick on controller chair, raw adc value when at zero. //1950 //2660 //2217
-#define DAC_MOTOR_HOIST_ZERO_SPEED_VALUE 2180
+//empirical value, derived from joystick on controller chair, raw adc value when at zero.
+#define ADC_MOTOR_HOIST_ZERO_SPEED_VALUE 2600 //defined 201703615
+#define DAC_MOTOR_HOIST_ZERO_SPEED_VALUE 2145 //defined 201703615
+
+#define ADC_MOTOR_CROWD_ZERO_SPEED_VALUE 2220  //defined 201703615
+#define DAC_MOTOR_CROWD_ZERO_SPEED_VALUE 2150 //defined 201703615
+
+#define ADC_MOTOR_SWING_ZERO_SPEED_VALUE 2600  //todo
+#define DAC_MOTOR_SWING_ZERO_SPEED_VALUE 2180//todo
+
 
 
 class MachineControl{
 
 public:
-	MotorControl* MotorControlHandles[6];
+
 	MachineControl();
 	void refresh(uint32_t millis);
 
@@ -73,35 +83,38 @@ public:
 
 	void speedInputADCInterrupt(uint16_t potentioNumber, uint16_t value);
 	int (*getCharFunctionPointer)(uint8_t *buf);
-	AppliedDAC dacSpeedControl_Hoist;
-	uint32_t dacSpeedControl_Hoist_Value =0;
 
-	AppliedDAC dacSpeedControl_Crowd;
-	uint32_t dacSpeedControl_Crowd_Value =0;
 
 private:
-	//motor variables
-
-	uint8_t activeMotorForTestingOrCalibration =0; //motorcontrolhandles
-	bool ch2Memory=0;
-	bool motor2_chBMemory =0;
-	bool motor3ChannelBMemory = 0;
-
-	// motor controller
-	//IOBoard panel4(PANEL_4);
 
 	IOBoard panel1;
-	IOBoard panel4;
 
+	//info panel with lights and buttons
+	IOBoard panel4;
 	IOBoard* IOBoardHandler [4]; //contains pointers to the IOBoards
 
-	uint8_t motorControllerMode=0;
-	int8_t activeLimit=0;
+	//DAC
+	AppliedDAC dacSpeedControl_Hoist;
+	//uint32_t dacSpeedControl_Hoist_Value =0;
 
+	AppliedDAC dacSpeedControl_Crowd;
+	//uint32_t dacSpeedControl_Crowd_Value =0;
+	uint32_t dacZeroSpeedValues [3];
+	uint32_t dacValues[3];
+	AppliedDAC* DacHandlerPointers[3];
+
+	//motors
 	MotorControl motor1;
 	MotorControl motor2;
 	MotorControl motor3;
+	MotorControl* MotorControlHandles[6];
 
+	uint8_t activeMotorForTestingOrCalibration =0; //motorcontrolhandles
+	bool motor1ChannelBMemory = 0;
+	bool motor2ChannelBMemory = 0;
+	bool motor3ChannelBMemory = 0;
+
+	//program control
 	uint32_t millis;
 	uint16_t edgeMemory =0;
 	uint16_t  secondEdgeMemory= 0;
@@ -110,6 +123,9 @@ private:
 
 	uint32_t zeroingButtonPressStartTime;
 	uint16_t vref;
+
+	uint8_t motorControllerMode=0;
+	int8_t activeLimit=0;
 
 };
 

@@ -29,17 +29,24 @@ MachineControl::MachineControl(){
 
 	panel4.ledSequenceInterruptHandler(false);
 
-	//dacTest.initDAC1();
-	//dacTest.triggerDAC1(0);
-
+	//DAC --> control the MAXON motor boards
 	dacSpeedControl_Hoist.init(1);
+	DacHandlerPointers[0] = &dacSpeedControl_Hoist;
 	dacSpeedControl_Crowd.init(2);
+	DacHandlerPointers[1] = &dacSpeedControl_Crowd;
 
-	dacSpeedControl_Hoist_Value = 4095;
-	dacSpeedControl_Hoist.assignValue(dacSpeedControl_Hoist_Value);
-	dacSpeedControl_Crowd_Value = 2000;
-	dacSpeedControl_Crowd.assignValue(dacSpeedControl_Crowd_Value);
 
+	dacZeroSpeedValues[0] = DAC_MOTOR_HOIST_ZERO_SPEED_VALUE;
+	dacSpeedControl_Hoist.assignValue(dacZeroSpeedValues[0]);
+
+	dacZeroSpeedValues[1] = ADC_MOTOR_CROWD_ZERO_SPEED_VALUE;
+	dacSpeedControl_Crowd.assignValue(dacZeroSpeedValues[1]);
+
+
+
+
+
+	//encoders
 	//motor1
 	setUpHardWareInterrupt_motor1_channelA();
 	setUpInputPin_motor1_channelB();
@@ -52,6 +59,7 @@ MachineControl::MachineControl(){
 	setUpHardWareInterrupt_motor3_channelA();
 	setUpInputPin_motor3_channelB();
 
+	//axis control
 	//motor1 hoist
 	motor1.init(1);
 	MotorControlHandles[0] = &motor1;
@@ -67,7 +75,7 @@ MachineControl::MachineControl(){
 	//INIT mode for motorcontrollermode
 	motorControllerMode = MODE_NORMAL;
 	panel4.setLed(LED_MOTORCONTROLLER_MODE,true);
-	motorControllerMode  = MODE_NORMAL;
+
 	for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 		MotorControlHandles[i]->setMode(motorControllerMode);
 	}
@@ -203,8 +211,11 @@ void MachineControl::refresh(uint32_t millis){
 
 		//dac speed output
 		if (millis - millisMemory_dacProcess >= REFRESH_DELAY_MILLIS_DAC){
+
+			this->millisMemory_dacProcess = millis; //edge control
+
 			/*
-			this->millisMemory_dacProcess = millis;
+
 			dacSpeedControl_Hoist_Value += 10;
 			if (dacSpeedControl_Hoist_Value> 4095){
 				dacSpeedControl_Hoist_Value = 0;
@@ -220,21 +231,27 @@ void MachineControl::refresh(uint32_t millis){
 			/**/
 			//dacSpeedControl_Hoist_Value = (4095 *  (MotorControlHandles[0]->getSpeedPercentageChecked()+100 )) / 200; //range [-100,100] --> [0,4095]
 
-			int32_t interval;
-			if (MotorControlHandles[0]->getSpeedPercentageChecked() >0 ){
 
-				interval = 4095 - DAC_MOTOR_HOIST_ZERO_SPEED_VALUE;
-			}else{
-				interval = DAC_MOTOR_HOIST_ZERO_SPEED_VALUE;
+
+			for (uint8_t i=0; i<NUMBER_OF_DACS;i++){
+
+
+				int32_t interval;
+				if (MotorControlHandles[i]->getSpeedPercentageChecked() >0 ){
+
+					interval = 4095 - dacZeroSpeedValues[i];
+				}else{
+					interval = dacZeroSpeedValues[i];
+				}
+
+				dacValues[i]  = dacZeroSpeedValues[i] + ((interval * MotorControlHandles[i]->getSpeedPercentageChecked())/100) ;
+
+
+				DacHandlerPointers[i]->assignValue(dacValues[i]);
+
+				//DacHandlerPointers[1].assignValue(dacSpeedControl_Crowd_Value);
+
 			}
-
-			dacSpeedControl_Hoist_Value  = DAC_MOTOR_HOIST_ZERO_SPEED_VALUE + ((interval * MotorControlHandles[0]->getSpeedPercentageChecked())/100) ;
-
-
-			dacSpeedControl_Hoist.assignValue(dacSpeedControl_Hoist_Value);
-			dacSpeedControl_Crowd.assignValue(dacSpeedControl_Crowd_Value);
-
-
 		}
 
 
@@ -345,11 +362,13 @@ void MachineControl::refresh(uint32_t millis){
 				}else if (theByte == '1') {
 					printf("motor id: %d \r\n", motor1.getMotorId());
 					printf("speed Setting: %d, speed Out: %d \r\n", motor1.getSpeedPercentageDesired(), motor1.getSpeedPercentageChecked() );
-					printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(0),this->dacSpeedControl_Hoist_Value);
+					printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(0),this->dacValues[0]);
 					printf("position: %d \r\n", motor1.getPosition());
 					printf("limits:  min:  %d  --  max: %d \r\n", motor1.getLimit(false), motor1.getLimit(true));
 				}else if (theByte == '2'){
 					printf("motor id: %d \r\n", motor2.getMotorId());
+					printf("speed Setting: %d, speed Out: %d \r\n", motor2.getSpeedPercentageDesired(), motor2.getSpeedPercentageChecked() );
+					printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(1),this->dacValues[1]);
 					printf("position: %d \r\n", motor2.getPosition());
 					printf("limits:  min:  %d  --  max: %d \r\n", motor2.getLimit(false), motor2.getLimit(true));
 				}else if (theByte == '3'){
@@ -403,111 +422,6 @@ void MachineControl::selectNextLimitToBeCalibrated(){
 	activeLimit++;
 	MotorControlHandles[activeMotorForTestingOrCalibration]->selectLimitToBeCalibrated(activeLimit);
 }
-
-
-void MachineControl::setUpInputPin_motor2_channelB(){
-	//PB8
-	 // Set variables used
-		GPIO_InitTypeDef GPIO_InitStruct;
-		EXTI_InitTypeDef EXTI_InitStruct;
-		NVIC_InitTypeDef NVIC_InitStruct;
-
-		// Enable clock for GPIOB
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-		// Enable clock for SYSCFG
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-
-		// Set pin as input
-		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
-		GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
-		//GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
-		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-}
-
-void MachineControl::setUpHardWareInterrupt_motor2_channelA(){
-	//PB4
-	//https://stm32f4-discovery.net/2014/08/stm32f4-external-interrupts-tutorial/
-
-	 // Set variables used
-	    GPIO_InitTypeDef GPIO_InitStruct;
-	    EXTI_InitTypeDef EXTI_InitStruct;
-	    NVIC_InitTypeDef NVIC_InitStruct;
-
-	    // Enable clock for GPIOB
-	    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	    // Enable clock for SYSCFG
-	    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-
-	    // Set pin as input
-	    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
-	    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-	    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
-	    //GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-	    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
-	    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
-	    GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-
-	    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource4);
-
-	    EXTI_InitStruct.EXTI_Line = EXTI_Line4;
-	    // Enable interrupt
-	    EXTI_InitStruct.EXTI_LineCmd = ENABLE;
-	    // Interrupt mode
-	    EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
-	    // Triggers on rising and falling edge
-	    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-	    //EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
-	    // Add to EXTI
-	    EXTI_Init(&EXTI_InitStruct);
-
-	    // Add IRQ vector to NVIC
-	    NVIC_InitStruct.NVIC_IRQChannel = EXTI4_IRQn;
-	    // Set priority
-	    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
-	    // Set sub priority
-	    NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x01;
-	    // Enable interrupt
-	    NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
-	    // Add to NVIC
-	    NVIC_Init(&NVIC_InitStruct);
-
-
-}
-
-
-
-
-void MachineControl::Motor2InterruptHandler(){
-	//triggers on rising and falling edge of encoder channel
-	//we are not interested in the added accuracy, but we need to check the edges (jitter at standstill could cause erroneous possition change)
-	//edge up --> position change ,(only if channel 2 is different from edge down value)
-	//edge down --> store channel 2
-    if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Make sure that interrupt flag is set
-    	//printf ("motor2\r\n");
-    	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8);//check channel B
-    	//printf("chB: %d\r\n", isCCW);
-    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_4)){
-    		//positive edge
-    		if (isCCW != motor2_chBMemory){
-				IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
-				MotorControlHandles[1]->updatePositionOneStep(isCCW); //2 channel encoder update.
-    		}
-		}else{
-			//negative edge
-			motor2_chBMemory = isCCW; //store ch2.
-    	}
-        // Clear interrupt flag
-        EXTI_ClearITPendingBit(EXTI_Line4);
-
-    }
-}
-
-
 
 
 //---------------------------------------------------------------------------------------
@@ -605,19 +519,125 @@ void MachineControl::Motor1InterruptHandler(){
 	    	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5);//check other channel
 	    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_3)){
 	    		//positive edge
-	    		if (isCCW != ch2Memory){
+	    		if (isCCW != motor1ChannelBMemory){
 					IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
 					MotorControlHandles[0]->updatePositionOneStep(isCCW); //2 channel encoder update.
 	    		}
 			}else{
 				//negative edge
-				ch2Memory = isCCW; //store ch2.
+				motor1ChannelBMemory = isCCW; //store ch2.
 	    	}
 	        // Clear interrupt flag
 	        EXTI_ClearITPendingBit(EXTI_Line3);
 
 	    }
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void MachineControl::setUpInputPin_motor2_channelB(){
+	//PB8
+	 // Set variables used
+		GPIO_InitTypeDef GPIO_InitStruct;
+		EXTI_InitTypeDef EXTI_InitStruct;
+		NVIC_InitTypeDef NVIC_InitStruct;
+
+		// Enable clock for GPIOB
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		// Enable clock for SYSCFG
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+		// Set pin as input
+		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+		GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
+		//GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+}
+
+void MachineControl::setUpHardWareInterrupt_motor2_channelA(){
+	//PB4
+	//https://stm32f4-discovery.net/2014/08/stm32f4-external-interrupts-tutorial/
+
+	 // Set variables used
+	    GPIO_InitTypeDef GPIO_InitStruct;
+	    EXTI_InitTypeDef EXTI_InitStruct;
+	    NVIC_InitTypeDef NVIC_InitStruct;
+
+	    // Enable clock for GPIOB
+	    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	    // Enable clock for SYSCFG
+	    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+	    // Set pin as input
+	    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+	    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
+	    //GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+	    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+	    GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+
+	    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource4);
+
+	    EXTI_InitStruct.EXTI_Line = EXTI_Line4;
+	    // Enable interrupt
+	    EXTI_InitStruct.EXTI_LineCmd = ENABLE;
+	    // Interrupt mode
+	    EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+	    // Triggers on rising and falling edge
+	    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	    //EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	    // Add to EXTI
+	    EXTI_Init(&EXTI_InitStruct);
+
+	    // Add IRQ vector to NVIC
+	    NVIC_InitStruct.NVIC_IRQChannel = EXTI4_IRQn;
+	    // Set priority
+	    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
+	    // Set sub priority
+	    NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x01;
+	    // Enable interrupt
+	    NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	    // Add to NVIC
+	    NVIC_Init(&NVIC_InitStruct);
+
+
+}
+
+
+
+
+void MachineControl::Motor2InterruptHandler(){
+	//triggers on rising and falling edge of encoder channel
+	//we are not interested in the added accuracy, but we need to check the edges (jitter at standstill could cause erroneous possition change)
+	//edge up --> position change ,(only if channel 2 is different from edge down value)
+	//edge down --> store channel 2
+    if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Make sure that interrupt flag is set
+    	//printf ("motor2\r\n");
+    	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8);//check channel B
+    	//printf("chB: %d\r\n", isCCW);
+    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_4)){
+    		//positive edge
+    		if (isCCW != motor2ChannelBMemory){
+				IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
+				MotorControlHandles[1]->updatePositionOneStep(isCCW); //2 channel encoder update.
+    		}
+		}else{
+			//negative edge
+			motor2ChannelBMemory = isCCW; //store ch2.
+    	}
+        // Clear interrupt flag
+        EXTI_ClearITPendingBit(EXTI_Line4);
+
+    }
+}
+
+
 
 //----------------------------------------------------------------------------
 
