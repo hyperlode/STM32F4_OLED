@@ -20,7 +20,7 @@ void AppliedDAC::init(uint8_t channel){
 			break;
 
 		case 3:
-			//initDAC3();
+			initDAC3();
 			break;
 
 		default:
@@ -41,7 +41,7 @@ void AppliedDAC::assignValue(uint32_t value){
 				break;
 
 			case 3:
-				//initDAC3();
+				assignValueDAC3(value);
 				break;
 
 			default:
@@ -105,6 +105,37 @@ void AppliedDAC::initDAC2(){
 	DAC_Cmd(DAC_Channel_2,ENABLE);
 	DAC_SetChannel2Data(DAC_Align_12b_R,0xfff);//ffff=2.89 , fff=2.89,0fff=2.89,fff0 =2.89, ff00=2.76,00ff=0.185,ff=0.185,
 	DAC_SoftwareTriggerCmd(DAC_Channel_2,ENABLE);
+}
+
+void AppliedDAC::initDAC3(){
+	//8 bit dac with manual r2r ladder, we use half a gpio port. bits 0->7
+	//use half a gpio port
+	//PE 0->7
+
+	//GPIO E
+	dac3 = GPIOE;
+	GPIO_InitTypeDef GPIO_InitStructure;
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE,ENABLE);
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7  ;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_Init(GPIOE,&GPIO_InitStructure);
+
+
+}
+
+void AppliedDAC::assignValueDAC3(uint32_t value){
+	//set register E only the 8 LSB
+	/**/
+	value &= 0x000000FF;//make sure only 8 lsb are values, the rest should be zero.
+	GPIOE->ODR &= 0xFFFFFF00;
+	//printf("value: %x \r\n",value);
+	GPIOE->ODR |= value;
+	//printf("register: %x \r\n",GPIOE->ODR);
+	/**/
+
 }
 
 void AppliedDAC::assignValueDAC1(uint32_t value){

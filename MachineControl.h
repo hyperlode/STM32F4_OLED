@@ -15,7 +15,7 @@
 
 
 #define NUMBER_OF_MOTORS 3
-#define NUMBER_OF_DACS 2
+
 
 
 #define LED_MOTOR_HOIST_LIMIT_MIN	5
@@ -42,17 +42,24 @@
 #define ZEROING_BUTTON_TIME_DELAY_MILLIS 2000
 
 #define REFRESH_DELAY_MILLIS_ADC 50
-#define REFRESH_DELAY_MILLIS_DAC 50
+#define REFRESH_DELAY_MILLIS_DAC 50 //50
 
 //empirical value, derived from joystick on controller chair, raw adc value when at zero.
-#define ADC_MOTOR_HOIST_ZERO_SPEED_VALUE 2600 //defined 201703615
+
+#define ADC_MOTOR_HOIST_ZERO_SPEED_VALUE 2650 //defined 201703615
+#define ADC_MOTOR_HOIST_MAX_VALUE 4095
 #define DAC_MOTOR_HOIST_ZERO_SPEED_VALUE 2145 //defined 201703615
+#define DAC_MOTOR_HOIST_MAX_VALUE 4095
 
 #define ADC_MOTOR_CROWD_ZERO_SPEED_VALUE 2220  //defined 201703615
-#define DAC_MOTOR_CROWD_ZERO_SPEED_VALUE 2150 //defined 201703615
+#define ADC_MOTOR_CROWD_MAX_VALUE 4095
+#define DAC_MOTOR_CROWD_ZERO_SPEED_VALUE 2200 //defined 201703615
+#define DAC_MOTOR_CROWD_MAX_VALUE 4095
 
-#define ADC_MOTOR_SWING_ZERO_SPEED_VALUE 2600  //todo
-#define DAC_MOTOR_SWING_ZERO_SPEED_VALUE 2180//todo
+#define ADC_MOTOR_SWING_ZERO_SPEED_VALUE 2315  //set 20170316
+#define ADC_MOTOR_SWING_MAX_VALUE 4095
+#define DAC_MOTOR_SWING_ZERO_SPEED_VALUE 168
+#define DAC_MOTOR_SWING_MAX_VALUE 255
 
 
 
@@ -92,14 +99,16 @@ private:
 	//info panel with lights and buttons
 	IOBoard panel4;
 	IOBoard* IOBoardHandler [4]; //contains pointers to the IOBoards
+	//ADC
+	uint32_t adcRanges[3];
 
 	//DAC
 	AppliedDAC dacSpeedControl_Hoist;
-	//uint32_t dacSpeedControl_Hoist_Value =0;
-
 	AppliedDAC dacSpeedControl_Crowd;
-	//uint32_t dacSpeedControl_Crowd_Value =0;
+	AppliedDAC dacSpeedControl_Swing;
+
 	uint32_t dacZeroSpeedValues [3];
+	uint32_t dacRanges[3];
 	uint32_t dacValues[3];
 	AppliedDAC* DacHandlerPointers[3];
 

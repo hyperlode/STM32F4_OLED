@@ -29,21 +29,33 @@ MachineControl::MachineControl(){
 
 	panel4.ledSequenceInterruptHandler(false);
 
+	//ADC
+	adcRanges[0]=ADC_MOTOR_HOIST_MAX_VALUE;
+	adcRanges[1]=ADC_MOTOR_CROWD_MAX_VALUE;
+	adcRanges[2]=ADC_MOTOR_SWING_MAX_VALUE;
+
 	//DAC --> control the MAXON motor boards
 	dacSpeedControl_Hoist.init(1);
 	DacHandlerPointers[0] = &dacSpeedControl_Hoist;
+
 	dacSpeedControl_Crowd.init(2);
 	DacHandlerPointers[1] = &dacSpeedControl_Crowd;
 
+	dacSpeedControl_Swing.init(3);
+	DacHandlerPointers[2] = &dacSpeedControl_Swing;
 
+	dacRanges[0]= DAC_MOTOR_HOIST_MAX_VALUE;
 	dacZeroSpeedValues[0] = DAC_MOTOR_HOIST_ZERO_SPEED_VALUE;
 	dacSpeedControl_Hoist.assignValue(dacZeroSpeedValues[0]);
 
-	dacZeroSpeedValues[1] = ADC_MOTOR_CROWD_ZERO_SPEED_VALUE;
+	dacRanges[1]= DAC_MOTOR_CROWD_MAX_VALUE;
+	dacZeroSpeedValues[1] = DAC_MOTOR_CROWD_ZERO_SPEED_VALUE;
 	dacSpeedControl_Crowd.assignValue(dacZeroSpeedValues[1]);
 
-
-
+	dacRanges[2]= DAC_MOTOR_SWING_MAX_VALUE;
+	dacZeroSpeedValues [2] = DAC_MOTOR_SWING_ZERO_SPEED_VALUE;
+	dacSpeedControl_Crowd.assignValue(dacZeroSpeedValues[2]);
+	dacValues[2] = 0;
 
 
 	//encoders
@@ -198,7 +210,7 @@ void MachineControl::refresh(uint32_t millis){
 					MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / ADC_MOTOR_HOIST_ZERO_SPEED_VALUE);
 
 				}else{
-					MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / (4095-ADC_MOTOR_HOIST_ZERO_SPEED_VALUE));
+					MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / (adcRanges[i] - ADC_MOTOR_HOIST_ZERO_SPEED_VALUE));
 				}
 
 				//MotorControlHandles[i]->setSpeedPercentageDesired( ((200*adcRaw) / 4095  ) - 100); ///range [0,4095]  --> [-100,100]
@@ -211,35 +223,46 @@ void MachineControl::refresh(uint32_t millis){
 
 		//dac speed output
 		if (millis - millisMemory_dacProcess >= REFRESH_DELAY_MILLIS_DAC){
-
+/*
 			this->millisMemory_dacProcess = millis; //edge control
+			//printf("dac3: %d", dacValues[2]);
+			dacValues[2] += 1;
+			if (dacValues[2]> 255){
+				dacValues[2] = 0;
+			}
 
-			/*
+			DacHandlerPointers[2]->assignValue(dacValues[2]);
 
+
+
+/*
 			dacSpeedControl_Hoist_Value += 10;
 			if (dacSpeedControl_Hoist_Value> 4095){
 				dacSpeedControl_Hoist_Value = 0;
 			}
 
-			dacSpeedControl_Crowd_Value += 10;
-			if (dacSpeedControl_Crowd_Value > 4095){
-				dacSpeedControl_Crowd_Value =0;
-			}
+
 
 			dacSpeedControl_Hoist.assignValue(dacSpeedControl_Hoist_Value);
+			*/
+			/*
+			dacSpeedControl_Crowd_Value += 10;
+						if (dacSpeedControl_Crowd_Value > 4095){
+							dacSpeedControl_Crowd_Value =0;
+						}
 			dacSpeedControl_Crowd.assignValue(dacSpeedControl_Crowd_Value);
 			/**/
 			//dacSpeedControl_Hoist_Value = (4095 *  (MotorControlHandles[0]->getSpeedPercentageChecked()+100 )) / 200; //range [-100,100] --> [0,4095]
 
 
 
-			for (uint8_t i=0; i<NUMBER_OF_DACS;i++){
+			for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 
 
 				int32_t interval;
 				if (MotorControlHandles[i]->getSpeedPercentageChecked() >0 ){
 
-					interval = 4095 - dacZeroSpeedValues[i];
+					interval = dacRanges[i] - dacZeroSpeedValues[i];
 				}else{
 					interval = dacZeroSpeedValues[i];
 				}
@@ -373,6 +396,8 @@ void MachineControl::refresh(uint32_t millis){
 					printf("limits:  min:  %d  --  max: %d \r\n", motor2.getLimit(false), motor2.getLimit(true));
 				}else if (theByte == '3'){
 					printf("motor id: %d \r\n", motor3.getMotorId());
+					printf("speed Setting: %d, speed Out: %d \r\n", motor3.getSpeedPercentageDesired(), motor3.getSpeedPercentageChecked() );
+					printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(2),this->dacValues[2]);
 					printf("position: %d \r\n", motor3.getPosition());
 					printf("limits:  min:  %d  --  max: %d \r\n", motor3.getLimit(false), motor3.getLimit(true));
 
@@ -425,10 +450,6 @@ void MachineControl::selectNextLimitToBeCalibrated(){
 
 
 //---------------------------------------------------------------------------------------
-
-
-
-
 
 void MachineControl::setUpInputPin_motor1_channelB(){
 	//PB5

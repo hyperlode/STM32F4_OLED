@@ -17,8 +17,12 @@ public:
 private:
 	void initDAC1();
 	void initDAC2();
+	void initDAC3();
 	void assignValueDAC1(uint32_t value);
 	void assignValueDAC2(uint32_t value);
+	void assignValueDAC3(uint32_t value);
+
+	GPIO_TypeDef* dac3;
 	uint8_t channel;
 	uint32_t value;
 };
