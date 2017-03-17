@@ -49,13 +49,15 @@
 
 //empirical value, derived from joystick on controller chair, raw adc value when at zero.
 
-#define ADC_MOTOR_HOIST_ZERO_SPEED_VALUE 2650 //defined 201703615
+#define ADC_MOTOR_HOIST_ZERO_SPEED_VALUE 3914 //redefined 20170317 2650 //defined 201703615
 #define ADC_MOTOR_HOIST_MAX_VALUE 4095
 #define DAC_MOTOR_HOIST_ZERO_SPEED_VALUE 2145 //defined 201703615
 #define DAC_MOTOR_HOIST_MAX_VALUE 4095
 
 
+
 #define ADC_MOTOR_CROWD_ZERO_SPEED_VALUE 2220  //defined 201703615
+
 #define ADC_MOTOR_CROWD_MAX_VALUE 4095
 #define DAC_MOTOR_CROWD_ZERO_SPEED_VALUE 2200 //defined 201703615
 #define DAC_MOTOR_CROWD_MAX_VALUE 4095

@@ -698,7 +698,85 @@ void MachineControl::Motor2InterruptHandler(){
 
 
 //----------------------------------------------------------------------------
+/*
+ *
+void MachineControl::setUpInputPin_motor2_channelB(){
+	//PB8
+	 // Set variables used
+		GPIO_InitTypeDef GPIO_InitStruct;
+		EXTI_InitTypeDef EXTI_InitStruct;
+		NVIC_InitTypeDef NVIC_InitStruct;
 
+		// Enable clock for GPIOB
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		// Enable clock for SYSCFG
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+		// Set pin as input
+		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+		GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
+		//GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+}
+
+void MachineControl::setUpHardWareInterrupt_motor2_channelA(){
+	//PB4
+	//https://stm32f4-discovery.net/2014/08/stm32f4-external-interrupts-tutorial/
+
+	 // Set variables used
+	    GPIO_InitTypeDef GPIO_InitStruct;
+	    EXTI_InitTypeDef EXTI_InitStruct;
+	    NVIC_InitTypeDef NVIC_InitStruct;
+
+	    // Enable clock for GPIOB
+	    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	    // Enable clock for SYSCFG
+	    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+	    // Set pin as input
+	    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+	    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
+	    //GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+	    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+	    GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+
+	    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource4);
+
+	    EXTI_InitStruct.EXTI_Line = EXTI_Line4;
+	    // Enable interrupt
+	    EXTI_InitStruct.EXTI_LineCmd = ENABLE;
+	    // Interrupt mode
+	    EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+	    // Triggers on rising and falling edge
+	    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	    //EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	    // Add to EXTI
+	    EXTI_Init(&EXTI_InitStruct);
+
+	    // Add IRQ vector to NVIC
+	    NVIC_InitStruct.NVIC_IRQChannel = EXTI4_IRQn;
+	    // Set priority
+	    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
+	    // Set sub priority
+	    NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x01;
+	    // Enable interrupt
+	    NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	    // Add to NVIC
+	    NVIC_Init(&NVIC_InitStruct);
+
+
+}
+
+
+ *
+ */
 
 
 
