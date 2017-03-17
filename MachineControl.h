@@ -125,6 +125,10 @@ private:
 	MotorControl motor3;
 	MotorControl* MotorControlHandles[6];
 
+	//encoders
+	bool motor2IsCCW=0;
+
+
 	uint8_t activeMotorForTestingOrCalibration =0; //motorcontrolhandles
 	bool motor1ChannelBMemory = 0;
 	bool motor2ChannelBMemory = 0;
@@ -136,7 +140,8 @@ private:
 	uint16_t  secondEdgeMemory= 0;
 	uint32_t millisMemory_dacProcess;
 	uint32_t millisMemory_adcProcess;
-
+	uint32_t millisMemory_checkForSerialInput;
+	uint8_t theByte;
 	uint32_t zeroingButtonPressStartTime;
 	uint16_t vref;
 

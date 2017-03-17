@@ -146,7 +146,10 @@
 
 /************************* PLL Parameters *************************************/
 /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
+#if !defined  (PLL_M)
 #define PLL_M      8//25 <-- Modified from original value to match a 8Mhz external oscillator instead of 25
+#endif
+
 #define PLL_N      336
 
 /* SYSCLK = PLL_VCO / PLL_P */

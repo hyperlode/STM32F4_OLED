@@ -621,6 +621,23 @@ void IOBoard::ledSequenceUpdate(bool directionIsForward){
 	}
 }
 
+
+void IOBoard::ledSequenceRefreshValue(int32_t value){
+
+	if (value > this->valueMemory ){
+		if (value - this->valueMemory > NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP){
+
+			ledSequenceUpdate( true);
+			this->valueMemory += NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP;
+		}
+	}else{
+		if (this->valueMemory - value  > NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP){
+			ledSequenceUpdate( false);
+			this->valueMemory -= NUMBER_OF_SUBSTEPS_PER_LED_SEQUENCE_STEP;
+		}
+	}
+}
+/*
 void IOBoard::ledSequenceInterruptHandler(bool directionIsForward){
 
 	if (directionIsForward){
@@ -640,7 +657,7 @@ void IOBoard::ledSequenceInterruptHandler(bool directionIsForward){
 
 }
 
-
+*/
 void IOBoard::scanLeds(){
 
 		//set "previous" scan cycle cathode to HIGH again (so it is "off")

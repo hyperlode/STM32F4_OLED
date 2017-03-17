@@ -27,7 +27,7 @@ MachineControl::MachineControl(){
 	panel4.ledSequenceUser_set(1,2);
 	panel4.ledSequenceUser_set(2,1);
 
-	panel4.ledSequenceInterruptHandler(false);
+	//panel4.ledSequenceInterruptHandler(false);
 
 	//ADC
 	adcRanges[0]=ADC_MOTOR_HOIST_MAX_VALUE;
@@ -214,8 +214,12 @@ void MachineControl::refresh(uint32_t millis){
 
 		//dac speed output
 		if (millis - millisMemory_dacProcess >= REFRESH_DELAY_MILLIS_DAC){
-/*
 			this->millisMemory_dacProcess = millis; //edge control
+
+
+
+/*
+
 			//printf("dac3: %d", dacValues[2]);
 			dacValues[2] += 1;
 			if (dacValues[2]> 255){
@@ -308,6 +312,9 @@ void MachineControl::refresh(uint32_t millis){
 			panel4.setLed(LED_MOTOR_SWING_INRANGE,motor3.getStatusLed(LED_WITHIN_RANGE, millis));
 			panel4.setLed(LED_MOTOR_SWING_LIMIT_MAX,motor3.getStatusLed(LED_LIMIT_MAX, millis));
 			//panel4.setLed(LED_MOTOR_SWING_ENABLE,motor3.getStatusLed(LED_ENABLE, millis));
+
+			//total motion indicator.
+			IOBoardHandler[3]->ledSequenceRefreshValue(MotorControlHandles[0]->getPosition() + MotorControlHandles[1]->getPosition() +MotorControlHandles[2]->getPosition() );
 		}
 
 		if (millis%10 <3){
@@ -349,64 +356,67 @@ void MachineControl::refresh(uint32_t millis){
 		 //  - Echo it back
 		 //  - Turn the green LED on for 10ms
 		 //
-		uint8_t theByte;
-		//if (VCP_get_char(&theByte))
-		if (this->getCharFunctionPointer(&theByte)) //VCP_get_char is a c function, not working from here, we assign the pointer to the function in main.
-		{
-			if ( theByte != '\r' &&  theByte != '\n'){
-				printf("Char Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
 
-				if ( theByte == 'v'){
-					//printf ("value %d /r/n", ConvertedValue);
+		if (millis - millisMemory_checkForSerialInput >= 200){
+			this->millisMemory_checkForSerialInput = millis; //edge control
 
-				//	printf ("samples taken: %d \r\n", adcNumberOfSampleCycles);
-					//printf ("value TEMPERATURE %d \r\n", temp);
-					printf ("value VREF %d \r\n", this->vref);
+			//if (VCP_get_char(&theByte))
+			if (this->getCharFunctionPointer(&theByte)) //VCP_get_char is a c function, not working from here, we assign the pointer to the function in main.
+			{
+				if ( theByte != '\r' &&  theByte != '\n'){
+					printf("Chaaaar Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
 
-					for (uint8_t i=0; i<4;i++){
-						//printf ("value slider: %d = %d \r\n", i, adcValues[i]);
-						//printf ("panel1 slider %d: %d \r\n", i, panel1.getSliderValue(i));
+					if ( theByte == 'v'){
+						//printf ("value %d /r/n", ConvertedValue);
 
+					//	printf ("samples taken: %d \r\n", adcNumberOfSampleCycles);
+						//printf ("value TEMPERATURE %d \r\n", temp);
+						printf ("value VREF %d \r\n", this->vref);
+
+						for (uint8_t i=0; i<4;i++){
+							//printf ("value slider: %d = %d \r\n", i, adcValues[i]);
+							//printf ("panel1 slider %d: %d \r\n", i, panel1.getSliderValue(i));
+
+						}
+
+						printf("nothing here yet.");
+					}else if (theByte == 's'){
+						//char lodeStrTest [100]; //={'a','\0'};
+						//lodeStrTest[99] = '\0';
+						//char lodeStrTest []={'a','\0'};
+						//panel1.stats(&lodeStrTest);
+						//printf ("lets do this: %s \r\n", lodeStrTest);
+						//printf("nothing here yet.");
+						printf ("slider value:%d \r\n", IOBoardHandler[0]->getSliderValue(0));
+
+
+					}else if (theByte == '1') {
+						printf("motor id: %d \r\n", motor1.getMotorId());
+						printf("speed Setting Percentage: %d, speed Out: %d \r\n", motor1.getSpeedPercentageDesired(), motor1.getSpeedPercentageChecked() );
+						printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(0),this->dacValues[0]);
+						printf("position: %d \r\n", motor1.getPosition());
+						printf("limits:  min:  %d  --  max: %d \r\n", motor1.getLimit(false), motor1.getLimit(true));
+					}else if (theByte == '2'){
+						printf("motor id: %d \r\n", motor2.getMotorId());
+						printf("speed Setting Percentage: %d, speed Out: %d \r\n", motor2.getSpeedPercentageDesired(), motor2.getSpeedPercentageChecked() );
+						printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(1),this->dacValues[1]);
+						printf("position: %d \r\n", motor2.getPosition());
+						printf("limits:  min:  %d  --  max: %d \r\n", motor2.getLimit(false), motor2.getLimit(true));
+
+					}else if (theByte == '3'){
+						printf("motor id: %d \r\n", motor3.getMotorId());
+						printf("speed Setting Percentage: %d, speed Out: %d \r\n", motor3.getSpeedPercentageDesired(), motor3.getSpeedPercentageChecked() );
+						printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(2),this->dacValues[2]);
+						printf("position: %d \r\n", motor3.getPosition());
+						printf("limits:  min:  %d  --  max: %d \r\n", motor3.getLimit(false), motor3.getLimit(true));
+
+					}else{
+						//IOBoard testje;
+						printf("No valid command detected. Please send v, \r\n s, \r\nm for motor status  ,\r\nor a . \r\n");
 					}
-
-					printf("nothing here yet.");
-				}else if (theByte == 's'){
-					//char lodeStrTest [100]; //={'a','\0'};
-					//lodeStrTest[99] = '\0';
-					//char lodeStrTest []={'a','\0'};
-					//panel1.stats(&lodeStrTest);
-					//printf ("lets do this: %s \r\n", lodeStrTest);
-					//printf("nothing here yet.");
-					printf ("slider value:%d \r\n", IOBoardHandler[0]->getSliderValue(0));
-
-
-				}else if (theByte == '1') {
-					printf("motor id: %d \r\n", motor1.getMotorId());
-					printf("speed Setting: %d, speed Out: %d \r\n", motor1.getSpeedPercentageDesired(), motor1.getSpeedPercentageChecked() );
-					printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(0),this->dacValues[0]);
-					printf("position: %d \r\n", motor1.getPosition());
-					printf("limits:  min:  %d  --  max: %d \r\n", motor1.getLimit(false), motor1.getLimit(true));
-				}else if (theByte == '2'){
-					printf("motor id: %d \r\n", motor2.getMotorId());
-					printf("speed Setting: %d, speed Out: %d \r\n", motor2.getSpeedPercentageDesired(), motor2.getSpeedPercentageChecked() );
-					printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(1),this->dacValues[1]);
-					printf("position: %d \r\n", motor2.getPosition());
-					printf("limits:  min:  %d  --  max: %d \r\n", motor2.getLimit(false), motor2.getLimit(true));
-
-				}else if (theByte == '3'){
-					printf("motor id: %d \r\n", motor3.getMotorId());
-					printf("speed Setting: %d, speed Out: %d \r\n", motor3.getSpeedPercentageDesired(), motor3.getSpeedPercentageChecked() );
-					printf("raw input adc: %d, raw output dac: %d\r\n",  panel1.getSliderValue(2),this->dacValues[2]);
-					printf("position: %d \r\n", motor3.getPosition());
-					printf("limits:  min:  %d  --  max: %d \r\n", motor3.getLimit(false), motor3.getLimit(true));
-
-				}else{
-					//IOBoard testje;
-					printf("No valid command detected. Please send v, \r\n s, \r\nm for motor status  ,\r\nor a . \r\n");
 				}
 			}
 		}
-
 #endif
 
 
@@ -540,7 +550,7 @@ void MachineControl::Motor1InterruptHandler(){
 	    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_3)){
 	    		//positive edge
 	    		if (isCCW != motor1ChannelBMemory){
-					IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
+					//IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
 					MotorControlHandles[0]->updatePositionOneStep(isCCW); //2 channel encoder update.
 	    		}
 			}else{
@@ -630,33 +640,61 @@ void MachineControl::setUpHardWareInterrupt_motor2_channelA(){
 }
 
 
-
+/*
 
 void MachineControl::Motor2InterruptHandler(){
 	//triggers on rising and falling edge of encoder channel
 	//we are not interested in the added accuracy, but we need to check the edges (jitter at standstill could cause erroneous possition change)
 	//edge up --> position change ,(only if channel 2 is different from edge down value)
 	//edge down --> store channel 2
-    if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Make sure that interrupt flag is set
-    	//printf ("motor2\r\n");
-    	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8);//check channel B
-    	//printf("chB: %d\r\n", isCCW);
-    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_4)){
+
+	if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Make sure that interrupt flag is set
+		//this->motor2IsCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8);//check channel B
+		bool motor2IsCCW= (GPIOB->IDR & 0x00000100);
+		//this->motor2IsCCW = (GPIOB->IDR & 0x00000100);//check channel B   //GPIO_Pin_8
+
+    	//if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_4)){
+    	if (GPIOB->IDR & 0x00000010){
     		//positive edge
-    		if (isCCW != motor2ChannelBMemory){
-				IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
-				MotorControlHandles[1]->updatePositionOneStep(isCCW); //2 channel encoder update.
+    		if (motor2IsCCW != motor2ChannelBMemory){
+				//IOBoardHandler[3]->ledSequenceInterruptHandler(!motor1IsCCW); //input defines direction
+				MotorControlHandles[1]->updatePositionOneStep(motor2IsCCW); //2 channel encoder update.
+
     		}
 		}else{
 			//negative edge
-			motor2ChannelBMemory = isCCW; //store ch2.
+			motor2ChannelBMemory = motor2IsCCW; //store ch2.
     	}
         // Clear interrupt flag
         EXTI_ClearITPendingBit(EXTI_Line4);
 
     }
 }
+*/
 
+
+void MachineControl::Motor2InterruptHandler(){
+	//triggers on rising and falling edge of encoder channel
+		//we are not interested in the added accuracy, but we need to check the edges (jitter at standstill could cause erroneous possition change)
+		//edge up --> position change ,(only if channel 2 is different from edge down value)
+		//edge down --> store channel 2
+	    if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Make sure that interrupt flag is set
+	    	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8);//check other channel
+	    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_4)){
+	    		//positive edge
+	    		if (isCCW != motor2ChannelBMemory){
+					//IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
+					MotorControlHandles[1]->updatePositionOneStep(isCCW); //2 channel encoder update.
+	    		}
+			}else{
+				//negative edge
+				motor2ChannelBMemory = isCCW; //store ch2.
+	    	}
+	        // Clear interrupt flag
+	        EXTI_ClearITPendingBit(EXTI_Line4);
+
+	    }
+}
 
 
 //----------------------------------------------------------------------------
@@ -747,12 +785,11 @@ void MachineControl::Motor3InterruptHandler(){
 		//edge up --> position change ,(only if channel 2 is different from edge down value)
 		//edge down --> store channel 2
 	    if (EXTI_GetITStatus(EXTI_Line1) != RESET) { //Make sure that interrupt flag is set
-	    	//printf ("checkkflelfl;f");
 	    	bool isCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_0);//check other channel
 	    	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)){
 	    		//positive edge
 	    		if (isCCW != motor3ChannelBMemory){
-					IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
+					//IOBoardHandler[3]->ledSequenceInterruptHandler(!isCCW); //input defines direction
 					MotorControlHandles[2]->updatePositionOneStep(isCCW); //2 channel encoder update.
 	    		}
 			}else{

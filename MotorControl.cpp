@@ -61,11 +61,15 @@ bool MotorControl::getZeroingAxisHappenedAtLeastOnce(){
 }
 
 void MotorControl::updatePositionOneStep(bool rotationIsCCW){
+	/*
 	if (rotationIsCCW){
 		this->position++;
 	}else{
 		this->position--;
 	}
+	*/
+	this->position -= rotationIsCCW ? -1: 1;
+
 }
 
 void MotorControl::setCurrentPositionAsLimit(){

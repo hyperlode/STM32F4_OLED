@@ -72,7 +72,8 @@ class IOBoard{
 		void setLedBlinkPeriodMillis(uint16_t ledNumber, uint32_t value);
 		void toggleLed(uint16_t ledNumber);
 		void ledSequenceUpdate(bool directionIsForward);
-		void ledSequenceInterruptHandler(bool directionIsForward);
+		void ledSequenceRefreshValue(int32_t value);
+		//void ledSequenceInterruptHandler(bool directionIsForward);
 		void ledSequenceUser_reset();
 		void ledSequenceUser_set(uint8_t arrayIndex, uint32_t ledNumber);
 
@@ -131,7 +132,8 @@ class IOBoard{
 		uint32_t ledScanTimer;
 		const static uint32_t ledRingSequence_default [12] ;
 		int32_t sequenceCounter = 0;
-		int32_t substeps =0;
+		//int32_t substeps =0;
+		int32_t valueMemory=0;
 
 };
 

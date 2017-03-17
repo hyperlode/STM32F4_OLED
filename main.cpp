@@ -91,16 +91,15 @@ int main(void)
 
 		//	printf("oieoe what didd is dooo.");
 		//}
-
+/*
 		uint8_t theByte;
 		if (VCP_get_char(&theByte))
 		{
 			if ( theByte != '\r' &&  theByte != '\n'){
-				printf("Char Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
+				printf("Chaar Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
 			}
-
-
 		}
+		/**/
 
 	}
 }
