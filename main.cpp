@@ -62,41 +62,36 @@ int main(void)
 
 	/* Initialize USB, IO, SysTick, and all those other things you do in the morning */
 	init();
-
-
-	//DAC_Setup();
 	initDiscoveryBoard();
 
+	/*
 	//init machine control
 	MachineControl machineControl;
 	machineControlPointer = &machineControl;
-
 	machineControl.getCharFunctionPointer = &VCP_get_char;
+	*/
+
 	//refresh machine control loop
 	while(1){
+		/*
 		machineControl.refresh(millis);
-/*
-		//machineControlPointer -> dacTest.initDAC1();
-		machineControlPointer -> dacTest.triggerDAC1(millis%4000);
-		//machineControlPointer -> dacTest.triggerDAC1(4000);
-
-		if (millis% 10 > 5 and timingEdge == 0 ){
-			timingEdge == 1;
+		*/
+/**/
+		if (millis - millisMemory_testing >= 2000){
+			millisMemory_testing = millis; //edge control
+			printf("oieoe what didd is dooo.\r\n");
 
 		}
-		if (millis % 10 )
-		timingEdge = millis%10 > 5;
-		*/
-		//if ((millis%1000)==0){
 
-		//	printf("oieoe what didd is dooo.");
+
+		//
 		//}
-/*
+/**/
 		uint8_t theByte;
 		if (VCP_get_char(&theByte))
 		{
 			if ( theByte != '\r' &&  theByte != '\n'){
-				printf("Chaar Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
+				printf("Char Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
 			}
 		}
 		/**/

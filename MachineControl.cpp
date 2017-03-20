@@ -58,7 +58,7 @@ MachineControl::MachineControl(){
 	dacSpeedControl_Crowd.assignValue(dacZeroSpeedValues[2]);
 	dacValues[2] = 0;
 
-
+/*
 	//encoders
 	//motor1
 	setUpHardWareInterrupt_motor1_channelA();
@@ -71,6 +71,7 @@ MachineControl::MachineControl(){
 	//motor3
 	setUpHardWareInterrupt_motor3_channelA();
 	setUpInputPin_motor3_channelB();
+*/
 
 	//axis control
 	//motor1 hoist
@@ -456,6 +457,9 @@ void MachineControl::selectNextLimitToBeCalibrated(){
 	activeLimit++;
 	MotorControlHandles[activeMotorForTestingOrCalibration]->selectLimitToBeCalibrated(activeLimit);
 }
+
+
+
 
 
 //---------------------------------------------------------------------------------------
@@ -853,8 +857,6 @@ void MachineControl::setUpHardWareInterrupt_motor3_channelA(){
 	    NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
 	    // Add to NVIC
 	    NVIC_Init(&NVIC_InitStruct);
-
-
 }
 
 void MachineControl::Motor3InterruptHandler(){

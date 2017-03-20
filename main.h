@@ -32,7 +32,7 @@
 	static uint16_t adcNumberOfSampleCycles= 0;
 
 
-	uint16_t  timingEdge= 0;
+	uint32_t  millisMemory_testing = 0;
 	uint32_t millis;
 
 
