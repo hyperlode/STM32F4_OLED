@@ -33,7 +33,12 @@ __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
 #endif
  void init();
  void ColorfulRingOfDeath(void);
+// void encoderInitTest();
+// void encoderReadTest();
+ //void encoderOutputTest();
 
+
+#include "EncoderTimer.h"
 
 
 
@@ -71,18 +76,99 @@ int main(void)
 	machineControl.getCharFunctionPointer = &VCP_get_char;
 	*/
 
+
+/*
+	RCC_APB1PeriphClockCmd (RCC_AHB1Periph_GPIOC, ENABLE);
+	GPIO_InitTypeDef GPIO_InitDef;
+	GPIO_InitDef.GPIO_Pin = GPIO_Pin_0;
+	GPIO_InitDef.GPIO_Mode = GPIO_Mode_IN ;
+
+	GPIO_InitDef.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitDef.GPIO_PuPd = GPIO_PuPd_DOWN;
+	GPIO_InitDef.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_Init(GPIOC ,&GPIO_InitDef);
+
+	//Returs pin state (1 if HIGH, 0 if LOW)
+/**/
+
+
+	/**/
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+		GPIO_InitTypeDef GPIO_InitDef;
+		GPIO_InitDef.GPIO_Pin = GPIO_Pin_0;
+		GPIO_InitDef.GPIO_Mode = GPIO_Mode_IN ;
+
+		GPIO_InitDef.GPIO_OType = GPIO_OType_PP;
+		GPIO_InitDef.GPIO_PuPd = GPIO_PuPd_DOWN;
+		GPIO_InitDef.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_Init(GPIOC ,&GPIO_InitDef);
+
+		//Returs pin state (1 if HIGH, 0 if LOW)
+	/**/
+
+	/*
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+    GPIO_InitTypeDef GPIO_InitDef;
+    GPIO_InitDef.GPIO_Pin = GPIO_Pin_0;
+    GPIO_InitDef.GPIO_Mode = GPIO_Mode_IN;
+    GPIO_InitDef.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitDef.GPIO_PuPd = GPIO_PuPd_DOWN;
+    GPIO_InitDef.GPIO_Speed = GPIO_Speed_100MHz;
+    //Initialize pins
+    GPIO_Init(GPIOC, &GPIO_InitDef);
+/**/
+
+
+
+	bool isInit = false;
+
+	millisMemory_outputToSerial = millis;
+
 	//refresh machine control loop
 	while(1){
 		/*
 		machineControl.refresh(millis);
 		*/
 /**/
-		if (millis - millisMemory_testing >= 2000){
-			millisMemory_testing = millis; //edge control
-			printf("oieoe what didd is dooo.\r\n");
 
+
+
+
+		if (millis - millisMemory_testing >= 1000){
+			millisMemory_testing = millis; //edge control
+
+
+			if (isInit){
+				encodersRead();
+				printf("update encoder data.\r\n");
+			}
 		}
 
+
+		if (millis - millisMemory_outputToSerial >= 2000){
+			STM_EVAL_LEDToggle(LED3);
+			millisMemory_outputToSerial = millis;//edgecontrol
+			if (isInit){
+				//printf("oieoe what didd is dooo.\r\n");
+				printf("leftEncoder: %d -- ",leftEncoder);
+				printf("rightEncoder: %d \r\n",rightEncoder);
+				printf("raw: %x, --%x " , TIM2->CNT ,TIM4->CNT);
+
+				if (GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_0)){
+					printf("button pressed\r\n " );
+				}else{
+					printf("button not pressed\r\n " );
+
+				}
+			}else{
+				isInit = true;
+				//test timer encoder capture
+				printf("oieoe what didd is dooo.\r\n");
+				encodersInit();
+
+
+			}
+		}
 
 		//
 		//}
@@ -95,6 +181,7 @@ int main(void)
 			}
 		}
 		/**/
+
 
 	}
 }
@@ -117,8 +204,18 @@ void initDiscoveryBoard(){
 #ifdef __cplusplus
  extern "C" {
 #endif
+/*
+void encoderReadTest(){
+	encodersRead();
 
+}
 
+void encoderOutputTest(){
+	printf("leftEncoder: %d -- ",leftEncoder);
+	printf("rightEncoder: %d \r\n",rightEncoder);
+
+}
+*/
 void init()
 {
 	/* STM32F4 discovery LEDs */

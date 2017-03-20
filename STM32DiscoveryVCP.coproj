@@ -128,6 +128,7 @@
     <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
     <File name="IOBoard.cpp" path="IOBoard.cpp" type="1"/>
     <File name="cmsis/core_cm4.h" path="cmsis/core_cm4.h" type="1"/>
+    <File name="EncoderTimer.h" path="EncoderTimer.h" type="1"/>
     <File name="AppliedDAC.h" path="AppliedDAC.h" type="1"/>
     <File name="main.h" path="main.h" type="1"/>
     <File name="cmsis_lib/source/misc.c" path="cmsis_lib/source/misc.c" type="1"/>
@@ -154,6 +155,7 @@
     <File name="usb_lib/core" path="" type="2"/>
     <File name="stdio" path="" type="2"/>
     <File name="cmsis_boot/startup/startup_stm32f4xx.c" path="cmsis_boot/startup/startup_stm32f4xx.c" type="1"/>
+    <File name="EncoderTimer.c" path="EncoderTimer.c" type="1"/>
     <File name="usb_conf/usb_conf.h" path="usb_conf/usb_conf.h" type="1"/>
     <File name="usb_conf" path="" type="2"/>
     <File name="cmsis_lib/source/stm32f4xx_rcc.c" path="cmsis_lib/source/stm32f4xx_rcc.c" type="1"/>

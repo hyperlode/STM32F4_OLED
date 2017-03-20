@@ -5,6 +5,7 @@
 
 
 
+
 #ifdef __cplusplus
 	#include "MachineControl.h"
 
@@ -33,6 +34,8 @@
 
 
 	uint32_t  millisMemory_testing = 0;
+	uint32_t  millisMemory_outputToSerial = 0;
+
 	uint32_t millis;
 
 
