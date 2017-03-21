@@ -23,7 +23,7 @@
 
 	EncoderToTimer testEncoder;
 	EncoderToTimer testEncoder2;
-
+	EncoderToTimer testEncoder3;
 
 	//volatile uint32_t ticker, downTicker;
 	static uint32_t ticker, downTicker,ticker20ms ;

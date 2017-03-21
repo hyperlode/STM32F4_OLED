@@ -60,6 +60,55 @@ void EncoderToTimer::init(Encoder_TypeDef encoderId){
 		this->reset();
 		printf("encoder init ready: \r\n");
 	}else if (this->encoderId == ENCODER_2){
+			GPIO_InitTypeDef GPIO_InitStructure;
+			// turn on the clocks for each of the ports needed
+			RCC_AHB1PeriphClockCmd (RCC_AHB1Periph_GPIOB, ENABLE);
+
+
+			// now configure the pins themselves
+			// they are all going to be inputs with pullups
+			GPIO_StructInit (&GPIO_InitStructure);
+			GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+			//GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+			GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+			GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+			GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+
+			// Connect the pins to their Alternate Functions
+			GPIO_PinAFConfig (GPIOB, GPIO_PinSource4, GPIO_AF_TIM3);
+			GPIO_PinAFConfig (GPIOB, GPIO_PinSource5, GPIO_AF_TIM3);
+
+
+			// Timer peripheral clock enable
+			RCC_APB1PeriphClockCmd (RCC_APB1Periph_TIM3, ENABLE);
+
+
+			// set them up as encoder inputs
+			// set both inputs to rising polarity to let it use both edges
+			/*
+			TIM_EncoderInterfaceConfig (TIM4, TIM_EncoderMode_TI12,
+									  TIM_ICPolarity_Rising,
+									  TIM_ICPolarity_Rising);
+			*/
+			TIM_EncoderInterfaceConfig (TIM3, TIM_EncoderMode_TI1,
+											  TIM_ICPolarity_Rising,
+											  TIM_ICPolarity_Rising);
+
+
+
+			TIM_SetAutoreload (TIM3, 0xffff);
+
+
+			// turn on the timer/counters
+			TIM_Cmd (TIM3, ENABLE);
+
+			this->reset();
+			printf("encoder init ready: \r\n");
+	}else if (this->encoderId == ENCODER_3){
 		GPIO_InitTypeDef GPIO_InitStructure;
 		// turn on the clocks for each of the ports needed
 		RCC_AHB1PeriphClockCmd (RCC_AHB1Periph_GPIOB, ENABLE);
@@ -120,6 +169,8 @@ void EncoderToTimer::refresh(){
 	if (this->encoderId == ENCODER_1){
 		this->timerValue = TIM2->CNT;
 	} else if (this->encoderId == ENCODER_2){
+		this->timerValue = TIM3->CNT;
+	}else if (this->encoderId == ENCODER_3){
 		this->timerValue = TIM4->CNT;
 	}
 
@@ -157,7 +208,9 @@ void EncoderToTimer::reset(){
 	this->timerValue = 0;
 	if (this->encoderId == ENCODER_1){
 		TIM_SetCounter (TIM2, 0);
-	} else if (this->encoderId == ENCODER_2){
+	}else if (this->encoderId == ENCODER_2){
+		TIM_SetCounter (TIM3, 0);
+	}else if (this->encoderId == ENCODER_3){
 		TIM_SetCounter (TIM4, 0);
 	}
 

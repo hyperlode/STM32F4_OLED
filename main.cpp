@@ -123,6 +123,7 @@ int main(void)
 			if (isInit){
 				testEncoder.refresh();
 				testEncoder2.refresh();
+				testEncoder3.refresh();
 				//printf("update encoder data.\r\n");
 			}
 		}
@@ -141,6 +142,7 @@ int main(void)
 
 				printf("encvalue1: decimal: %d , hex: %x\r\n" , testEncoder.getValue() , testEncoder.getValue() );
 				printf("encvalue2: decimal: %d , hex: %x\r\n" , testEncoder2.getValue() , testEncoder2.getValue() );
+				printf("encvalue3: decimal: %d , hex: %x\r\n" , testEncoder3.getValue() , testEncoder3.getValue() );
 
 			}else{
 				isInit = true;
@@ -148,6 +150,7 @@ int main(void)
 				printf("initializing encoders.\r\n");
 				testEncoder.init(ENCODER_1);
 				testEncoder2.init(ENCODER_2);
+				testEncoder3.init(ENCODER_3);
 				////////encodersInit();
 
 
