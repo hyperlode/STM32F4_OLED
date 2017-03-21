@@ -67,6 +67,11 @@ static volatile int16_t rightEncoder;
 static volatile int16_t encoderSum;
 static volatile int16_t encoderDiff;
 
+uint16_t encoderValue;
+uint16_t oldValue;
+
+
+
 void encodersInit (void);
 void encodersReset (void);
 void encodersRead (void);

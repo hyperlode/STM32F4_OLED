@@ -8,8 +8,7 @@
 
 #ifdef __cplusplus
 	#include "MachineControl.h"
-
-
+	#include "EncoderToTimer.h"
 
 
 	#include <stdio.h>
@@ -21,6 +20,9 @@
 	//char lodeStrTest []={'a','\0'};
 
 	MachineControl* machineControlPointer;
+
+	EncoderToTimer testEncoder;
+	EncoderToTimer testEncoder2;
 
 
 	//volatile uint32_t ticker, downTicker;

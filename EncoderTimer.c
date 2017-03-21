@@ -28,39 +28,11 @@ void encodersInit (void)
   RCC_AHB1PeriphClockCmd (ENCRB_GPIO_CLK, ENABLE);
 
 
-  /*	RCC_AHB1PeriphClockCmd(buttonPeripheral, ENABLE);
-		//GPIO_InitTypeDef GPIO_Buttons_initStructure; defined in .h file, has to be available because we work with two buttons on one pin...
-		//Analog pin configuration
-		if (this->numberOfButtons == 4){
-			GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1];
-		}else if (this->numberOfButtons == 16){
-			GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0] | buttonPins[1] | buttonPins[2] | buttonPins[3] | buttonPins[4] | buttonPins[5] | buttonPins[6] | buttonPins[7];
-			//GPIO_Buttons_initStructure.GPIO_Pin = buttonPins[0];
-
-		}else {
-			printf("init ERROR: number of buttons must be 4 or 16. ");
-		}
-
-
-		GPIO_Init(buttonPort ,&GPIO_Buttons_initStructure);//Affecting the port with the initialization structure configuration
-
-		for (uint8_t i=0; i<this->numberOfButtons;i++){
-				buttonValuesToggleSwitch[i] = 0;
-				buttonValues[i] = 0;
-		}
-
-   *
-   */
-
-
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
   // now configure the pins themselves
   // they are all going to be inputs with pullups
   GPIO_StructInit (&GPIO_InitStructure);
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  //GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
   GPIO_InitStructure.GPIO_Pin = ENCLA_PIN;
   GPIO_Init (ENCLA_GPIO_PORT, &GPIO_InitStructure);
   GPIO_InitStructure.GPIO_Pin = ENCLB_PIN;
@@ -120,6 +92,7 @@ void encodersRead (void)
 {
   oldLeftEncoder = leftEncoder;
   leftEncoder = TIM_GetCounter (ENCL_TIMER) ;
+ // testLeft = TIM2->CNT;
 
   oldRightEncoder = rightEncoder;
   rightEncoder = -TIM_GetCounter (ENCR_TIMER) ;

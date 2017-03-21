@@ -77,8 +77,10 @@ int main(void)
 	*/
 
 
-/*
-	RCC_APB1PeriphClockCmd (RCC_AHB1Periph_GPIOC, ENABLE);
+
+
+	/*
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 	GPIO_InitTypeDef GPIO_InitDef;
 	GPIO_InitDef.GPIO_Pin = GPIO_Pin_0;
 	GPIO_InitDef.GPIO_Mode = GPIO_Mode_IN ;
@@ -87,36 +89,16 @@ int main(void)
 	GPIO_InitDef.GPIO_PuPd = GPIO_PuPd_DOWN;
 	GPIO_InitDef.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_Init(GPIOC ,&GPIO_InitDef);
-
-	//Returs pin state (1 if HIGH, 0 if LOW)
-/**/
-
-
-	/**/
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-		GPIO_InitTypeDef GPIO_InitDef;
-		GPIO_InitDef.GPIO_Pin = GPIO_Pin_0;
-		GPIO_InitDef.GPIO_Mode = GPIO_Mode_IN ;
-
-		GPIO_InitDef.GPIO_OType = GPIO_OType_PP;
-		GPIO_InitDef.GPIO_PuPd = GPIO_PuPd_DOWN;
-		GPIO_InitDef.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_Init(GPIOC ,&GPIO_InitDef);
-
-		//Returs pin state (1 if HIGH, 0 if LOW)
-	/**/
-
 	/*
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-    GPIO_InitTypeDef GPIO_InitDef;
-    GPIO_InitDef.GPIO_Pin = GPIO_Pin_0;
-    GPIO_InitDef.GPIO_Mode = GPIO_Mode_IN;
-    GPIO_InitDef.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitDef.GPIO_PuPd = GPIO_PuPd_DOWN;
-    GPIO_InitDef.GPIO_Speed = GPIO_Speed_100MHz;
-    //Initialize pins
-    GPIO_Init(GPIOC, &GPIO_InitDef);
-/**/
+
+	if (GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_0)){
+		printf("button pressed\r\n " );
+	}else{
+		printf("button not pressed\r\n " );
+
+	}
+*/
+
 
 
 
@@ -129,18 +111,19 @@ int main(void)
 		/*
 		machineControl.refresh(millis);
 		*/
-/**/
 
 
 
 
-		if (millis - millisMemory_testing >= 1000){
+
+		if (millis - millisMemory_testing >= 1){
 			millisMemory_testing = millis; //edge control
 
 
 			if (isInit){
-				encodersRead();
-				printf("update encoder data.\r\n");
+				testEncoder.refresh();
+				testEncoder2.refresh();
+				//printf("update encoder data.\r\n");
 			}
 		}
 
@@ -150,21 +133,22 @@ int main(void)
 			millisMemory_outputToSerial = millis;//edgecontrol
 			if (isInit){
 				//printf("oieoe what didd is dooo.\r\n");
-				printf("leftEncoder: %d -- ",leftEncoder);
-				printf("rightEncoder: %d \r\n",rightEncoder);
-				printf("raw: %x, --%x " , TIM2->CNT ,TIM4->CNT);
+				//printf("leftEncoder: %d -- ",leftEncoder);
+				//printf("rightEncoder: %d \r\n",rightEncoder);
+				//printf("raw: %x, --%x " , TIM2->CNT ,TIM4->CNT);
+				//printf("test: %x, --%x \r\n" , testLeft ,testRight);
+				printf("--------------------------------\r\n");
 
-				if (GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_0)){
-					printf("button pressed\r\n " );
-				}else{
-					printf("button not pressed\r\n " );
+				printf("encvalue1: decimal: %d , hex: %x\r\n" , testEncoder.getValue() , testEncoder.getValue() );
+				printf("encvalue2: decimal: %d , hex: %x\r\n" , testEncoder2.getValue() , testEncoder2.getValue() );
 
-				}
 			}else{
 				isInit = true;
 				//test timer encoder capture
 				printf("oieoe what didd is dooo.\r\n");
-				encodersInit();
+				testEncoder.init(ENCODER_1);
+				testEncoder.init(ENCODER_2);
+				////////encodersInit();
 
 
 			}
@@ -204,18 +188,7 @@ void initDiscoveryBoard(){
 #ifdef __cplusplus
  extern "C" {
 #endif
-/*
-void encoderReadTest(){
-	encodersRead();
 
-}
-
-void encoderOutputTest(){
-	printf("leftEncoder: %d -- ",leftEncoder);
-	printf("rightEncoder: %d \r\n",rightEncoder);
-
-}
-*/
 void init()
 {
 	/* STM32F4 discovery LEDs */
@@ -233,7 +206,7 @@ void init()
 	//dac test
 	//DAC_GPIO_Config();
 	//DAC_Config();
-
+/*
 	// GPIOD Periph clock enable
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
@@ -247,7 +220,7 @@ void init()
 	//GPIO_Init(GPIOD, &GPIO_InitStructure);
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-
+*/
 	//Setup SysTick or CROD!
 	if (SysTick_Config(SystemCoreClock / 1000))
 	{
@@ -257,10 +230,10 @@ void init()
 #ifdef USE_VCP
 	// Setup USB
 	USBD_Init(&USB_OTG_dev,
-	            USB_OTG_FS_CORE_ID,
-	            &USR_desc,
-	            &USBD_CDC_cb,
-	            &USR_cb);
+		USB_OTG_FS_CORE_ID,
+		&USR_desc,
+		&USBD_CDC_cb,
+		&USR_cb);
 #endif
 	return;
 
