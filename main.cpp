@@ -145,9 +145,9 @@ int main(void)
 			}else{
 				isInit = true;
 				//test timer encoder capture
-				printf("oieoe what didd is dooo.\r\n");
+				printf("initializing encoders.\r\n");
 				testEncoder.init(ENCODER_1);
-				testEncoder.init(ENCODER_2);
+				testEncoder2.init(ENCODER_2);
 				////////encodersInit();
 
 

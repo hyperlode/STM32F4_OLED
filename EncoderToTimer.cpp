@@ -40,9 +40,17 @@ void EncoderToTimer::init(Encoder_TypeDef encoderId){
 
 		// set them up as encoder inputs
 		// set both inputs to rising polarity to let it use both edges
+		/*
 		TIM_EncoderInterfaceConfig (TIM2, TIM_EncoderMode_TI12,
 								  TIM_ICPolarity_Rising,
 								  TIM_ICPolarity_Rising);
+		*/
+		TIM_EncoderInterfaceConfig (TIM2, TIM_EncoderMode_TI1,
+										  TIM_ICPolarity_Rising,
+										  TIM_ICPolarity_Rising);
+
+
+
 		TIM_SetAutoreload (TIM2, 0xffff);
 
 
@@ -81,9 +89,17 @@ void EncoderToTimer::init(Encoder_TypeDef encoderId){
 
 		// set them up as encoder inputs
 		// set both inputs to rising polarity to let it use both edges
+		/*
 		TIM_EncoderInterfaceConfig (TIM4, TIM_EncoderMode_TI12,
 								  TIM_ICPolarity_Rising,
 								  TIM_ICPolarity_Rising);
+		*/
+		TIM_EncoderInterfaceConfig (TIM4, TIM_EncoderMode_TI1,
+										  TIM_ICPolarity_Rising,
+										  TIM_ICPolarity_Rising);
+
+
+
 		TIM_SetAutoreload (TIM4, 0xffff);
 
 
