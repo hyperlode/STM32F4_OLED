@@ -8,7 +8,7 @@
 
 #ifdef __cplusplus
 	#include "MachineControl.h"
-	#include "EncoderToTimer.h"
+	//#include "EncoderToTimer.h"
 
 
 	#include <stdio.h>
@@ -21,9 +21,9 @@
 
 	MachineControl* machineControlPointer;
 
-	EncoderToTimer testEncoder;
-	EncoderToTimer testEncoder2;
-	EncoderToTimer testEncoder3;
+	//EncoderToTimer testEncoder;
+	//EncoderToTimer testEncoder2;
+	//EncoderToTimer testEncoder3;
 
 	//volatile uint32_t ticker, downTicker;
 	static uint32_t ticker, downTicker,ticker20ms ;

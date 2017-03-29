@@ -71,6 +71,10 @@ void MotorControl::updatePositionOneStep(bool rotationIsCCW){
 	this->position -= rotationIsCCW ? -1: 1;
 
 }
+void MotorControl::updatePosition(int32_t newPosition){
+	//set position
+	this->position = newPosition;
+};
 
 void MotorControl::setCurrentPositionAsLimit(){
 

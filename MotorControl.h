@@ -46,6 +46,7 @@ class MotorControl{
 
 		 int32_t getPosition();
 		 void updatePositionOneStep(bool rotationIsCW);
+		 void updatePosition(int32_t newPosition);
 		 void setCurrentPositionAsLimit();
 		 void resetLimit();
 		 void resetPositionAndLimits();

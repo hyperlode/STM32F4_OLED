@@ -96,11 +96,19 @@ MachineControl::MachineControl(){
 
 	selectNextLimitToBeCalibrated();
 
+
+	initEncoders();
+
 #ifdef USE_VCP
 	printf("Userinterface: \r\n");
 	printf("To interact. Please send v, s, m or a  \r\n");
 #endif
 
+}
+
+void MachineControl::initEncoders(){
+
+	encoder1.init(ENCODER_1);
 }
 
 void MachineControl::speedInputADCInterrupt(uint16_t potentioNumber, uint16_t value){
@@ -190,7 +198,6 @@ void MachineControl::refresh(uint32_t millis){
 				break;
 		}
 
-
 		//adc speed input potentio meters (joystick)
 		if (millis - millisMemory_adcProcess >= REFRESH_DELAY_MILLIS_ADC){
 			this->millisMemory_adcProcess = millis;
@@ -277,6 +284,16 @@ void MachineControl::refresh(uint32_t millis){
 				DacHandlerPointers[i]->assignValue(dacValues[i]);
 			}
 		}
+
+
+		//process encoder values from timers
+		if (millis - millisMemory_encoderProcess >= REFRESH_DELAY_MILLIS_ENCODERS){
+			this->millisMemory_encoderProcess = millis; //edge control
+			encoder1.refresh();
+			motor1.updatePosition(encoder1.getValue());
+		}
+
+
 
 		//refresh motor status lights
 		if (millis%10 > 5 && edgeMemory ==0){
@@ -463,7 +480,7 @@ void MachineControl::selectNextLimitToBeCalibrated(){
 
 
 //---------------------------------------------------------------------------------------
-
+/*
 void MachineControl::setUpInputPin_motor1_channelB(){
 	//PB5
 	 // Set variables used
@@ -566,7 +583,7 @@ void MachineControl::Motor1InterruptHandler(){
 
 	    }
 }
-
+*/
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
 void MachineControl::setUpInputPin_motor2_channelB(){
@@ -644,38 +661,6 @@ void MachineControl::setUpHardWareInterrupt_motor2_channelA(){
 }
 
 
-/*
-
-void MachineControl::Motor2InterruptHandler(){
-	//triggers on rising and falling edge of encoder channel
-	//we are not interested in the added accuracy, but we need to check the edges (jitter at standstill could cause erroneous possition change)
-	//edge up --> position change ,(only if channel 2 is different from edge down value)
-	//edge down --> store channel 2
-
-	if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Make sure that interrupt flag is set
-		//this->motor2IsCCW = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8);//check channel B
-		bool motor2IsCCW= (GPIOB->IDR & 0x00000100);
-		//this->motor2IsCCW = (GPIOB->IDR & 0x00000100);//check channel B   //GPIO_Pin_8
-
-    	//if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_4)){
-    	if (GPIOB->IDR & 0x00000010){
-    		//positive edge
-    		if (motor2IsCCW != motor2ChannelBMemory){
-				//IOBoardHandler[3]->ledSequenceInterruptHandler(!motor1IsCCW); //input defines direction
-				MotorControlHandles[1]->updatePositionOneStep(motor2IsCCW); //2 channel encoder update.
-
-    		}
-		}else{
-			//negative edge
-			motor2ChannelBMemory = motor2IsCCW; //store ch2.
-    	}
-        // Clear interrupt flag
-        EXTI_ClearITPendingBit(EXTI_Line4);
-
-    }
-}
-*/
-
 
 void MachineControl::Motor2InterruptHandler(){
 	//triggers on rising and falling edge of encoder channel
@@ -701,86 +686,6 @@ void MachineControl::Motor2InterruptHandler(){
 }
 
 
-//----------------------------------------------------------------------------
-/*
- *
-void MachineControl::setUpInputPin_motor2_channelB(){
-	//PB8
-	 // Set variables used
-		GPIO_InitTypeDef GPIO_InitStruct;
-		EXTI_InitTypeDef EXTI_InitStruct;
-		NVIC_InitTypeDef NVIC_InitStruct;
-
-		// Enable clock for GPIOB
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-		// Enable clock for SYSCFG
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-
-		// Set pin as input
-		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
-		GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
-		//GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
-		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-}
-
-void MachineControl::setUpHardWareInterrupt_motor2_channelA(){
-	//PB4
-	//https://stm32f4-discovery.net/2014/08/stm32f4-external-interrupts-tutorial/
-
-	 // Set variables used
-	    GPIO_InitTypeDef GPIO_InitStruct;
-	    EXTI_InitTypeDef EXTI_InitStruct;
-	    NVIC_InitTypeDef NVIC_InitStruct;
-
-	    // Enable clock for GPIOB
-	    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	    // Enable clock for SYSCFG
-	    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-
-	    // Set pin as input
-	    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
-	    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-	    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
-	    //GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-	    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
-	    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
-	    GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-
-	    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource4);
-
-	    EXTI_InitStruct.EXTI_Line = EXTI_Line4;
-	    // Enable interrupt
-	    EXTI_InitStruct.EXTI_LineCmd = ENABLE;
-	    // Interrupt mode
-	    EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
-	    // Triggers on rising and falling edge
-	    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-	    //EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
-	    // Add to EXTI
-	    EXTI_Init(&EXTI_InitStruct);
-
-	    // Add IRQ vector to NVIC
-	    NVIC_InitStruct.NVIC_IRQChannel = EXTI4_IRQn;
-	    // Set priority
-	    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
-	    // Set sub priority
-	    NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x01;
-	    // Enable interrupt
-	    NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
-	    // Add to NVIC
-	    NVIC_Init(&NVIC_InitStruct);
-
-
-}
-
-
- *
- */
 
 
 

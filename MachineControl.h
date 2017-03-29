@@ -6,7 +6,7 @@
 #include "IOBoard.h"
 #include "MotorControl.h"
 #include "AppliedDAC.h"
-
+#include "EncoderToTimer.h"
 
 #define MODE_NORMAL 0
 //#define MODE_TEST 2
@@ -46,6 +46,7 @@
 
 #define REFRESH_DELAY_MILLIS_ADC 50
 #define REFRESH_DELAY_MILLIS_DAC 50 //50
+#define REFRESH_DELAY_MILLIS_ENCODERS 10
 
 //empirical value, derived from joystick on controller chair, raw adc value when at zero.
 
@@ -98,6 +99,7 @@ public:
 	void speedInputADCInterrupt(uint16_t potentioNumber, uint16_t value);
 	int (*getCharFunctionPointer)(uint8_t *buf);
 
+	void initEncoders();
 
 private:
 
@@ -127,6 +129,10 @@ private:
 	MotorControl motor3;
 	MotorControl* MotorControlHandles[6];
 
+
+	//encoders (with timers)
+	EncoderToTimer encoder1;
+
 	//encoders
 	bool motor2IsCCW=0;
 
@@ -142,6 +148,8 @@ private:
 	uint16_t  secondEdgeMemory= 0;
 	uint32_t millisMemory_dacProcess;
 	uint32_t millisMemory_adcProcess;
+	uint32_t millisMemory_encoderProcess;
+
 	uint32_t millisMemory_checkForSerialInput;
 	uint8_t theByte;
 	uint32_t zeroingButtonPressStartTime;
