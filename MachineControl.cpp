@@ -109,6 +109,8 @@ MachineControl::MachineControl(){
 void MachineControl::initEncoders(){
 
 	encoder1.init(ENCODER_1);
+	encoder2.init(ENCODER_2);
+	encoder3.init(ENCODER_3);
 }
 
 void MachineControl::speedInputADCInterrupt(uint16_t potentioNumber, uint16_t value){
@@ -291,6 +293,11 @@ void MachineControl::refresh(uint32_t millis){
 			this->millisMemory_encoderProcess = millis; //edge control
 			encoder1.refresh();
 			motor1.updatePosition(encoder1.getValue());
+			encoder2.refresh();
+			motor2.updatePosition(encoder2.getValue());
+			encoder3.refresh();
+			motor3.updatePosition(encoder3.getValue());
+
 		}
 
 
@@ -585,7 +592,7 @@ void MachineControl::Motor1InterruptHandler(){
 }
 */
 //----------------------------------------------------------------------------------------------------------------------------------------------------
-
+/*
 void MachineControl::setUpInputPin_motor2_channelB(){
 	//PB8
 	 // Set variables used
@@ -686,10 +693,10 @@ void MachineControl::Motor2InterruptHandler(){
 }
 
 
+*/
 
 
-
-
+/*
 void MachineControl::setUpInputPin_motor3_channelB(){
 	//PB0
 	 // Set variables used
@@ -787,7 +794,7 @@ void MachineControl::Motor3InterruptHandler(){
 	    }
 }
 
-
+*/
 
 
 

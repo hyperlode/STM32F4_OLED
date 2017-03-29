@@ -132,6 +132,8 @@ private:
 
 	//encoders (with timers)
 	EncoderToTimer encoder1;
+	EncoderToTimer encoder2;
+	EncoderToTimer encoder3;
 
 	//encoders
 	bool motor2IsCCW=0;

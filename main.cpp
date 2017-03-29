@@ -358,10 +358,13 @@ void ADC_IRQHandler() {
 // ---external C
 /// Set interrupt handlers
 /// Handle interrupt
-//void EXTI3_IRQHandler(void) {
-//	machineControlPointer->Motor1InterruptHandler();
+/*
+void EXTI3_IRQHandler(void) {
+	machineControlPointer->Motor1InterruptHandler();
 
-//}
+}
+
+
 void EXTI4_IRQHandler(void) {
 	machineControlPointer->Motor2InterruptHandler();
 
@@ -374,7 +377,7 @@ void EXTI1_IRQHandler(void) {
 	machineControlPointer->Motor3InterruptHandler();
 
 }
-
+*/
 #ifdef __cplusplus
  }
 #endif
