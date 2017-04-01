@@ -109,8 +109,11 @@ MachineControl::MachineControl(){
 void MachineControl::initEncoders(){
 
 	encoder1.init(ENCODER_1);
+	EncoderToTimerHandles[0] = &encoder1;
 	encoder2.init(ENCODER_2);
+	EncoderToTimerHandles[1] = &encoder2;
 	encoder3.init(ENCODER_3);
+	EncoderToTimerHandles[2] = &encoder3;
 }
 
 void MachineControl::speedInputADCInterrupt(uint16_t potentioNumber, uint16_t value){
@@ -175,8 +178,12 @@ void MachineControl::refresh(uint32_t millis){
 
 				if ( panel4.getButtonState(BUTTON_ZEROING_ALL_AXIS) &&  this->millis - this->zeroingButtonPressStartTime > ZEROING_BUTTON_TIME_DELAY_MILLIS ){
 					for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
+						EncoderToTimerHandles[i]->reset();
 						MotorControlHandles[i]->setCurrentPositionToZero();
+
 					}
+
+
 				}
 
 				break;
