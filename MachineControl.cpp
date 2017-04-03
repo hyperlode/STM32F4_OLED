@@ -34,6 +34,9 @@ MachineControl::MachineControl(){
 	adcRanges[1]=ADC_MOTOR_CROWD_MAX_VALUE;
 	adcRanges[2]=ADC_MOTOR_SWING_MAX_VALUE;
 
+	adcZeroSpeedRawValues[0]=ADC_MOTOR_HOIST_ZERO_SPEED_VALUE;
+	adcZeroSpeedRawValues[1]=ADC_MOTOR_CROWD_ZERO_SPEED_VALUE;
+	adcZeroSpeedRawValues[2]=ADC_MOTOR_SWING_ZERO_SPEED_VALUE;
 
 	//DAC --> control the MAXON motor boards
 	dacSpeedControl_Hoist.init(1);
@@ -210,20 +213,17 @@ void MachineControl::refresh(uint32_t millis){
 		//adc speed input potentio meters (joystick)
 		if (millis - millisMemory_adcProcess >= REFRESH_DELAY_MILLIS_ADC){
 			this->millisMemory_adcProcess = millis;
+
 			for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 				int32_t adcRaw = panel1.getSliderValue(i); //joystick input mimics panel1... (0 to 4095) -> from 0->5V
 
-				int32_t adcCorrected =adcRaw - this->dacZeroSpeedRawValues[i];
+				int32_t adcCorrected =adcRaw - this->adcZeroSpeedRawValues[i];
 
-
-				}else{
-					MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / (adcRanges[i] - ADC_MOTOR_HOIST_ZERO_SPEED_VALUE));
-
-				//int32_t range = this->dacZeroSpeedRawValues[i]; //if negative range from 0 to zero speed point
-				//if (adcCorrected >0 ){
-				//	range = adcRanges[i] - range;  //if positive range from  zero speed point to maximum.
-
+				int32_t range = this->adcZeroSpeedRawValues[i]; //if negative range from 0 to zero speed point
+				if (adcCorrected >0 ){
+					range = adcRanges[i] - range;  //if positive range from  zero speed point to maximum.
 				}
+				
 				//percentage  = value/ range *100
 				MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / range);
 			}
@@ -242,47 +242,13 @@ void MachineControl::refresh(uint32_t millis){
 			if (dacValues[2]> 255){
 				dacValues[2] = 0;
 			}
-<<<<<<< HEAD
-
-			DacHandlerPointers[2]->assignValue(dacValues[2]);
-
-
-
-/*
-			dacSpeedControl_Hoist_Value += 10;
-			if (dacSpeedControl_Hoist_Value> 4095){
-				dacSpeedControl_Hoist_Value = 0;
-			}
-
-
-
-			dacSpeedControl_Hoist.assignValue(dacSpeedControl_Hoist_Value);
-			*/
-			/*
-			dacSpeedControl_Crowd_Value += 10;
-						if (dacSpeedControl_Crowd_Value > 4095){
-							dacSpeedControl_Crowd_Value =0;
-						}
-			dacSpeedControl_Crowd.assignValue(dacSpeedControl_Crowd_Value);
-			/**/
-			//dacSpeedControl_Hoist_Value = (4095 *  (MotorControlHandles[0]->getSpeedPercentageChecked()+100 )) / 200; //range [-100,100] --> [0,4095]
-
-
-
-			for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
-
-
-				int32_t interval;
-				if (MotorControlHandles[i]->getSpeedPercentageChecked() >0 ){
-
-=======
 
 			DacHandlerPointers[2]->assignValue(dacValues[2]);
 */
 			for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
 				int32_t interval; //interval is the plus or minus range.
 				if (MotorControlHandles[i]->getSpeedPercentageChecked() >0 ){
->>>>>>> dac3 added with r2r resistor bridge on GPIOE. All controls working now and calibrated.
+
 					interval = dacRanges[i] - dacZeroSpeedValues[i];
 				}else{
 					interval = dacZeroSpeedValues[i];

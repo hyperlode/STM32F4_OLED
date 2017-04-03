@@ -115,7 +115,7 @@ private:
 	//ADC
 	uint32_t adcRanges[3];
 
-	uint32_t dacZeroSpeedRawValues [3];
+	uint32_t adcZeroSpeedRawValues [3];
 
 	//DAC
 	AppliedDAC dacSpeedControl_Hoist;
