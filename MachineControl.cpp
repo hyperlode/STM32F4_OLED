@@ -97,6 +97,13 @@ MachineControl::MachineControl(){
 		MotorControlHandles[i]->setMode(motorControllerMode);
 	}
 
+	motor1.setLimit(POSITION_HOIST_LIMIT_MIN_DEFAULT,true);
+	motor1.setLimit(POSITION_HOIST_LIMIT_MAX_DEFAULT,false);
+	motor2.setLimit(POSITION_CROWD_LIMIT_MIN_DEFAULT,true);
+	motor2.setLimit(POSITION_CROWD_LIMIT_MAX_DEFAULT,false);
+	motor3.setLimit(POSITION_SWING_LIMIT_MIN_DEFAULT,true);
+	motor3.setLimit(POSITION_SWING_LIMIT_MAX_DEFAULT,false);
+
 	selectNextLimitToBeCalibrated();
 
 

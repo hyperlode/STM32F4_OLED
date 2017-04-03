@@ -76,6 +76,17 @@ void MotorControl::updatePosition(int32_t newPosition){
 	this->position = newPosition;
 };
 
+void MotorControl::setLimit(int32_t position, bool setMinimumElseMaxium){
+
+	if (setMinimumElseMaxium){
+		this->limitMinimum = position;
+
+	}else{
+		this->limitMaximum = position;
+
+	}
+}
+
 void MotorControl::setCurrentPositionAsLimit(){
 
 	if (getZeroingAxisHappenedAtLeastOnce()){
