@@ -16,6 +16,9 @@ MachineControl::MachineControl(){
 	IOBoardHandler[3] = &panel4; //link the panel instance to the handler.
 
 
+	//add external zeroing button
+	initExternalZeroingButton();
+
 	for (uint16_t i = 0;i<16;i++){
 
 		//panel4.setLed(i,true);
@@ -283,8 +286,9 @@ void MachineControl::refresh(uint32_t millis){
 
 
 		//refresh motor status lights
-		if (millis%10 > 5 && edgeMemory ==0){
-			edgeMemory =1;
+		if (millis - millisMemory_statusLights >= REFRESH_DELAY_MILLIS_STATUSLIGHTS){
+			this->millisMemory_statusLights = millis; //edge control
+
 			//dacTest.initDAC1();
 			//dacTest.triggerDAC1(millis%4000);
 			//update leds for all motors.
@@ -320,18 +324,18 @@ void MachineControl::refresh(uint32_t millis){
 
 			//total motion indicator.
 			IOBoardHandler[3]->ledSequenceRefreshValue(MotorControlHandles[0]->getPosition() + MotorControlHandles[1]->getPosition() +MotorControlHandles[2]->getPosition() );
+
+			if (getExternalZeroingButtonPressed()){
+				STM_EVAL_LEDOn(LED4);
+			}else{
+				STM_EVAL_LEDOff(LED4);
+			}
+
 		}
-
-		if (millis%10 <3){
-			edgeMemory = 0;
-		}
-
-
 
 		//each second triggered
-		if (millis%1000 >= 500 && secondEdgeMemory ==0){
-			secondEdgeMemory = 1;
-
+		if (millis - millisMemory_secondsBlinker >= 1000){
+				this->millisMemory_secondsBlinker = millis; //edge control
 
 			//for (uint16_t i = 0;i<4;i++){
 			//	if (panel1.getButtonState(i)){
@@ -347,12 +351,11 @@ void MachineControl::refresh(uint32_t millis){
 			//}
 
 			STM_EVAL_LEDToggle(LED3) ;
+
+
 		}
 
-		//edge handling
-		if (millis%1000 < 100){
-			secondEdgeMemory = 0;
-		}
+
 
 
 
@@ -430,7 +433,30 @@ void MachineControl::refresh(uint32_t millis){
 
 void  MachineControl::logVref(uint16_t value){
 	this->vref = value;
+}
 
+void MachineControl::initExternalZeroingButton(){
+	//button is: PD11
+
+	 // Set variables used
+	GPIO_InitTypeDef GPIO_InitStruct;
+
+	// Enable clock for GPIOB
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+
+	// Set pin as input
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
+	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+}
+
+bool MachineControl::getExternalZeroingButtonPressed(){
+
+	return !GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_11) ;
 }
 
 bool MachineControl::getMotorsZeroedSinceStartup(){
@@ -461,8 +487,6 @@ void MachineControl::selectNextLimitToBeCalibrated(){
 	activeLimit++;
 	MotorControlHandles[activeMotorForTestingOrCalibration]->selectLimitToBeCalibrated(activeLimit);
 }
-
-
 
 
 

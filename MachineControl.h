@@ -47,6 +47,8 @@
 #define REFRESH_DELAY_MILLIS_ADC 50
 #define REFRESH_DELAY_MILLIS_DAC 50 //50
 #define REFRESH_DELAY_MILLIS_ENCODERS 10
+#define REFRESH_DELAY_MILLIS_STATUSLIGHTS 5
+#define REFRESH_DELAY_MILLIS_SECONDSBLINKER 1000
 
 //empirical value, derived from joystick on controller chair, raw adc value when at zero.
 
@@ -81,8 +83,13 @@ public:
 	MachineControl();
 	void refresh(uint32_t millis);
 
+	void initExternalZeroingButton();
+	bool getExternalZeroingButtonPressed();
+
 	bool getMotorsZeroedSinceStartup();
 	void selectNextLimitToBeCalibrated();
+
+	/*
 	void setUpInputPin_motor1_channelB();
 	void setUpHardWareInterrupt_motor1_channelA();
 	void Motor1InterruptHandler();
@@ -94,6 +101,8 @@ public:
 	void setUpInputPin_motor3_channelB();
 	void setUpHardWareInterrupt_motor3_channelA();
 	void Motor3InterruptHandler();
+*/
+
 
 	void logVref(uint16_t);
 
@@ -149,8 +158,9 @@ private:
 
 	//program control
 	uint32_t millis;
-	uint16_t edgeMemory =0;
-	uint16_t  secondEdgeMemory= 0;
+	//uint16_t edgeMemory =0;
+	uint32_t millisMemory_statusLights;
+	uint32_t millisMemory_secondsBlinker;
 	uint32_t millisMemory_dacProcess;
 	uint32_t millisMemory_adcProcess;
 	uint32_t millisMemory_encoderProcess;
