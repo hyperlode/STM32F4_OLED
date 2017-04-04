@@ -43,6 +43,8 @@
 #define BUTTON_MOTORCONTROLLER_RESET_ALL_LIMITS 3
 #define BUTTON_ZEROING_ALL_AXIS 2 //dual usage of button, depending on mode.
 #define ZEROING_BUTTON_TIME_DELAY_MILLIS 2000
+#define EXTERNAL_ZEROING_BUTTON_DEBOUNCE_MILLIS 50
+#define EXTERNAL_ZEROING_BUTTON_TRIGGER_MILLIS 3000
 
 #define REFRESH_DELAY_MILLIS_ADC 50
 #define REFRESH_DELAY_MILLIS_DAC 50 //50
@@ -82,7 +84,7 @@ public:
 
 	MachineControl();
 	void refresh(uint32_t millis);
-
+	void setAllMotorPositionsToZero();
 	void initExternalZeroingButton();
 	bool getExternalZeroingButtonPressed();
 
@@ -164,14 +166,21 @@ private:
 	uint32_t millisMemory_dacProcess;
 	uint32_t millisMemory_adcProcess;
 	uint32_t millisMemory_encoderProcess;
+	uint32_t millisMemory_externalZeroingButtonDebounce;
+	bool externalZeroingButtonPressedMemory;
+
 
 	uint32_t millisMemory_checkForSerialInput;
 	uint8_t theByte;
 	uint32_t zeroingButtonPressStartTime;
+	uint32_t millisMemory_externalZeroingButtonPressStartTime;
 	uint16_t vref;
 
 	uint8_t motorControllerMode=0;
 	int8_t activeLimit=0;
+
+	uint8_t externalZeroingNumberConsequtiveLongPresses = 0;
+	bool externalZeroingNumberConsequtiveLongPresses_numberIsAdded =false;
 
 };
 

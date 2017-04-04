@@ -190,11 +190,7 @@ void MachineControl::refresh(uint32_t millis){
 				}
 
 				if ( panel4.getButtonState(BUTTON_ZEROING_ALL_AXIS) &&  this->millis - this->zeroingButtonPressStartTime > ZEROING_BUTTON_TIME_DELAY_MILLIS ){
-					for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
-						EncoderToTimerHandles[i]->reset();
-						MotorControlHandles[i]->setCurrentPositionToZero();
-
-					}
+					setAllMotorPositionsToZero();
 
 
 				}
@@ -325,14 +321,62 @@ void MachineControl::refresh(uint32_t millis){
 			//total motion indicator.
 			IOBoardHandler[3]->ledSequenceRefreshValue(MotorControlHandles[0]->getPosition() + MotorControlHandles[1]->getPosition() +MotorControlHandles[2]->getPosition() );
 
+
+
+		}
+
+
+		//external button zeroing procedure
+		if (millis - millisMemory_externalZeroingButtonDebounce >= EXTERNAL_ZEROING_BUTTON_DEBOUNCE_MILLIS){
+			this->millisMemory_externalZeroingButtonDebounce = millis; //debounce control
+
+			//debounced button press.
+			// press 5 seconds, release, press another 5 seconds.   --> zeroing mode.  press another 5 seconds: set axis to zero.
+
+
+			bool buttonPressed  = getExternalZeroingButtonPressed();
+			if (buttonPressed && !externalZeroingButtonPressedMemory){
+				//positive edge
+				millisMemory_externalZeroingButtonPressStartTime = this->millis;
+				externalZeroingNumberConsequtiveLongPresses_numberIsAdded =false;
+			}
+
+			if (!buttonPressed && externalZeroingButtonPressedMemory){
+				//negative edge
+				externalZeroingNumberConsequtiveLongPresses_numberIsAdded =false;
+				if (this->millis - millisMemory_externalZeroingButtonPressStartTime < EXTERNAL_ZEROING_BUTTON_TRIGGER_MILLIS){
+					//if it was a short press, reset everything.
+					externalZeroingNumberConsequtiveLongPresses =0;
+				}
+
+			}
+
+			if (!externalZeroingNumberConsequtiveLongPresses_numberIsAdded && buttonPressed && this->millis - millisMemory_externalZeroingButtonPressStartTime > EXTERNAL_ZEROING_BUTTON_TRIGGER_MILLIS ){
+				//button pressed for a long time positive edge
+				externalZeroingNumberConsequtiveLongPresses ++;
+				externalZeroingNumberConsequtiveLongPresses_numberIsAdded = true;
+
+				printf("external zeroing button pressed %d times ", externalZeroingNumberConsequtiveLongPresses);
+
+				if (externalZeroingNumberConsequtiveLongPresses == 3){
+					setAllMotorPositionsToZero();
+					externalZeroingNumberConsequtiveLongPresses =0;
+				}
+			}
+
+
+			externalZeroingButtonPressedMemory =buttonPressed; //button press edge control
+
+			/*
+
 			if (getExternalZeroingButtonPressed()){
 				STM_EVAL_LEDOn(LED4);
 			}else{
 				STM_EVAL_LEDOff(LED4);
 			}
+			*/
 
 		}
-
 		//each second triggered
 		if (millis - millisMemory_secondsBlinker >= 1000){
 				this->millisMemory_secondsBlinker = millis; //edge control
@@ -435,6 +479,14 @@ void  MachineControl::logVref(uint16_t value){
 	this->vref = value;
 }
 
+void MachineControl::setAllMotorPositionsToZero(){
+	for (uint8_t i=0; i<NUMBER_OF_MOTORS;i++){
+		EncoderToTimerHandles[i]->reset();
+		MotorControlHandles[i]->setCurrentPositionToZero();
+
+	}
+	printf("all motor positions are set to zero");
+}
 void MachineControl::initExternalZeroingButton(){
 	//button is: PD11
 
