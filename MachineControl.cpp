@@ -198,15 +198,9 @@ void MachineControl::refresh(uint32_t millis){
 				}
 
 				if ( panel4.getButtonState(BUTTON_ZEROING_ALL_AXIS) &&  this->millis - this->zeroingButtonPressStartTime > ZEROING_BUTTON_TIME_DELAY_MILLIS ){
-					//setAllMotorPositionsToZero();
+					setAllMotorPositionsToZero();
 
-					int32_t correctedRangeWithDeadBeat = rescaleValueToDifferentRange(75 ,
-					ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER,
-					100,
-					0,
-					100
-					);
-					printf("test: %d", correctedRangeWithDeadBeat );
+
 
 				}
 
@@ -265,14 +259,8 @@ void MachineControl::refresh(uint32_t millis){
 				}else if (adcCorrected < -ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER){
 					//negative speed
 					range = this->adcZeroSpeedRawValues[i];
-					/*
-					correctedValueConsideringDeadBeat = rescaleValueToDifferentRange(adcCorrected ,
-							0,
-							range - ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER,
-							0,
-							range
-							);
-					*/
+
+					//adc corrected is a negative value. from
 					correctedValueConsideringDeadBeat = rescaleValueToDifferentRange(adcCorrected ,
 					-range,
 					 -ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER,
@@ -484,7 +472,7 @@ void MachineControl::refresh(uint32_t millis){
 			if (this->getCharFunctionPointer(&theByte)) //VCP_get_char is a c function, not working from here, we assign the pointer to the function in main.
 			{
 				if ( theByte != '\r' &&  theByte != '\n'){
-					printf("Chaaaar Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
+					printf("Char Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
 
 					if ( theByte == 'v'){
 						//printf ("value %d /r/n", ConvertedValue);
