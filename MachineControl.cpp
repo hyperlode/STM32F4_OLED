@@ -134,6 +134,14 @@ void MachineControl::speedInputADCInterrupt(uint16_t potentioNumber, uint16_t va
 
 }
 
+int32_t MachineControl::rescaleValueToDifferentRange(int32_t value, int32_t minIn , int32_t maxIn, int32_t minOut, int32_t maxOut){
+	//http://stackoverflow.com/questions/5294955/how-to-scale-down-a-range-of-numbers-with-a-known-min-and-max-value
+	//linear rescaling of ranges
+	return (((maxOut - minOut)* (value - minIn)) / (maxIn - minIn) ) + minOut;
+
+
+}
+
 void MachineControl::refresh(uint32_t millis){
 /**/
 		this-> millis = millis;
@@ -190,8 +198,15 @@ void MachineControl::refresh(uint32_t millis){
 				}
 
 				if ( panel4.getButtonState(BUTTON_ZEROING_ALL_AXIS) &&  this->millis - this->zeroingButtonPressStartTime > ZEROING_BUTTON_TIME_DELAY_MILLIS ){
-					setAllMotorPositionsToZero();
+					//setAllMotorPositionsToZero();
 
+					int32_t correctedRangeWithDeadBeat = rescaleValueToDifferentRange(75 ,
+					ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER,
+					100,
+					0,
+					100
+					);
+					printf("test: %d", correctedRangeWithDeadBeat );
 
 				}
 
@@ -225,24 +240,77 @@ void MachineControl::refresh(uint32_t millis){
 
 				int32_t adcCorrected =adcRaw - this->adcZeroSpeedRawValues[i];
 
+				int32_t range = 0;
+				int32_t correctedValueConsideringDeadBeat = 0;
+				int8_t joyStickSpeedPercentage = 0;
+
+				if (adcCorrected > ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER){
+					//positive speed
+					range = adcRanges[i] - this->adcZeroSpeedRawValues[i] ; //raw range
+					correctedValueConsideringDeadBeat = rescaleValueToDifferentRange(adcCorrected ,
+							ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER,
+							range,
+							0,
+							range
+							);
+					if (correctedValueConsideringDeadBeat > range){
+						printf("positive range  %d", correctedValueConsideringDeadBeat);
+						correctedValueConsideringDeadBeat = range;
+
+					}
+
+					joyStickSpeedPercentage = (correctedValueConsideringDeadBeat* 100) / range;
+					//int32_t rescaleValueToDifferentRange(int32_t value, int32_t minIn , int32_t maxIn, int32_t minOut, int32_t maxOut){
+							//http://stackoverflow.com/questions/5294955/how-to-scale-down-a-range-of-numbers-with-a-known-min-and-max-value
+				}else if (adcCorrected < -ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER){
+					//negative speed
+					range = this->adcZeroSpeedRawValues[i];
+					/*
+					correctedValueConsideringDeadBeat = rescaleValueToDifferentRange(adcCorrected ,
+							0,
+							range - ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER,
+							0,
+							range
+							);
+					*/
+					correctedValueConsideringDeadBeat = rescaleValueToDifferentRange(adcCorrected ,
+					-range,
+					 -ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER,
+					-range,
+					0
+					);
+					if (correctedValueConsideringDeadBeat < -range){
+						printf("negative range corrected: %d \r\n value in: %d \r\n range: %d \r\n  ", correctedValueConsideringDeadBeat,adcCorrected,range);
+						correctedValueConsideringDeadBeat = -range;
+
+					}
+					joyStickSpeedPercentage = (correctedValueConsideringDeadBeat* 100) / range;
+
+				}else{
+					//zero speed
+					joyStickSpeedPercentage = 0;
+
+				}
+
+
+				//set range without deadbeat
+				/*
 				int32_t range = this->adcZeroSpeedRawValues[i]; //if negative range from 0 to zero speed point
 				if (adcCorrected >0 ){
 					range = adcRanges[i] - range;  //if positive range from  zero speed point to maximum.
 				}
+
+				int8_t joyStickSpeedPercentage = (adcCorrected* 100) / range; //percentage  = value/ range *100
+				*/
 				
-				//percentage  = value/ range *100
-				MotorControlHandles[i]->setSpeedPercentageDesired((adcCorrected* 100) / range);
+				MotorControlHandles[i]->setSpeedPercentageDesired(joyStickSpeedPercentage);
 			}
 		}
 
 		//dac speed output
 		if (millis - millisMemory_dacProcess >= REFRESH_DELAY_MILLIS_DAC){
 			this->millisMemory_dacProcess = millis; //edge control
-
-
-
 /*
-
 			//printf("dac3: %d", dacValues[2]);
 			dacValues[2] += 1;
 			if (dacValues[2]> 255){
