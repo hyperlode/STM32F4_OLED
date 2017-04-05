@@ -520,7 +520,7 @@ void MachineControl::refresh(uint32_t millis){
 
 					}else{
 						//IOBoard testje;
-						printf("No valid command detected. Please send v, \r\n s, \r\nm for motor status  ,\r\nor a . \r\n");
+						printf("BMTWBM shovel model speed and position control v1.0 \r\nNo valid command detected. Please send\r\n 1 for hoist , \r\n 2 for crowd , \r\nor 3 for swing motor status  ,\r\nor a . \r\n");
 					}
 				}
 			}

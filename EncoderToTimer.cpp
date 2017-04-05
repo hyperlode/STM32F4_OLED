@@ -182,7 +182,7 @@ void EncoderToTimer::refresh(){
 		if (this->timerValue - this-> previousRefreshTimerValue >= NUMBER_OF_STEPS_TO_ASSUME_OVERFLOW){
 			//assume overflow --> subtraction.
 			this->position = this->position - this->previousRefreshTimerValue - (65535 - this->timerValue);
-			printf("**********neg overflow, steps: %d \r\n" , this->timerValue - this-> previousRefreshTimerValue);
+			//printf("**********neg overflow, steps: %d \r\n" , this->timerValue - this-> previousRefreshTimerValue);
 		}else{
 			//add increment to position
 			this->position += this->timerValue - this->previousRefreshTimerValue;
@@ -192,6 +192,7 @@ void EncoderToTimer::refresh(){
 			//assume overflow --> addition
 			this->position = this->position + (65535 - this->previousRefreshTimerValue) + this->timerValue;
 			printf("**********pos overflow, steps: %d\r\n" ,this-> previousRefreshTimerValue - this->timerValue);
+			//printf("pos update");
 		}else{
 			//subtract difference from position
 			this->position -=  this->previousRefreshTimerValue - this->timerValue;
