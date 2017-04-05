@@ -238,11 +238,11 @@ void MachineControl::refresh(uint32_t millis){
 				int32_t correctedValueConsideringDeadBeat = 0;
 				int8_t joyStickSpeedPercentage = 0;
 
-				if (adcCorrected > ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER){
+				if (adcCorrected > ADC_MOTOR_ZERO_SPEED_OFFSET_AROUND_CENTER){
 					//positive speed
 					range = adcRanges[i] - this->adcZeroSpeedRawValues[i] ; //raw range
 					correctedValueConsideringDeadBeat = rescaleValueToDifferentRange(adcCorrected ,
-							ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER,
+							ADC_MOTOR_ZERO_SPEED_OFFSET_AROUND_CENTER,
 							range,
 							0,
 							range
@@ -256,14 +256,14 @@ void MachineControl::refresh(uint32_t millis){
 					joyStickSpeedPercentage = (correctedValueConsideringDeadBeat* 100) / range;
 					//int32_t rescaleValueToDifferentRange(int32_t value, int32_t minIn , int32_t maxIn, int32_t minOut, int32_t maxOut){
 							//http://stackoverflow.com/questions/5294955/how-to-scale-down-a-range-of-numbers-with-a-known-min-and-max-value
-				}else if (adcCorrected < -ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER){
+				}else if (adcCorrected < -ADC_MOTOR_ZERO_SPEED_OFFSET_AROUND_CENTER){
 					//negative speed
 					range = this->adcZeroSpeedRawValues[i];
 
 					//adc corrected is a negative value. from
 					correctedValueConsideringDeadBeat = rescaleValueToDifferentRange(adcCorrected ,
 					-range,
-					 -ADC_MOTOR_SWING_ZERO_SPEED_OFFSET_AROUND_CENTER,
+					 -ADC_MOTOR_ZERO_SPEED_OFFSET_AROUND_CENTER,
 					-range,
 					0
 					);
