@@ -251,11 +251,12 @@ void init()
 
 void ColorfulRingOfDeath(void){
 	STM_EVAL_LEDOn(LED6);
-	while (1)
-	{
-		//get stuck here forever.
+	printf("Board generated an internal error. Please restart.");
+	//while (1)
+	//{
+	//	//get stuck here forever.
 
-	}
+	//}
 
 }
 

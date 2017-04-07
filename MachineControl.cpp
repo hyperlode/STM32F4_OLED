@@ -519,8 +519,7 @@ void MachineControl::refresh(uint32_t millis){
 						printf("limits:  min:  %d  --  max: %d \r\n", motor3.getLimit(false), motor3.getLimit(true));
 
 					}else{
-						//IOBoard testje;
-						printf("BMTWBM shovel model speed and position control v1.0 \r\nNo valid command detected. Please send\r\n 1 for hoist , \r\n 2 for crowd , \r\nor 3 for swing motor status  ,\r\nor a . \r\n");
+						printf("BMTWBM shovel model speed and position control v1.0 \r\nNo valid command detected. Please send\r\n 1 for hoist , \r\n 2 for crowd , \r\n 3 for swing motor status  ,\r\n. \r\n");
 					}
 				}
 			}
