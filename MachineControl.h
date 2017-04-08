@@ -45,6 +45,7 @@
 #define ZEROING_BUTTON_TIME_DELAY_MILLIS 2000
 #define EXTERNAL_ZEROING_BUTTON_DEBOUNCE_MILLIS 50
 #define EXTERNAL_ZEROING_BUTTON_TRIGGER_MILLIS 3000
+#define EXTRA_BUTTON_DEBOUNCE_MILLIS 1000
 
 #define REFRESH_DELAY_MILLIS_ADC 50
 #define REFRESH_DELAY_MILLIS_DAC 50 //50
@@ -92,7 +93,7 @@ public:
 	void setAllMotorPositionsToZero();
 	void initExternalZeroingButton();
 	bool getExternalZeroingButtonPressed();
-
+	void initExtraButton();
 	bool getMotorsZeroedSinceStartup();
 	void selectNextLimitToBeCalibrated();
 
@@ -172,6 +173,7 @@ private:
 	uint32_t millisMemory_adcProcess;
 	uint32_t millisMemory_encoderProcess;
 	uint32_t millisMemory_externalZeroingButtonDebounce;
+	uint32_t millisMemory_extraButtonDebounce;
 	bool externalZeroingButtonPressedMemory;
 
 
@@ -190,3 +192,4 @@ private:
 };
 
 #endif
+

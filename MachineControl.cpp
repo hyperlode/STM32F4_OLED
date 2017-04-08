@@ -381,10 +381,26 @@ void MachineControl::refresh(uint32_t millis){
 
 		}
 
+		//extra button handling
+		if (millis - millisMemory_extraButtonDebounce >= EXTRA_BUTTON_DEBOUNCE_MILLIS){
+			this->millisMemory_extraButtonDebounce = millis; //debounce control
+
+
+				if( GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_12)){
+
+					printf("pd12\r\n");
+				}
+
+
+		}
+
 
 		//external button zeroing procedure
 		if (millis - millisMemory_externalZeroingButtonDebounce >= EXTERNAL_ZEROING_BUTTON_DEBOUNCE_MILLIS){
 			this->millisMemory_externalZeroingButtonDebounce = millis; //debounce control
+
+
+
 
 			//debounced button press.
 			// press 5 seconds, release, press another 5 seconds.   --> zeroing mode.  press another 5 seconds: set axis to zero.
@@ -412,7 +428,7 @@ void MachineControl::refresh(uint32_t millis){
 				externalZeroingNumberConsequtiveLongPresses ++;
 				externalZeroingNumberConsequtiveLongPresses_numberIsAdded = true;
 
-				printf("external zeroing button pressed %d times ", externalZeroingNumberConsequtiveLongPresses);
+				printf("external zeroing button pressed %d times \r\n", externalZeroingNumberConsequtiveLongPresses);
 
 				if (externalZeroingNumberConsequtiveLongPresses == 3){
 					setAllMotorPositionsToZero();
@@ -560,11 +576,32 @@ void MachineControl::initExternalZeroingButton(){
 	GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 }
-
 bool MachineControl::getExternalZeroingButtonPressed(){
 
 	return !GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_11) ;
 }
+void MachineControl::initExtraButton(){
+	//button is: PD12
+
+	 // Set variables used
+	GPIO_InitTypeDef GPIO_InitStruct;
+
+	// Enable clock for GPIOB
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+
+	// Set pin as input
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	//GPIO_InitStruct.GPIO_OType = GPIO_OType_OD;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_12;
+	//GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+}
+
+
 
 bool MachineControl::getMotorsZeroedSinceStartup(){
 	bool allMotorsOk = true;
