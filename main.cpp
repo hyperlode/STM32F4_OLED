@@ -69,7 +69,7 @@ int main(void)
 	init();
 	initDiscoveryBoard();
 
-	/**/
+	/*
 	//init machine control
 	MachineControl machineControl;
 	machineControlPointer = &machineControl;
@@ -108,7 +108,7 @@ int main(void)
 
 	//refresh machine control loop
 	while(1){
-		/**/
+		/*
 		machineControl.refresh(millis);
 		/**/
 
@@ -161,7 +161,7 @@ int main(void)
 		//}
 
 		 */
-/*
+/**/
 		uint8_t theByte;
 		if (VCP_get_char(&theByte))
 		{
