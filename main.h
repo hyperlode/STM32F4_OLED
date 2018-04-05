@@ -16,10 +16,10 @@
 	{
 #endif
 
-
+	IOBoard panel1;
 	//char lodeStrTest []={'a','\0'};
 
-	MachineControl* machineControlPointer;
+	//MachineControl* machineControlPointer;
 
 	//EncoderToTimer testEncoder;
 	//EncoderToTimer testEncoder2;

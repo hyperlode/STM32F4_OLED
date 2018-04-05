@@ -69,6 +69,27 @@ int main(void)
 	init();
 	initDiscoveryBoard();
 
+	panel1.init(PANEL_1);
+	panel1.initLeds();
+	panel1.setLed(0,true);
+	panel1.setLed(1,true);
+	panel1.setLed(2,true);
+	panel1.setLed(3,true);
+	bool test;
+	test = false;
+	while (true){
+		panel1.refresh(millis);
+		//panel1.demoModeLoop();
+		if (millis>3000 && !test){
+		//if (!test){
+
+			STM_EVAL_LEDOn(LED4);
+			test = true;
+		}
+	}
+
+
+
 	/*
 	//init machine control
 	MachineControl machineControl;
@@ -312,7 +333,7 @@ void OTG_FS_WKUP_IRQHandler(void)
 */
 
 
-/**/
+/*
 void ADC_IRQHandler() {
         // acknowledge interrupt
         uint16_t value;
