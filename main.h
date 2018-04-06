@@ -50,6 +50,8 @@
 	#include "stm32f4xx_rcc.h"
 	#include "stm32f4xx_exti.h"
 	#include "stm32f4xx_dac.h"
+	#include "stm32f4xx_spi.h"
+
 #ifdef USE_VCP
 	#include "usbd_cdc_core.h"
 	#include "usbd_usr.h"
@@ -60,6 +62,12 @@
 	#include "stm32f4_discovery.h"
 
 	void initDiscoveryBoard();
+	void init_SPI1();
+	uint8_t SPI1_send(uint8_t data);
+	void oledInit();
+	void ssd1306Init();
+	void WRITE_COMMAND(uint8_t command);
+	void WRITE_DATA(uint8_t data);
 #ifdef __cplusplus
 	}
 #endif
