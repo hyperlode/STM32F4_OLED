@@ -65,26 +65,13 @@ int main(void)
 	/* Set up the system clocks */
 	SystemInit();
 
+
+
+
 	/* Initialize USB, IO, SysTick, and all those other things you do in the morning */
 	init();
 	initDiscoveryBoard();
-/*
-	panel1.init(PANEL_1);
-	panel1.initLeds();
-	panel1.setLed(0,true);
-	panel1.setLed(1,true);
-	panel1.setLed(2,true);
-	panel1.setLed(3,true);
-*/
 
-
-
-	/*
-	//init machine control
-	MachineControl machineControl;
-	machineControlPointer = &machineControl;
-	machineControl.getCharFunctionPointer = &VCP_get_char;
-	/**/
 
 
 
@@ -112,7 +99,7 @@ int main(void)
 	/**/
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 	GPIO_InitTypeDef GPIO_InitDef;
-	GPIO_InitDef.GPIO_Pin = GPIO_Pin_3;
+	GPIO_InitDef.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_6;
 	GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT ;
 
 	GPIO_InitDef.GPIO_OType = GPIO_OType_PP;
@@ -120,7 +107,12 @@ int main(void)
 	GPIO_InitDef.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA ,&GPIO_InitDef);
 
-	GPIO_SetBits(GPIOA,GPIO_Pin_3 );
+	GPIO_ResetBits(GPIOA,GPIO_Pin_6 ); //reset pin. should be high for oled to work.
+	while (millis < 500){}
+	GPIO_SetBits(GPIOA,GPIO_Pin_6 );
+
+	while (millis < 1000){}
+	GPIO_ResetBits(GPIOA,GPIO_Pin_3 );
 
 	/**/
 
@@ -134,93 +126,18 @@ int main(void)
 	uint8_t received_val = 0;
 
 	init_SPI1();
-	ssd1306Init();
+	ssd1306Init(); //has worked (all lights on)
+	//oledInit();
 	bool test;
 
 	while(1){
-		//refresh machine control loop
-		/*
-		machineControl.refresh(millis);
-		/**/
 		test = false;
 		//panel1.refresh(millis);
 		//panel1.demoModeLoop();
 		if (millis>3000 && !test){
-		//if (!test){
-
 			STM_EVAL_LEDOn(LED4);
 			test = true;
 		}
-
-
-/*
-
-		if (millis - millisMemory_testing >= 1){
-			millisMemory_testing = millis; //edge control
-
-
-			if (isInit){
-			//	testEncoder.refresh();
-				testEncoder2.refresh();
-				testEncoder3.refresh();
-				//printf("update encoder data.\r\n");
-			}
-		}
-
-
-		if (millis - millisMemory_outputToSerial >= 2000){
-			STM_EVAL_LEDToggle(LED3);
-			millisMemory_outputToSerial = millis;//edgecontrol
-			if (isInit){
-				//printf("oieoe what didd is dooo.\r\n");
-				//printf("leftEncoder: %d -- ",leftEncoder);
-				//printf("rightEncoder: %d \r\n",rightEncoder);
-				//printf("raw: %x, --%x " , TIM2->CNT ,TIM4->CNT);
-				//printf("test: %x, --%x \r\n" , testLeft ,testRight);
-				printf("--------------------------------\r\n");
-
-				//printf("encvalue1: decimal: %d , hex: %x\r\n" , testEncoder.getValue() , testEncoder.getValue() );
-				printf("encvalue2: decimal: %d , hex: %x\r\n" , testEncoder2.getValue() , testEncoder2.getValue() );
-				printf("encvalue3: decimal: %d , hex: %x\r\n" , testEncoder3.getValue() , testEncoder3.getValue() );
-
-			}else{
-				isInit = true;
-				//test timer encoder capture
-				printf("initializing encoders.\r\n");
-				//testEncoder.init(ENCODER_1);
-				testEncoder2.init(ENCODER_2);
-				testEncoder3.init(ENCODER_3);
-				////////encodersInit();
-
-
-			}
-		}
-
-		//
-		//}
-
-		 */
-/**/
-		uint8_t theByte;
-		if (VCP_get_char(&theByte))
-		{
-			if (theByte == 'y'){
-				GPIOE->BSRRH |= GPIO_Pin_7; // set PE7 (CS) low
-				SPI1_send(0xAA);  // transmit data
-				received_val = SPI1_send(0x00); // transmit dummy byte and receive data
-				GPIOE->BSRRL |= GPIO_Pin_7; // set PE7 (CS) high
-
-			}else if ( theByte != '\r' &&  theByte != '\n'){
-				printf("Char Sent: %c  \r\n", theByte); //VCP_put_char(theByte);
-			}
-		}
-		/**/
-
-
-
-
-
-
 
 	}
 }
@@ -254,16 +171,6 @@ void init_SPI1(void){
 	// enable clock for used IO pins
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
 
-	/* Configure the chip select pin
-	   in this case we will use PE7 */
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_7;
-	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-	GPIOE->BSRRL |= GPIO_Pin_7; // set PE7 high
 
 	// enable peripheral clock
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
@@ -275,27 +182,27 @@ void init_SPI1(void){
 	/*
 	 *
 	 */
-
-	SPI_InitStruct.SPI_Direction = SPI_Direction_2Lines_FullDuplex; // set to full duplex mode, seperate MOSI and MISO lines
-	SPI_InitStruct.SPI_Mode = SPI_Mode_Master;     // transmit in master mode, NSS pin has to be always high
-	SPI_InitStruct.SPI_DataSize = SPI_DataSize_8b; // one packet of data is 8 bits wide
-	SPI_InitStruct.SPI_CPOL = SPI_CPOL_Low;        // clock is low when idle
-	SPI_InitStruct.SPI_CPHA = SPI_CPHA_1Edge;      // data sampled at first edge
-	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft | SPI_NSSInternalSoft_Set; // set the NSS management to internal and pull internal NSS high
-	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4; // SPI frequency is APB2 frequency / 4
-	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;// data is transmitted MSB first
-
-
 /*
 	SPI_InitStruct.SPI_Direction = SPI_Direction_1Line_Tx; // set to full duplex mode, seperate MOSI and MISO lines
 	SPI_InitStruct.SPI_Mode = SPI_Mode_Master;     // transmit in master mode, NSS pin has to be always high
 	SPI_InitStruct.SPI_DataSize = SPI_DataSize_8b; // one packet of data is 8 bits wide
-	SPI_InitStruct.SPI_CPOL = SPI_CPOL_Low;        // clock is low when idle
+	SPI_InitStruct.SPI_CPOL = SPI_CPOL_High;        // clock is low when idle
+	SPI_InitStruct.SPI_CPHA = SPI_CPHA_1Edge;      // data sampled at first edge
+	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft | SPI_NSSInternalSoft_Set; // set the NSS management to internal and pull internal NSS high
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16; // SPI frequency is APB2 frequency / 4
+	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;// data is transmitted MSB first
+
+
+/**/
+	SPI_InitStruct.SPI_Direction = SPI_Direction_1Line_Tx; // set to full duplex mode, seperate MOSI and MISO lines
+	SPI_InitStruct.SPI_Mode = SPI_Mode_Master;     // transmit in master mode, NSS pin has to be always high
+	SPI_InitStruct.SPI_DataSize = SPI_DataSize_8b; // one packet of data is 8 bits wide
+	SPI_InitStruct.SPI_CPOL = SPI_CPOL_High;        // clock is low when idle
 	SPI_InitStruct.SPI_CPHA = SPI_CPHA_2Edge;      // data sampled at first edge
 	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft | SPI_NSSInternalSoft_Set ; // set the NSS management to internal and pull internal NSS high
-	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4; // SPI frequency is APB2 frequency / 4
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64; // SPI frequency is APB2 frequency / 4
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;// data is transmitted MSB first
-*/
+/**/
 
 
 
@@ -313,7 +220,7 @@ uint8_t SPI1_send(uint8_t data){
 	SPI1->DR = data; // write data to be transmitted to the SPI data register
 	while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
 //	while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until receive complete
-//	while( SPI1->SR & SPI_I2S_FLAG_BSY ); // wait until SPI is not busy anymore
+	while( SPI1->SR & SPI_I2S_FLAG_BSY ); // wait until SPI is not busy anymore
 //	return SPI1->DR; // return received data from SPI data register
 }
 
@@ -329,9 +236,6 @@ void WRITE_DATA(uint8_t data){
 	GPIO_ResetBits(GPIOA,GPIO_Pin_3 );
 
 }
-
-
-
 
 /**
  * https://gist.github.com/pulsar256/564fda3b9e8fc6b06b89
