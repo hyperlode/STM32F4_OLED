@@ -9,7 +9,7 @@
 #ifdef __cplusplus
 	#include "MachineControl.h"
 	//#include "EncoderToTimer.h"
-
+	#include "tm_stm32f4_ssd1306.h"
 
 	#include <stdio.h>
 	extern "C"

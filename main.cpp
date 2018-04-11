@@ -126,17 +126,30 @@ int main(void)
 	uint8_t received_val = 0;
 
 	init_SPI1();
-	ssd1306Init(); //has worked (all lights on)
+	//ssd1306Init(); //has worked (all lights on)
 	//oledInit();
+	TM_SSD1306_Init();
 	bool test;
-
+	test = false;
 	while(1){
-		test = false;
+
 		//panel1.refresh(millis);
 		//panel1.demoModeLoop();
 		if (millis>3000 && !test){
 			STM_EVAL_LEDOn(LED4);
 			test = true;
+			TM_SSD1306_DrawPixel(13,14, SSD1306_COLOR_WHITE);
+			TM_SSD1306_DrawPixel(14,14, SSD1306_COLOR_WHITE);
+			TM_SSD1306_DrawPixel(15,14, SSD1306_COLOR_WHITE);
+			TM_SSD1306_DrawPixel(16,14, SSD1306_COLOR_WHITE);
+			TM_SSD1306_DrawPixel(17,14, SSD1306_COLOR_WHITE);
+			TM_SSD1306_GotoXY(1,20);
+			TM_SSD1306_Putc('L',&TM_Font_7x10,SSD1306_COLOR_WHITE);
+			TM_SSD1306_Putc('O',&TM_Font_7x10,SSD1306_COLOR_WHITE);
+			TM_SSD1306_Putc('D',&TM_Font_7x10,SSD1306_COLOR_WHITE);
+			TM_SSD1306_Putc('E',&TM_Font_7x10,SSD1306_COLOR_WHITE);
+			//TM_SSD1306_DrawPixel(23,14, SSD1306_COLOR_BLACK);
+			TM_SSD1306_UpdateScreen();
 		}
 
 	}
@@ -223,8 +236,19 @@ void WRITE_DATA(uint8_t data){
 	GPIO_SetBits(GPIOA,GPIO_Pin_3 );
 	SPI1_send(data);
 	GPIO_ResetBits(GPIOA,GPIO_Pin_3 );
-
 }
+//void WRITE_BUFFER(uint8_t* buffer){
+//	GPIO_SetBits(GPIOA,GPIO_Pin_3 );
+//
+//	WRITE_COMMAND(0x21);
+//	WRITE_COMMAND(0);   // Column start address (0 = reset)
+//	WRITE_COMMAND(127); // Column end address (127 = reset)
+//
+//	WRITE_COMMAND( 0x22);
+//	WRITE_COMMAND(0); // Page start address (0 = reset)
+//
+//
+//}
 
 /**
  * https://gist.github.com/pulsar256/564fda3b9e8fc6b06b89
