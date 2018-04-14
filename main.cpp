@@ -33,13 +33,6 @@ __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
 #endif
  void init();
  void ColorfulRingOfDeath(void);
-// void encoderInitTest();
-// void encoderReadTest();
- //void encoderOutputTest();
-
-
-#include "EncoderTimer.h"
-
 
 
 void SysTick_Handler(void);
@@ -114,10 +107,6 @@ int main(void)
 	while (millis < 1000){}
 	GPIO_ResetBits(GPIOA,GPIO_Pin_3 );
 
-	/**/
-
-
-
 
 	bool isInit = false;
 
@@ -126,8 +115,6 @@ int main(void)
 	uint8_t received_val = 0;
 
 	init_SPI1();
-	//ssd1306Init(); //has worked (all lights on)
-	//oledInit();
 	TM_SSD1306_Init();
 	bool test;
 	test = false;
@@ -254,6 +241,7 @@ void WRITE_DATA(uint8_t data){
  * https://gist.github.com/pulsar256/564fda3b9e8fc6b06b89
  * according to http://www.adafruit.com/datasheets/UG-2864HSWEG01.pdf Chapter 4.4 Page 15
  */
+/*
 void ssd1306Init(void)
 {
 
@@ -322,23 +310,18 @@ void oledInit(){
 	WRITE_COMMAND(0x14);//--set(0x10) disable
 	WRITE_COMMAND(0xaf);//--turn on oled panel
 }
+*/
 void initDiscoveryBoard(){
 	//init the leds on the discoveryboard
-	STM_EVAL_LEDInit(LED5);
-	STM_EVAL_LEDOn(LED5);
-
 	STM_EVAL_LEDInit(LED3);
-
 	STM_EVAL_LEDInit(LED4);
-
-
+	STM_EVAL_LEDInit(LED5);
 	STM_EVAL_LEDInit(LED6);
+
+	STM_EVAL_LEDOn(LED5);
 	STM_EVAL_LEDOff(LED6);
 
 }
-
-
-
 
 #ifdef __cplusplus
  extern "C" {
@@ -346,36 +329,6 @@ void initDiscoveryBoard(){
 
 void init()
 {
-	/* STM32F4 discovery LEDs */
-	//GPIO_InitTypeDef LED_Config;
-
-	/* Always remember to turn on the peripheral clock...  If not, you may be up till 3am debugging... */
-	//RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-	//LED_Config.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13| GPIO_Pin_14| GPIO_Pin_15;
-	//LED_Config.GPIO_Mode = GPIO_Mode_OUT;
-	//LED_Config.GPIO_OType = GPIO_OType_PP;
-	//LED_Config.GPIO_Speed = GPIO_Speed_25MHz;
-	//LED_Config.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	//GPIO_Init(GPIOD, &LED_Config);
-
-	//dac test
-	//DAC_GPIO_Config();
-	//DAC_Config();
-/*
-	// GPIOD Periph clock enable
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-
-	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-
-	//GPIO_Init(GPIOD, &GPIO_InitStructure);
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-*/
 	//Setup SysTick or CROD!
 	if (SysTick_Config(SystemCoreClock / 1000))
 	{
@@ -402,12 +355,11 @@ void init()
 void ColorfulRingOfDeath(void){
 	STM_EVAL_LEDOn(LED6);
 	printf("Board generated an internal error. Please restart.");
-	//while (1)
-	//{
-	//	//get stuck here forever.
+	while (1)
+	{
+		//get stuck here forever.
 
-	//}
-
+	}
 }
 
 /*
@@ -455,80 +407,7 @@ void OTG_FS_WKUP_IRQHandler(void)
 
 #endif
 
-/*
- * void adc_multiChannelConfigure(){
 
-}
-*/
-
-
-/*
-void ADC_IRQHandler() {
-        // acknowledge interrupt
-        uint16_t value;
-        ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
-
-
-        value = ADC_GetConversionValue(ADC1);
-		switch (adcSampleChannelCounter){
-		   case 0:
-				temp = value;
-				adcSampleChannelCounter++;
-				break;
-		   case 1:
-				vref = value;
-				adcSampleChannelCounter++;
-				machineControlPointer->logVref(value);
-				break;
-
-			//all the other channels.
-		   default:
-				if (adcSampleChannelCounter<6){
-					//
-					//IOBoardHandler[0]->ADCInterruptHandler(adcSampleChannelCounter - 2, value); //IOBoard handle triggers.
-					machineControlPointer->speedInputADCInterrupt(adcSampleChannelCounter - 2, value);
-
-				}else{
-					//set adcSampleChannelCounter to 10IOBoardHandler[1]->ADCInterruptHandler(adcSampleChannelCounter - 6, value); //IOBoard handle triggers.
-				}
-
-				adcSampleChannelCounter++;
-				if (adcSampleChannelCounter ==6){
-					adcSampleChannelCounter =0;
-					adcNumberOfSampleCycles++;
-				}
-				break;
-
-		}
-
-
-
-}
-/**/
-
-// ---external C
-/// Set interrupt handlers
-/// Handle interrupt
-/*
-void EXTI3_IRQHandler(void) {
-	machineControlPointer->Motor1InterruptHandler();
-
-}
-
-
-void EXTI4_IRQHandler(void) {
-	machineControlPointer->Motor2InterruptHandler();
-
-}
-
-
-
-/// Handle interrupt
-void EXTI1_IRQHandler(void) {
-	machineControlPointer->Motor3InterruptHandler();
-
-}
-*/
 #ifdef __cplusplus
  }
 #endif
