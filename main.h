@@ -10,7 +10,7 @@
 	#include "MachineControl.h"
 	//#include "EncoderToTimer.h"
 	#include "tm_stm32f4_ssd1306.h"
-
+	#include "stm32f4xx_rng.h"
 	#include <stdio.h>
 	extern "C"
 	{

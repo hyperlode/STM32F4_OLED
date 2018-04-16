@@ -48,7 +48,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="0x00010000" startValue="0x10000000"/>
         </MemoryAreas>
-        <LocateLinkFile path="c:/coocox/coide/configuration/programdata/shovel_model_control/arm-gcc-link.ld" type="0"/>
+        <LocateLinkFile path="c:/tools/programming/coide/configuration/programdata/shovel_model_control/arm-gcc-link.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -97,208 +97,103 @@
     <Component id="514" name="ADC" path="" type="2"/>
     <Component id="515" name="DAC" path="" type="2"/>
     <Component id="517" name="USART" path="" type="2"/>
+    <Component id="518" name="RNG" path="" type="2"/>
     <Component id="524" name="MISC" path="" type="2"/>
     <Component id="526" name="SYSCFG" path="" type="2"/>
     <Component id="573" name="STM32F4-Discovery" path="" type="2"/>
   </Components>
   <Files>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1322_nhd31oled_bw.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1322_nhd31oled_bw.c" type="1"/>
-    <File name="cmsis_lib/source/stm32f4xx_usart.c" path="cmsis_lib/source/stm32f4xx_usart.c" type="1"/>
-    <File name="cmsis_lib/include/stm32f4xx_dac.h" path="cmsis_lib/include/stm32f4xx_dac.h" type="1"/>
-    <File name="cmsis_lib/include/stm32f4xx_usart.h" path="cmsis_lib/include/stm32f4xx_usart.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_t6963_128x64.c" path="u8glib_arm_v1.14/src/u8g_dev_t6963_128x64.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_rot.c" path="u8glib_arm_v1.14/src/u8g_rot.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_uc1601_c128032.c" path="u8glib_arm_v1.14/src/u8g_dev_uc1601_c128032.c" type="1"/>
-    <File name="cmsis/core_cm4_simd.h" path="cmsis/core_cm4_simd.h" type="1"/>
-    <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_st7920_spi.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_st7920_spi.c" type="1"/>
-    <File name="main.h" path="main.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_lc7981_320x64.c" path="u8glib_arm_v1.14/src/u8g_dev_lc7981_320x64.c" type="1"/>
-    <File name="usb_lib/core/usbd_def.h" path="usb_lib/core/usbd_def.h" type="1"/>
-    <File name="stdio/printf.c" path="stdio/printf.c" type="1"/>
-    <File name="u8glib_arm_v1.14" path="" type="2"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_io.c" path="u8glib_arm_v1.14/src/u8g_com_io.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_no_en_parallel.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_no_en_parallel.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb16h2.c" path="u8glib_arm_v1.14/src/u8g_pb16h2.c" type="1"/>
-    <File name="cmsis_lib/source/stm32f4xx_syscfg.c" path="cmsis_lib/source/stm32f4xx_syscfg.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1325_nhd27oled_bw.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1325_nhd27oled_bw.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_t6963_240x128.c" path="u8glib_arm_v1.14/src/u8g_dev_t6963_240x128.c" type="1"/>
-    <File name="stdio" path="" type="2"/>
-    <File name="usb_lib/core" path="" type="2"/>
-    <File name="cmsis_lib/source/stm32f4xx_rcc.c" path="cmsis_lib/source/stm32f4xx_rcc.c" type="1"/>
-    <File name="STM32F4-Discovery/stm32f4_discovery_audio_codec.c" path="STM32F4-Discovery/stm32f4_discovery_audio_codec.c" type="1"/>
-    <File name="usb_conf/usbd_desc.h" path="usb_conf/usbd_desc.h" type="1"/>
-    <File name="stm32f4_discovery_callbacks.c" path="stm32f4_discovery_callbacks.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pbxh16.c" path="u8glib_arm_v1.14/src/u8g_pbxh16.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_lc7981_160x80.c" path="u8glib_arm_v1.14/src/u8g_dev_lc7981_160x80.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_hw_usart_spi.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_hw_usart_spi.c" type="1"/>
-    <File name="cmsis_lib/include/stm32f4xx_spi.h" path="cmsis_lib/include/stm32f4xx_spi.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pbxh24.c" path="u8glib_arm_v1.14/src/u8g_pbxh24.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_std_sw_spi.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_std_sw_spi.c" type="1"/>
-    <File name="STM32F4-Discovery/stm32f4_discovery_audio_codec.h" path="STM32F4-Discovery/stm32f4_discovery_audio_codec.h" type="1"/>
-    <File name="cmsis_lib" path="" type="2"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_i2c.c" path="u8glib_arm_v1.14/src/u8g_com_i2c.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_ssd_i2c.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_ssd_i2c.c" type="1"/>
-    <File name="cmsis_lib/include/misc.h" path="cmsis_lib/include/misc.h" type="1"/>
-    <File name="usb_conf/usbd_desc.c" path="usb_conf/usbd_desc.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7565_64128n.c" path="u8glib_arm_v1.14/src/u8g_dev_st7565_64128n.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_fast_parallel.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_fast_parallel.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_api.c" path="u8glib_arm_v1.14/src/u8g_com_api.c" type="1"/>
     <File name="cmsis_lib/source/stm32f4xx_gpio.c" path="cmsis_lib/source/stm32f4xx_gpio.c" type="1"/>
-    <File name="cmsis_lib/include/stm32f4xx_i2c.h" path="cmsis_lib/include/stm32f4xx_i2c.h" type="1"/>
-    <File name="cmsis_lib/source/stm32f4xx_dma.c" path="cmsis_lib/source/stm32f4xx_dma.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_null.c" path="u8glib_arm_v1.14/src/u8g_com_null.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb8h2.c" path="u8glib_arm_v1.14/src/u8g_pb8h2.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb8h8.c" path="u8glib_arm_v1.14/src/u8g_pb8h8.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_uc1701_dogs102.c" path="u8glib_arm_v1.14/src/u8g_dev_uc1701_dogs102.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb32h1.c" path="u8glib_arm_v1.14/src/u8g_pb32h1.c" type="1"/>
-    <File name="cmsis_boot" path="" type="2"/>
-    <File name="u8glib_arm_v1.14/src/u8g_u8toa.c" path="u8glib_arm_v1.14/src/u8g_u8toa.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_ellipse.c" path="u8glib_arm_v1.14/src/u8g_ellipse.c" type="1"/>
-    <File name="usb_conf/usb_bsp.c" path="usb_conf/usb_bsp.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb16v1.c" path="u8glib_arm_v1.14/src/u8g_pb16v1.c" type="1"/>
-    <File name="IOBoard.cpp" path="IOBoard.cpp" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1327_96x96_gr.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1327_96x96_gr.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_atmega_st7920_spi.c" path="u8glib_arm_v1.14/src/u8g_com_atmega_st7920_spi.c" type="1"/>
-    <File name="cmsis_lib/source/stm32f4xx_adc.c" path="cmsis_lib/source/stm32f4xx_adc.c" type="1"/>
-    <File name="cmsis_lib/include/stm32f4xx_tim.h" path="cmsis_lib/include/stm32f4xx_tim.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_atmega_hw_spi.c" path="u8glib_arm_v1.14/src/u8g_com_atmega_hw_spi.c" type="1"/>
-    <File name="cmsis_boot/system_stm32f4xx.h" path="cmsis_boot/system_stm32f4xx.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_circle.c" path="u8glib_arm_v1.14/src/u8g_circle.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1309_128x64.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1309_128x64.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1322_nhd31oled_gr.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1322_nhd31oled_gr.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_delay.c" path="u8glib_arm_v1.14/src/u8g_delay.c" type="1"/>
-    <File name="IOBoard.h" path="IOBoard.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_parallel.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_parallel.c" type="1"/>
-    <File name="usb_conf" path="" type="2"/>
-    <File name="u8glib_arm_v1.14/src/u8g_line.c" path="u8glib_arm_v1.14/src/u8g_line.c" type="1"/>
-    <File name="usb_lib/core/usbd_ioreq.c" path="usb_lib/core/usbd_ioreq.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1306_128x64.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1306_128x64.c" type="1"/>
-    <File name="usb_lib/cdc/usbd_cdc_core.c" path="usb_lib/cdc/usbd_cdc_core.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_atmega_st7920_hw_spi.c" path="u8glib_arm_v1.14/src/u8g_com_atmega_st7920_hw_spi.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_common.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_common.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_st7920_hw_spi.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_st7920_hw_spi.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_lc7981_240x64.c" path="u8glib_arm_v1.14/src/u8g_dev_lc7981_240x64.c" type="1"/>
-    <File name="cmsis_lib/source/stm32f4xx_exti.c" path="cmsis_lib/source/stm32f4xx_exti.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7687_c144mvgd.c" path="u8glib_arm_v1.14/src/u8g_dev_st7687_c144mvgd.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_font_data.c" path="u8glib_arm_v1.14/src/u8g_font_data.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb.c" path="u8glib_arm_v1.14/src/u8g_pb.c" type="1"/>
-    <File name="cmsis_lib/include/stm32f4xx_gpio.h" path="cmsis_lib/include/stm32f4xx_gpio.h" type="1"/>
-    <File name="usb_lib/core/usbd_ioreq.h" path="usb_lib/core/usbd_ioreq.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_port_d_wr.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_port_d_wr.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_pcf8812_96x65.c" path="u8glib_arm_v1.14/src/u8g_dev_pcf8812_96x65.c" type="1"/>
-    <File name="usb_lib/cdc/usbd_cdc_core.h" path="usb_lib/cdc/usbd_cdc_core.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb16v2.c" path="u8glib_arm_v1.14/src/u8g_pb16v2.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_atmega_parallel.c" path="u8glib_arm_v1.14/src/u8g_com_atmega_parallel.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb8v2.c" path="u8glib_arm_v1.14/src/u8g_pb8v2.c" type="1"/>
-    <File name="usb_lib/core/usbd_req.c" path="usb_lib/core/usbd_req.c" type="1"/>
-    <File name="usb_lib/cdc/usbd_cdc_vcp.c" path="usb_lib/cdc/usbd_cdc_vcp.c" type="1"/>
-    <File name="usb_lib/otg/usb_dcd_int.c" path="usb_lib/otg/usb_dcd_int.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g.h" path="u8glib_arm_v1.14/src/u8g.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1351_128x128.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1351_128x128.c" type="1"/>
-    <File name="cmsis_boot/stm32f4xx.h" path="cmsis_boot/stm32f4xx.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1306_128x32.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1306_128x32.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ks0108_128x64.c" path="u8glib_arm_v1.14/src/u8g_dev_ks0108_128x64.c" type="1"/>
-    <File name="cmsis_lib/source/stm32f4xx_spi.c" path="cmsis_lib/source/stm32f4xx_spi.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_state.c" path="u8glib_arm_v1.14/src/u8g_state.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7920_202x32.c" path="u8glib_arm_v1.14/src/u8g_dev_st7920_202x32.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_sbn1661_122x32.c" path="u8glib_arm_v1.14/src/u8g_dev_sbn1661_122x32.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1325_nhd27oled_gr_new.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1325_nhd27oled_gr_new.c" type="1"/>
-    <File name="usb_lib/otg" path="" type="2"/>
-    <File name="usb_lib" path="" type="2"/>
-    <File name="STM32F4-Discovery/stm32f4_discovery_lis302dl.h" path="STM32F4-Discovery/stm32f4_discovery_lis302dl.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7565_lm6063.c" path="u8glib_arm_v1.14/src/u8g_dev_st7565_lm6063.c" type="1"/>
-    <File name="cmsis_lib/source/stm32f4xx_dac.c" path="cmsis_lib/source/stm32f4xx_dac.c" type="1"/>
-    <File name="cmsis_lib/include/stm32f4xx_rcc.h" path="cmsis_lib/include/stm32f4xx_rcc.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1325_nhd27oled_bw_new.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1325_nhd27oled_bw_new.c" type="1"/>
-    <File name="usb_lib/otg/usb_dcd_int.h" path="usb_lib/otg/usb_dcd_int.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_lc7981_240x128.c" path="u8glib_arm_v1.14/src/u8g_dev_lc7981_240x128.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_bitmap.c" path="u8glib_arm_v1.14/src/u8g_bitmap.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_atmega_sw_spi.c" path="u8glib_arm_v1.14/src/u8g_com_atmega_sw_spi.c" type="1"/>
-    <File name="cmsis_boot/startup/startup_stm32f4xx.c" path="cmsis_boot/startup/startup_stm32f4xx.c" type="1"/>
-    <File name="STM32F4-Discovery/stm32f4_discovery_lis302dl.c" path="STM32F4-Discovery/stm32f4_discovery_lis302dl.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_scale.c" path="u8glib_arm_v1.14/src/u8g_scale.c" type="1"/>
-    <File name="usb_conf/usb_conf.h" path="usb_conf/usb_conf.h" type="1"/>
-    <File name="usb_lib/otg/usb_core.c" path="usb_lib/otg/usb_core.c" type="1"/>
-    <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
-    <File name="usb_lib/otg/usb_dcd.h" path="usb_lib/otg/usb_dcd.h" type="1"/>
-    <File name="usb_conf/usb_bsp.h" path="usb_conf/usb_bsp.h" type="1"/>
-    <File name="cmsis_lib/include/stm32f4xx_adc.h" path="cmsis_lib/include/stm32f4xx_adc.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_uc1701_mini12864.c" path="u8glib_arm_v1.14/src/u8g_dev_uc1701_mini12864.c" type="1"/>
-    <File name="cmsis_boot/system_stm32f4xx.c" path="cmsis_boot/system_stm32f4xx.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb8h1f.c" path="u8glib_arm_v1.14/src/u8g_pb8h1f.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_ll_api.c" path="u8glib_arm_v1.14/src/u8g_ll_api.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb8h1.c" path="u8glib_arm_v1.14/src/u8g_pb8h1.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src" path="" type="2"/>
-    <File name="cmsis" path="" type="2"/>
-    <File name="usb_lib/core/usbd_req.h" path="usb_lib/core/usbd_req.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7565_lm6059.c" path="u8glib_arm_v1.14/src/u8g_dev_st7565_lm6059.c" type="1"/>
-    <File name="main.cpp" path="main.cpp" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_api_16gr.c" path="u8glib_arm_v1.14/src/u8g_com_api_16gr.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_null.c" path="u8glib_arm_v1.14/src/u8g_dev_null.c" type="1"/>
-    <File name="usb_lib/otg/usb_core.h" path="usb_lib/otg/usb_core.h" type="1"/>
-    <File name="usb_lib/otg/usb_dcd.c" path="usb_lib/otg/usb_dcd.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7565_nhd_c12864.c" path="u8glib_arm_v1.14/src/u8g_dev_st7565_nhd_c12864.c" type="1"/>
-    <File name="STM32F4-Discovery" path="" type="2"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb14v1.c" path="u8glib_arm_v1.14/src/u8g_pb14v1.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_font.c" path="u8glib_arm_v1.14/src/u8g_font.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb8v1.c" path="u8glib_arm_v1.14/src/u8g_pb8v1.c" type="1"/>
     <File name="usb_lib/otg/usb_regs.h" path="usb_lib/otg/usb_regs.h" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_i2c.h" path="cmsis_lib/include/stm32f4xx_i2c.h" type="1"/>
     <File name="tm_stm32f4_fonts.h" path="tm_stm32f4_fonts.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_cursor.c" path="u8glib_arm_v1.14/src/u8g_cursor.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7565_nhd_c12832.c" path="u8glib_arm_v1.14/src/u8g_dev_st7565_nhd_c12832.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7920_128x64.c" path="u8glib_arm_v1.14/src/u8g_dev_st7920_128x64.c" type="1"/>
-    <File name="u8glib_arm_v1.14/INSTALL" path="u8glib_arm_v1.14/INSTALL" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_dma.c" path="cmsis_lib/source/stm32f4xx_dma.c" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_usart.c" path="cmsis_lib/source/stm32f4xx_usart.c" type="1"/>
     <File name="usb_lib/cdc" path="" type="2"/>
     <File name="usb_lib/otg/usb_defines.h" path="usb_lib/otg/usb_defines.h" type="1"/>
+    <File name="usb_lib/core/usbd_req.c" path="usb_lib/core/usbd_req.c" type="1"/>
+    <File name="cmsis_boot" path="" type="2"/>
+    <File name="cmsis_lib/include/stm32f4xx_dac.h" path="cmsis_lib/include/stm32f4xx_dac.h" type="1"/>
+    <File name="usb_lib/cdc/usbd_cdc_vcp.c" path="usb_lib/cdc/usbd_cdc_vcp.c" type="1"/>
     <File name="STM32F4-Discovery/pdm_filter.h" path="STM32F4-Discovery/pdm_filter.h" type="1"/>
     <File name="cmsis_lib/include/stm32f4xx_syscfg.h" path="cmsis_lib/include/stm32f4xx_syscfg.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_t6963.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_t6963.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_sw_spi.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_sw_spi.c" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_usart.h" path="cmsis_lib/include/stm32f4xx_usart.h" type="1"/>
+    <File name="usb_lib/otg/usb_dcd_int.c" path="usb_lib/otg/usb_dcd_int.c" type="1"/>
     <File name="STM32F4-Discovery/stm32f4_discovery.h" path="STM32F4-Discovery/stm32f4_discovery.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_a2_micro_printer.c" path="u8glib_arm_v1.14/src/u8g_dev_a2_micro_printer.c" type="1"/>
+    <File name="usb_conf/usb_bsp.c" path="usb_conf/usb_bsp.c" type="1"/>
     <File name="cmsis_boot/startup" path="" type="2"/>
-    <File name="u8glib_arm_v1.14/src/u8g_pb16h1.c" path="u8glib_arm_v1.14/src/u8g_pb16h1.c" type="1"/>
+    <File name="cmsis/core_cm4_simd.h" path="cmsis/core_cm4_simd.h" type="1"/>
+    <File name="cmsis_boot/stm32f4xx.h" path="cmsis_boot/stm32f4xx.h" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_spi.c" path="cmsis_lib/source/stm32f4xx_spi.c" type="1"/>
     <File name="usb_conf/usbd_conf.h" path="usb_conf/usbd_conf.h" type="1"/>
+    <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
+    <File name="IOBoard.cpp" path="IOBoard.cpp" type="1"/>
     <File name="cmsis/core_cm4.h" path="cmsis/core_cm4.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_flipdisc_2x7.c" path="u8glib_arm_v1.14/src/u8g_dev_flipdisc_2x7.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7565_dogm128.c" path="u8glib_arm_v1.14/src/u8g_dev_st7565_dogm128.c" type="1"/>
+    <File name="main.h" path="main.h" type="1"/>
     <File name="cmsis_lib/source/misc.c" path="cmsis_lib/source/misc.c" type="1"/>
+    <File name="usb_lib/core/usbd_def.h" path="usb_lib/core/usbd_def.h" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_tim.h" path="cmsis_lib/include/stm32f4xx_tim.h" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_adc.c" path="cmsis_lib/source/stm32f4xx_adc.c" type="1"/>
+    <File name="usb_lib/otg" path="" type="2"/>
     <File name="cmsis_lib/source/stm32f4xx_i2c.c" path="cmsis_lib/source/stm32f4xx_i2c.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_attiny85_hw_spi.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_attiny85_hw_spi.c" type="1"/>
+    <File name="usb_lib" path="" type="2"/>
     <File name="cmsis_lib/source" path="" type="2"/>
     <File name="usb_conf/usbd_usr.c" path="usb_conf/usbd_usr.c" type="1"/>
     <File name="tm_stm32f4_fonts.c" path="tm_stm32f4_fonts.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_hw_spi.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_hw_spi.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7920_192x32.c" path="u8glib_arm_v1.14/src/u8g_dev_st7920_192x32.c" type="1"/>
+    <File name="STM32F4-Discovery/stm32f4_discovery_lis302dl.h" path="STM32F4-Discovery/stm32f4_discovery_lis302dl.h" type="1"/>
     <File name="cmsis_boot/stm32f4xx_conf.h" path="cmsis_boot/stm32f4xx_conf.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_u16toa.c" path="u8glib_arm_v1.14/src/u8g_u16toa.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/chessengine.c" path="u8glib_arm_v1.14/src/chessengine.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_t6963_240x64.c" path="u8glib_arm_v1.14/src/u8g_dev_t6963_240x64.c" type="1"/>
+    <File name="cmsis_boot/system_stm32f4xx.h" path="cmsis_boot/system_stm32f4xx.h" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_dac.c" path="cmsis_lib/source/stm32f4xx_dac.c" type="1"/>
+    <File name="stdio/printf.c" path="stdio/printf.c" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_rcc.h" path="cmsis_lib/include/stm32f4xx_rcc.h" type="1"/>
+    <File name="usb_lib/otg/usb_dcd_int.h" path="usb_lib/otg/usb_dcd_int.h" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_syscfg.c" path="cmsis_lib/source/stm32f4xx_syscfg.c" type="1"/>
     <File name="usb_lib/core/usbd_core.h" path="usb_lib/core/usbd_core.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ssd1325_nhd27oled_gr.c" path="u8glib_arm_v1.14/src/u8g_dev_ssd1325_nhd27oled_gr.c" type="1"/>
+    <File name="IOBoard.h" path="IOBoard.h" type="1"/>
     <File name="usb_lib/core/usbd_core.c" path="usb_lib/core/usbd_core.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_clip.c" path="u8glib_arm_v1.14/src/u8g_clip.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_com_arduino_st7920_custom.c" path="u8glib_arm_v1.14/src/u8g_com_arduino_st7920_custom.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ht1632.c" path="u8glib_arm_v1.14/src/u8g_dev_ht1632.c" type="1"/>
+    <File name="cmsis_boot/startup/startup_stm32f4xx.c" path="cmsis_boot/startup/startup_stm32f4xx.c" type="1"/>
+    <File name="STM32F4-Discovery/stm32f4_discovery_lis302dl.c" path="STM32F4-Discovery/stm32f4_discovery_lis302dl.c" type="1"/>
+    <File name="usb_lib/core" path="" type="2"/>
+    <File name="stdio" path="" type="2"/>
+    <File name="usb_conf/usb_conf.h" path="usb_conf/usb_conf.h" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_rcc.c" path="cmsis_lib/source/stm32f4xx_rcc.c" type="1"/>
+    <File name="usb_conf" path="" type="2"/>
+    <File name="usb_lib/otg/usb_core.c" path="usb_lib/otg/usb_core.c" type="1"/>
+    <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
+    <File name="usb_lib/otg/usb_dcd.h" path="usb_lib/otg/usb_dcd.h" type="1"/>
+    <File name="usb_lib/core/usbd_ioreq.c" path="usb_lib/core/usbd_ioreq.c" type="1"/>
+    <File name="STM32F4-Discovery/stm32f4_discovery_audio_codec.c" path="STM32F4-Discovery/stm32f4_discovery_audio_codec.c" type="1"/>
+    <File name="usb_lib/cdc/usbd_cdc_core.c" path="usb_lib/cdc/usbd_cdc_core.c" type="1"/>
+    <File name="usb_conf/usbd_desc.h" path="usb_conf/usbd_desc.h" type="1"/>
+    <File name="stm32f4_discovery_callbacks.c" path="stm32f4_discovery_callbacks.c" type="1"/>
     <File name="tm_stm32f4_ssd1306.h" path="tm_stm32f4_ssd1306.h" type="1"/>
+    <File name="usb_conf/usb_bsp.h" path="usb_conf/usb_bsp.h" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_adc.h" path="cmsis_lib/include/stm32f4xx_adc.h" type="1"/>
     <File name="cmsis_lib/include/stm32f4xx_exti.h" path="cmsis_lib/include/stm32f4xx_exti.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_tls8204_84x48.c" path="u8glib_arm_v1.14/src/u8g_dev_tls8204_84x48.c" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_exti.c" path="cmsis_lib/source/stm32f4xx_exti.c" type="1"/>
+    <File name="cmsis_boot/system_stm32f4xx.c" path="cmsis_boot/system_stm32f4xx.c" type="1"/>
     <File name="STM32F4-Discovery/libPDMFilter_GCC.a" path="STM32F4-Discovery/libPDMFilter_GCC.a" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_pcd8544_84x48.c" path="u8glib_arm_v1.14/src/u8g_dev_pcd8544_84x48.c" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_rng.c" path="cmsis_lib/source/stm32f4xx_rng.c" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_spi.h" path="cmsis_lib/include/stm32f4xx_spi.h" type="1"/>
     <File name="usb_lib/core/usbd_usr.h" path="usb_lib/core/usbd_usr.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_uc1610_dogxl160.c" path="u8glib_arm_v1.14/src/u8g_dev_uc1610_dogxl160.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_page.c" path="u8glib_arm_v1.14/src/u8g_page.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_st7565_dogm132.c" path="u8glib_arm_v1.14/src/u8g_dev_st7565_dogm132.c" type="1"/>
+    <File name="cmsis" path="" type="2"/>
+    <File name="STM32F4-Discovery/stm32f4_discovery_audio_codec.h" path="STM32F4-Discovery/stm32f4_discovery_audio_codec.h" type="1"/>
+    <File name="cmsis_lib" path="" type="2"/>
+    <File name="usb_lib/core/usbd_req.h" path="usb_lib/core/usbd_req.h" type="1"/>
     <File name="tm_stm32f4_ssd1306.c" path="tm_stm32f4_ssd1306.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_gprof.c" path="u8glib_arm_v1.14/src/u8g_dev_gprof.c" type="1"/>
     <File name="cmsis_lib/include/stm32f4xx_dma.h" path="cmsis_lib/include/stm32f4xx_dma.h" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_dev_ili9325d_320x240.c" path="u8glib_arm_v1.14/src/u8g_dev_ili9325d_320x240.c" type="1"/>
-    <File name="u8glib_arm_v1.14/ChangeLog" path="u8glib_arm_v1.14/ChangeLog" type="1"/>
+    <File name="main.cpp" path="main.cpp" type="1"/>
     <File name="cmsis_lib/source/stm32f4xx_tim.c" path="cmsis_lib/source/stm32f4xx_tim.c" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_gpio.h" path="cmsis_lib/include/stm32f4xx_gpio.h" type="1"/>
+    <File name="usb_lib/otg/usb_core.h" path="usb_lib/otg/usb_core.h" type="1"/>
+    <File name="usb_lib/otg/usb_dcd.c" path="usb_lib/otg/usb_dcd.c" type="1"/>
+    <File name="usb_lib/core/usbd_ioreq.h" path="usb_lib/core/usbd_ioreq.h" type="1"/>
+    <File name="STM32F4-Discovery" path="" type="2"/>
+    <File name="cmsis_lib/include/misc.h" path="cmsis_lib/include/misc.h" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_rng.h" path="cmsis_lib/include/stm32f4xx_rng.h" type="1"/>
     <File name="cmsis_lib/include" path="" type="2"/>
-    <File name="u8glib_arm_v1.14/src/u8g_virtual_screen.c" path="u8glib_arm_v1.14/src/u8g_virtual_screen.c" type="1"/>
-    <File name="u8glib_arm_v1.14/src/u8g_rect.c" path="u8glib_arm_v1.14/src/u8g_rect.c" type="1"/>
+    <File name="usb_conf/usbd_desc.c" path="usb_conf/usbd_desc.c" type="1"/>
+    <File name="usb_lib/cdc/usbd_cdc_core.h" path="usb_lib/cdc/usbd_cdc_core.h" type="1"/>
     <File name="STM32F4-Discovery/stm32f4_discovery.c" path="STM32F4-Discovery/stm32f4_discovery.c" type="1"/>
     <File name="usb_lib/cdc/usbd_cdc_vcp.h" path="usb_lib/cdc/usbd_cdc_vcp.h" type="1"/>
   </Files>

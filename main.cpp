@@ -116,26 +116,45 @@ int main(void)
 
 	init_SPI1();
 	TM_SSD1306_Init();
+
+	RNG_DeInit();
+	uint32_t randomn=0;
+	uint8_t randX=0;
+	uint8_t randY=0;
+	RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_RNG, ENABLE);
+	RNG_Cmd(ENABLE);
+
+	while(RNG_GetFlagStatus(RNG_FLAG_DRDY)== RESET) { }
+
+	//Serial_PutChar(necesnumber);
+
+
 	bool test;
 	test = false;
 	while(1){
 
 		//panel1.refresh(millis);
 		//panel1.demoModeLoop();
-		if (millis>3000 && !test){
+		if (millis>300 && !test){
 			STM_EVAL_LEDOn(LED4);
 			test = true;
-			TM_SSD1306_DrawPixel(13,14, SSD1306_COLOR_WHITE);
-			TM_SSD1306_DrawPixel(14,14, SSD1306_COLOR_WHITE);
-			TM_SSD1306_DrawPixel(15,14, SSD1306_COLOR_WHITE);
-			TM_SSD1306_DrawPixel(16,14, SSD1306_COLOR_WHITE);
-			TM_SSD1306_DrawPixel(17,14, SSD1306_COLOR_WHITE);
+
+
 			TM_SSD1306_GotoXY(1,20);
 			TM_SSD1306_Putc('L',&TM_Font_7x10,SSD1306_COLOR_WHITE);
 			TM_SSD1306_Putc('O',&TM_Font_7x10,SSD1306_COLOR_WHITE);
 			TM_SSD1306_Putc('D',&TM_Font_7x10,SSD1306_COLOR_WHITE);
 			TM_SSD1306_Putc('E',&TM_Font_7x10,SSD1306_COLOR_WHITE);
 			//TM_SSD1306_DrawPixel(23,14, SSD1306_COLOR_BLACK);
+			TM_SSD1306_UpdateScreen();
+		}
+		if (millis > 300){
+
+			randomn=RNG_GetRandomNumber();
+			randX=(randomn%129); //random between 128 and 0
+			randomn=RNG_GetRandomNumber();
+			randY=(randomn%64);
+			TM_SSD1306_DrawPixel(randX,randY, SSD1306_COLOR_WHITE);
 			TM_SSD1306_UpdateScreen();
 		}
 
